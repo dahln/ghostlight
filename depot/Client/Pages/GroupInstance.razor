@@ -1,0 +1,179 @@
+﻿@attribute [Authorize]
+@page "/Group/{GroupId}/instance/{DataTypeId}"
+@page "/Group/{GroupId}/instance/{DataTypeId}/{InstanceId}"
+
+@using Microsoft.AspNetCore.Authorization
+@using depot.Shared.RequestModels
+@using depot.Shared.ResponseModels
+@using depot.Shared.Enumerations
+
+@inject NavigationManager _navigationManger
+@inject API API
+@inject IToastService _toastService
+
+@if (Type != null)
+{
+    <h5>
+        <NavLink href="@($"Group/{GroupId}/type/{Type.Id}")">
+            &#171; Back to Portal
+        </NavLink>
+    </h5>
+}
+
+@if (Type != null)
+{
+    <form @onsubmit="SaveInstance">
+
+        <div class="row mt-3">
+            <div class="col-md-8">
+                <h3>@Type.Name</h3>
+            </div>
+        </div>
+
+        @for (int row = 1; row <= Type.Fields.Select(f => f.Row).Max(); row++)
+        {
+            <div class="row">
+                @for (int col = 1; col <= 12; col++)
+                {
+                    foreach (var field in Type.Fields.Where(f => f.Row == row && f.Column == col))
+                    {
+                        @if (field.Type == FieldType.Text)
+                        {
+                            <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
+                                <label for="@field.Id">@field.Name</label>
+                                <input id="@field.Id" type="text" class="form-control" required="@(field.Optional == false ? "required" : string.Empty)" @bind="InstanceData[field.Id]" />
+                            </div>
+                        }
+                        else if (field.Type == FieldType.TextArea)
+                        {
+                            <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
+                                <label for="@field.Id">@field.Name</label>
+                                <textarea id="@field.Id" class="form-control" required="@(field.Optional == false ? "required" : string.Empty)" @bind="InstanceData[field.Id]"></textarea>
+                            </div>
+                        }
+                        else if (field.Type == FieldType.Number)
+                        {
+                            <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
+                                <label for="@field.Id">@field.Name</label>
+                                <input id="@field.Id" type="number" class="form-control" required="@(field.Optional == false ? "required" : string.Empty)" @bind="InstanceData[field.Id]" />
+                            </div>
+                        }
+                        else if (field.Type == FieldType.Date)
+                        {
+                            <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
+                                <label for="@field.Id">@field.Name</label>
+                                <div id="@field.Id">
+                                    <DateAsString @bind-Value="InstanceData[field.Id]"></DateAsString>
+                                </div>
+                            </div>
+                        }
+                        else if (field.Type == FieldType.Time)
+                        {
+                            <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
+                                <label for="@field.Id">@field.Name</label>
+                                <div id="@field.Id">
+                                    <TimeAsString Id="@field.Id" @bind-Value="InstanceData[field.Id]"></TimeAsString>
+                                </div>
+                            </div>
+                        }
+                        else if (field.Type == FieldType.Enum)
+                        {
+                            <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
+                                <label for="@field.Id">@field.Name</label>
+                                <select class="form-control" required="@(field.Optional == false ? "required" : string.Empty)" @bind="InstanceData[field.Id]">
+                                    <option value=""></option>
+                                    @foreach (var option in field.Options.Split(','))
+                                    {
+                                        <option value="@option">@option</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+
+                    }
+                }
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-12 instance-buttons pt-3">
+                <button class="btn btn-success float-right mb-2 ml-2" type="submit"><i class="far fa-save mr-2"></i>Save @Type.Name</button>
+                @if (InstanceId != null)
+                {
+                    <button class="btn btn-warning float-right" type="button" @onclick="DeleteInstance"><i class="fas fa-trash-alt mr-2"></i>Delete</button>
+                }
+            </div>
+        </div>
+    </form>
+}
+
+
+@code {
+    [Parameter]
+    public string GroupId { get; set; }
+
+    [Parameter]
+    public string DataTypeId { get; set; }
+
+    [Parameter]
+    public string InstanceId { get; set; }
+
+
+
+    //Loaded from API
+    public ResponseGroup Group { get; set; } = new ResponseGroup();
+    public ResponseInstanceType Type { get; set; }
+
+    public Dictionary<string, string> InstanceData { get; set; } = new Dictionary<string, string>();
+
+    async protected override Task OnInitializedAsync()
+    {
+        Console.WriteLine($"InstanceId: {InstanceId}");
+
+        await GetGroup();
+        await GetDataTypes();
+        await GetSelectedInstance();
+    }
+
+    async private Task GetGroup()
+    {
+        Group = await API.GroupGetById(GroupId);
+    }
+
+    async private Task GetDataTypes()
+    {
+        Type = await API.GetGroupTypeById(GroupId, DataTypeId);
+
+        foreach (var t in Type.Fields)
+        {
+            InstanceData.Add(t.Id, string.Empty);
+        }
+    }
+
+    async private Task GetSelectedInstance()
+    {
+        if (InstanceId != null)
+        {
+            var result = await API.GetGroupInstance(GroupId, DataTypeId, InstanceId);
+            InstanceData = result.InstanceData;
+        }
+    }
+
+    async private Task SaveInstance()
+    {
+        if (InstanceId == null)
+            await API.CreateGroupInstance(GroupId, DataTypeId, InstanceData);
+        else if (InstanceId != null)
+            await API.UpdateGroupInstance(GroupId, DataTypeId, InstanceId, InstanceData);
+
+        await GetSelectedInstance();
+
+        _toastService.ShowSuccess("Saved");
+    }
+
+    async private Task DeleteInstance()
+    {
+        await API.DeleteGroupInstance(GroupId, DataTypeId, InstanceId);
+
+        _navigationManger.NavigateTo($"Group/{GroupId}/type/{DataTypeId}");
+    }
+}

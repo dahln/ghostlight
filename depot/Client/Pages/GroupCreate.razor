@@ -1,0 +1,30 @@
+﻿@attribute [Authorize]
+@page "/Group/create"
+
+@using Microsoft.AspNetCore.Authorization
+@using depot.Shared.RequestModels
+
+@inject API API
+
+<h3>Creating a Group? Lets take care of that.</h3>
+<p>Create a Group name. All customers must be part of a Group. This Group name can be changed at any time.</p>
+<div class="mt-1">
+    <input type="text" placeholder="Group Name" class="form-control" @bind="GroupName" />
+</div>
+<div class="mt-1">
+    <input type="button" class="btn btn-info" value="Create Group" @onclick="CreateGroup" />
+</div>
+
+@code {
+
+    public string GroupName { get; set; }
+
+    public async Task CreateGroup()
+    {
+        var content = new GroupCreateEditRequestModel() { Name = GroupName };
+
+        await API.GroupCreate(content);
+
+
+    }
+}

@@ -16,6 +16,8 @@ namespace depot.Client
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            builder.Services.AddScoped<API>();
+            builder.Services.AddScoped<AppState>();
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddHttpClient("depot.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))

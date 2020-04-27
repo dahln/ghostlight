@@ -1,0 +1,149 @@
+﻿<div class="input-group mb-3">
+    <select class="custom-select" @bind="Hour">
+        <option selected></option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+    </select>
+    <div class="input-group-append">
+        <span class="input-group-text">:</span>
+    </div>
+    <select class="custom-select" @bind="Minute">
+        <option selected></option>
+        <option value="0">00</option>
+        <option value="15">15</option>
+        <option value="30">30</option>
+        <option value="45">45</option>
+    </select>
+    <select class="custom-select" @bind="AmPm">
+        <option selected></option>
+        <option value="am">am</option>
+        <option value="pm">pm</option>
+    </select>
+</div>
+
+@code {
+
+    private DateTime? ParsedDateTime { get; set; }
+
+    private string _hour;
+    private string Hour
+    {
+        get
+        {
+            return _hour;
+        }
+        set
+        {
+            _hour = value;
+            ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    private string _minute;
+    private string Minute
+    {
+        get
+        {
+            return _minute;
+        }
+        set
+        {
+            _minute = value;
+            ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    private string _ampm;
+    private string AmPm
+    {
+        get
+        {
+            return _ampm;
+        }
+        set
+        {
+            _ampm = value;
+            ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    [Parameter]
+    public string Value
+    {
+        get
+        {
+            return ParseValuesToDateString();
+        }
+        set
+        {
+            var timeString = ParseValuesToDateString();
+
+            Dictionary<string, string> parsed = new Dictionary<string, string>();
+            if(string.IsNullOrEmpty(value) == false)
+            {
+                parsed = SplitTime(value);
+            }
+            else if(string.IsNullOrEmpty(timeString) == false)
+            {
+                parsed = SplitTime(timeString);
+            }
+
+            if (parsed.Count() >= 3
+                && string.IsNullOrEmpty(Hour)
+                && string.IsNullOrEmpty(Minute)
+                && string.IsNullOrEmpty(AmPm))
+            {
+                Hour = parsed["Hour"];
+                Minute = parsed["Minute"];
+                AmPm = parsed["AmPm"];
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Id { get; set; }
+
+    private string ParseValuesToDateString()
+    {
+        if (string.IsNullOrEmpty(Hour) == false
+            && string.IsNullOrEmpty(Minute) == false
+            && string.IsNullOrEmpty(AmPm) == false)
+        {
+            return $"{Hour}:{Minute} {AmPm}";
+        }
+        else
+        {
+            return default(string);
+        }
+    }
+    private Dictionary<string, string> SplitTime(string time)
+    {
+        Dictionary<string, string> response = new Dictionary<string, string>();
+        if (string.IsNullOrEmpty(time))
+            return response;
+
+        var split = time.Split(':', ' ');
+
+        if (split.Count() >= 1)
+            response.Add("Hour", split[0]);
+        if (split.Count() >= 2)
+            response.Add("Minute", split[1]);
+        if (split.Count() >= 3)
+            response.Add("AmPm", split[2]);
+
+        return response;
+    }
+}

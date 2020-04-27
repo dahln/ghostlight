@@ -1,0 +1,138 @@
+﻿@attribute [Authorize]
+@page "/Group/{GroupId}/settings"
+
+@using Microsoft.AspNetCore.Authorization
+@using depot.Shared.RequestModels
+@using depot.Shared.ResponseModels
+
+@inject API API
+@inject NavigationManager _navigationManager
+
+@if (Group != null)
+{
+    <h5 class="mb-2 text-muted">
+        <NavLink href="@($"Group/{GroupId}")">
+            &#171; Back to Portal
+        </NavLink>
+    </h5>
+
+    <h3 class="mb-2 text-muted mt-3">Group Name</h3>
+    <div class="col-md-6">
+        <div class="row">
+            <div class="input-group input-group-lg">
+                <input type="text" class="form-control" @bind="Group.Name" placeholder="Group Name" aria-label="Group Name" aria-describedby="button-addon2" />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-dark" type="button" id="button-addon2" @onclick="UpdateGroupName">Change Group Name</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mb-2 text-muted mt-5">Manage Authorized Users/Owners</h3>
+    <p>
+        Add or remove users who should have access to this Group data. Add the email address of the user - be sure to spell it correctly.
+    </p>
+    <div class="col-md-6">
+        <div class="row">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" @bind="NewAuthorizedUserEmail" placeholder="User's Email Address" aria-label="User's Email Address" aria-describedby="button-addon2" />
+                <div class="input-group-append">
+                    <button class="btn btn-success" type="button" id="button-addon2" @onclick="AddAuthorizedUser">Add User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Email Address</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Group.AuthorizedUsers)
+            {
+                <tr>
+                    <th scope="row">@user.ApplicationUserEmail</th>
+                    <td>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="@($"authorized_{@user.ApplicationUserEmail}")" checked="@(user.IsGroupAdmin ? "checked" : null )" @onchange="(() => ToggleAuthorizedRole(user))" />
+                            <label class="custom-control-label" for="@($"authorized_{@user.ApplicationUserEmail}")">Administrator</label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn btn-danger" @onclick="(() => RemoveAuthorizedUser(user))"><i class="fas fa-trash-alt"></i></div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3 class="mb-2 text-muted mt-5">Delete Group</h3>
+    <p>
+        Click the button below to delete your Group. This will delete all Group data, customers, owners and authorized users. This action cannot be undone! Your account will remain active, but your Group will be deleted.
+    </p>
+    <div class="mt-1">
+        <input type="button" class="btn btn-danger" value="Delete Group" @onclick="DeleteGroup" />
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public string GroupId { get; set; }
+
+    public ResponseGroup Group { get; set; }
+
+    public string NewAuthorizedUserEmail { get; set; }
+
+    async protected override Task OnInitializedAsync()
+    {
+        Group = await API.GroupGetById(GroupId);
+    }
+
+    public async Task AddAuthorizedUser()
+    {
+        GroupAddAuthorizedEmailModel model = new GroupAddAuthorizedEmailModel()
+        {
+            Email = NewAuthorizedUserEmail
+        };
+        await API.UpdateGroupSetUserAuthorized(Group.Id, model);
+
+        Group = await API.GroupGetById(GroupId);
+    }
+
+    public async Task RemoveAuthorizedUser(ResponseGroupAuthorizedUser user)
+    {
+        await API.UpdateGroupRemoveUserAuthorized(GroupId, user.ApplicationUserId);
+        Group = await API.GroupGetById(GroupId);
+    }
+
+    public async Task ToggleAuthorizedRole(ResponseGroupAuthorizedUser user)
+    {
+        GroupToggleAuthorizedModel model = new GroupToggleAuthorizedModel()
+        {
+            Administrator = user.IsGroupAdmin ? false : true
+        };
+        await API.UpdateGroupToggleUserAdministrator(Group.Id, user.ApplicationUserId, model);
+    }
+
+    public async Task DeleteGroup()
+    {
+        await API.DeleteGroup(GroupId);
+        _navigationManager.NavigateTo("/portal");
+    }
+
+    public async Task UpdateGroupName()
+    {
+        GroupCreateEditRequestModel model = new GroupCreateEditRequestModel()
+        {
+            Name = Group.Name
+        };
+
+        await API.GroupEditName(Group.Id, model);
+    }
+}
+

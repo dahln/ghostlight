@@ -1,0 +1,42 @@
+﻿<input type="date" @bind-value="BindableDate" class="form-control" />
+
+@code {
+
+    private DateTime? _bindableDate;
+    private DateTime? BindableDate
+    {
+        get
+        {
+            return _bindableDate;
+        }
+        set
+        {
+            _bindableDate = value;
+            Value = BindableDate.Value.ToString("MMMM d, yyyy");
+            ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    [Parameter]
+    public string Value
+    {
+        get
+        {
+            return BindableDate.Value.ToString("MMMM d, yyyy");
+        }
+        set
+        {
+            if (BindableDate == null)
+            {
+                DateTime parsedDate;
+                if (DateTime.TryParse(value, out parsedDate))
+                {
+                    BindableDate = parsedDate;
+                }
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+}
