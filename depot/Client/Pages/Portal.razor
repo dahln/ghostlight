@@ -54,8 +54,6 @@
         var orgTypes = await API.GetGroupTypeAsMenuOptionList(Group.Id);
         var userOrgs = await API.GetGroupsByAuthorizedUser();
         List<GroupTypeNav> types = orgTypes.Select(o => new GroupTypeNav() { Text = o.Name, Data = o.Id }).ToList();
-        List<AllowedGroups> allowedOrgs = userOrgs.Select(o => new AllowedGroups() { Name = o.Name, Id = o.Id }).ToList();
-
-        _appState.SetGroupState(types, allowedOrgs, Group.Id, Group.Name);
+        List<AllowedGroup> allowedOrgs = userOrgs.Select(o => new AllowedGroup() { Name = o.Name, Id = o.Id }).ToList();
     }
 }

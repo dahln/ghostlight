@@ -8,29 +8,96 @@ namespace depot.Client
     //https://chrissainty.com/3-ways-to-communicate-between-components-in-blazor/
     public class AppState
     {
-        public GroupState GroupState { get; private set; } = new GroupState();
+        private string _currentGroupId;
+        public string CurrentGroupId
+        {
+            get
+            {
+                return _currentGroupId;
+            }
+            set
+            {
+                _currentGroupId = value;
+            }
+        }
+
+
+        private string _currentGroupName;
+        public string CurrentGroupName
+        {
+            get
+            {
+                return _currentGroupName;
+            }
+            set
+            {
+                _currentGroupName = value;
+            }
+        }
+
+
+        private List<GroupTypeNav> _dataTypes;
+        public List<GroupTypeNav> DataTypes
+        {
+            get
+            {
+                return _dataTypes;
+            }
+            set
+            {
+                _dataTypes = value;
+                NotifyStateChanged();
+            }
+        }
+
+
+        private List<AllowedGroup> _allowedGroups;
+        public List<AllowedGroup> AllowedGroups
+        {
+            get
+            {
+                return _allowedGroups;
+            }
+            set
+            {
+                _allowedGroups = value;
+                NotifyStateChanged();
+            }
+        }
 
         public event Action OnChange;
 
-        public void SetGroupState(List<GroupTypeNav> types, List<AllowedGroups> allowedGroups, string GroupId, string GroupName)
+        private API _api;
+        public AppState(API api)
         {
-            GroupState.GroupId = GroupId;
-            GroupState.GroupName = GroupName;
-            GroupState.GroupTypeNavs = types;
-            GroupState.AllowedGroups = allowedGroups;
-            
-            NotifyStateChanged();
+            _api = api;
+
+            DataTypes = new List<GroupTypeNav>();
+            AllowedGroups = new List<AllowedGroup>();
         }
 
-        private void NotifyStateChanged() => OnChange?.Invoke();
-    }
+        async public Task UpdateAppState()
+        {
+            var userOrganizations = await _api.GetGroupsByAuthorizedUser();
 
-    public class GroupState
-    {
-        public string GroupId { get; set; }
-        public string GroupName { get; set; }
-        public List<GroupTypeNav> GroupTypeNavs { get; set; } = new List<GroupTypeNav>();
-        public List<AllowedGroups> AllowedGroups { get; set; } = new List<AllowedGroups>();
+            if (userOrganizations != null)
+            {
+                AllowedGroups = userOrganizations.Select(o => new AllowedGroup() { Name = o.Name, Id = o.Id }).ToList();
+
+                var selectedOrganization = userOrganizations.FirstOrDefault();
+                CurrentGroupName = selectedOrganization.Name;
+                CurrentGroupId = selectedOrganization.Id;
+
+                if (selectedOrganization != null)
+                {
+                    var orgTypes = await _api.GetGroupTypeAsMenuOptionList(selectedOrganization.Id);
+                    DataTypes = orgTypes.Select(o => new GroupTypeNav() { Text = o.Name, Data = o.Id }).ToList();
+                }
+            }
+        }
+
+
+        private void NotifyStateChanged() => OnChange?.Invoke();
     }
 
     public class GroupTypeNav
@@ -39,7 +106,7 @@ namespace depot.Client
         public string Text { get; set; }
     }
 
-    public class AllowedGroups
+    public class AllowedGroup
     {
         public string Id { get; set; }
         public string Name { get; set; }

@@ -3,6 +3,7 @@
 
 @inject NavigationManager Navigation
 @inject SignOutSessionStateManager SignOutManager
+@inject AppState _appState
 
 <AuthorizeView>
     <Authorized>
@@ -14,6 +15,9 @@
 
             <div class="collapse navbar-collapse" id="navToggle">
                 <ul class="navbar-nav ml-md-auto">
+                    <li class="nav-item">
+                        <strong class="nav-link">@_appState.CurrentGroupName</strong>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Data
@@ -25,21 +29,29 @@
                             <NavLink class="dropdown-item" href="fetchdata">
                                 <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
                             </NavLink>
+                            <div class="dropdown-divider"></div>
+                            <NavLink class="dropdown-item" href="fetchdata">
+                                <span class="oi oi-list-rich" aria-hidden="true"></span> Data Manager
+                            </NavLink>
                         </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="authentication/profile">Group Settings</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Switch Group
+                            Group
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <NavLink class="dropdown-item" href="counter">
-                                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+                            @foreach (var group in _appState.AllowedGroups)
+                            {
+                                <NavLink class="dropdown-item">
+                                    <span class="oi oi-plus" aria-hidden="true"></span> @group.Name
+                                </NavLink>
+                            }
+                            <div class="dropdown-divider"></div>
+                            <NavLink class="dropdown-item" href="group/create">
+                                <span class="oi oi-list-rich" aria-hidden="true"></span> Current Group Settings
                             </NavLink>
-                            <NavLink class="dropdown-item" href="fetchdata">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+                            <NavLink class="dropdown-item" href="group/create">
+                                <span class="oi oi-list-rich" aria-hidden="true"></span> Create New Group
                             </NavLink>
                         </div>
                     </li>
@@ -74,7 +86,12 @@
     </NotAuthorized>
 </AuthorizeView>
 
-@code{
+@code{      
+    protected override void OnInitialized()
+    {
+        _appState.OnChange += StateHasChanged;
+    }
+
     private async Task BeginSignOut(MouseEventArgs args)
     {
         await SignOutManager.SetSignOutState();

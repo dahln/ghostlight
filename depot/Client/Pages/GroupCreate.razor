@@ -1,13 +1,15 @@
 ﻿@attribute [Authorize]
-@page "/Group/create"
+@page "/group/create"
 
 @using Microsoft.AspNetCore.Authorization
 @using depot.Shared.RequestModels
 
 @inject API API
+@inject AppState _appState
+@inject IToastService _toastService
 
 <h3>Creating a Group? Lets take care of that.</h3>
-<p>Create a Group name. All customers must be part of a Group. This Group name can be changed at any time.</p>
+<p>Create a group. All data must be part of a group. This group name can be changed at any time.</p>
 <div class="mt-1">
     <input type="text" placeholder="Group Name" class="form-control" @bind="GroupName" />
 </div>
@@ -24,7 +26,8 @@
         var content = new GroupCreateEditRequestModel() { Name = GroupName };
 
         await API.GroupCreate(content);
+        _toastService.ShowSuccess("Group Created");
 
-
+        await _appState.UpdateAppState();
     }
 }

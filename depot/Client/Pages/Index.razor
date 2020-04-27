@@ -1,7 +1,13 @@
 ﻿@page "/"
+@inject AppState _appState
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code { 
+    async protected override Task OnInitializedAsync()
+    {
+        await _appState.UpdateAppState();
+    }
+}
