@@ -1,3 +1,5 @@
+@inject AppState _appState
+
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(Program).Assembly">
         <Found Context="routeData">
@@ -21,3 +23,10 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code {
+    async protected override Task OnInitializedAsync()
+    {
+        await _appState.UpdateAppState();
+    }
+}

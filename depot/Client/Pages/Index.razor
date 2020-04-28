@@ -1,13 +1,22 @@
 ﻿@page "/"
 @inject AppState _appState
 
-<h1>Hello, world!</h1>
+@if (_appState.CurrentGroupName != null)
+{
+    <div class="row mt-5">
+        <h4 class="mx-auto">@_appState.CurrentGroupName</h4>
+    </div>
+}
 
-Welcome to your new app.
+@code {
 
-@code { 
+    [Parameter]
+    public string GroupId { get; set; }
+
     async protected override Task OnInitializedAsync()
     {
-        await _appState.UpdateAppState();
+        _appState.OnChange += StateHasChanged;
+
+        await _appState.UpdateAppState(GroupId);
     }
 }

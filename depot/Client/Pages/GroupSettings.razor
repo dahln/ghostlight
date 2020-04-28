@@ -7,6 +7,7 @@
 
 @inject API API
 @inject NavigationManager _navigationManager
+@inject AppState _appState
 
 @if (Group != null)
 {
@@ -127,6 +128,8 @@
         };
 
         await API.GroupEditName(Group.Id, model);
+
+        await _appState.UpdateAppState();
     }
 }
 
