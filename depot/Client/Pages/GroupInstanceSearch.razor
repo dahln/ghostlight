@@ -1,5 +1,5 @@
 ﻿@attribute [Authorize]
-@page "/Group/{GroupId}/type/{typeId}"
+@page "/group/{GroupId}/type/{typeId}"
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager _navigationManger
@@ -133,93 +133,93 @@
 
 @code {
 
-    [Parameter]
-    public string GroupId { get; set; }
+        [Parameter]
+        public string GroupId { get; set; }
 
-    [Parameter]
-    public string TypeId { get; set; }
+        [Parameter]
+        public string TypeId { get; set; }
 
-    int PageSize { get; set; } = 3;
+        int PageSize { get; set; } = 3;
 
-    //Loaded from API
-    ResponseGroup Group { get; set; }
-    List<ResponseInstanceType> Types { get; set; } = new List<ResponseInstanceType>();
-    List<Dictionary<string, string>> Instances = new List<Dictionary<string, string>>();
-    int? TotalFound { get; set; }
+        //Loaded from API
+        ResponseGroup Group { get; set; }
+        List<ResponseInstanceType> Types { get; set; } = new List<ResponseInstanceType>();
+        List<Dictionary<string, string>> Instances = new List<Dictionary<string, string>>();
+        int? TotalFound { get; set; }
 
-    private Search Search { get; set; } = new Search();
+        private Search Search { get; set; } = new Search();
 
-    private const string InstanceIdLabel = "InstanceId";
+        private const string InstanceIdLabel = "InstanceId";
 
-    protected override async Task OnParametersSetAsync()
-    {
-        await LoadGroupData();
-    }
-
-    private async Task LoadGroupData()
-    {
-        Group = await API.GroupGetById(GroupId);
-        await GetDataTypes();
-    }
-
-    async private Task GetDataTypes()
-    {
-        if (GroupId != null)
+        protected override async Task OnParametersSetAsync()
         {
-            Types = await API.GetGroupTypeAsList(GroupId);
+            await LoadGroupData();
+        }
 
-            string cachedTypeId = await localStorage.GetItemAsync<string>("TypeId");
-            if (Types.Any(t => t.Id == cachedTypeId))
+        private async Task LoadGroupData()
+        {
+            Group = await API.GroupGetById(GroupId);
+            await GetDataTypes();
+        }
+
+        async private Task GetDataTypes()
+        {
+            if (GroupId != null)
             {
-                if (TypeId != null)
+                Types = await API.GetGroupTypeAsList(GroupId);
+
+                string cachedTypeId = await localStorage.GetItemAsync<string>("TypeId");
+                if (Types.Any(t => t.Id == cachedTypeId))
                 {
-                    if (TypeId == cachedTypeId)
+                    if (TypeId != null)
                     {
-                        Search = await localStorage.GetItemAsync<Search>("Search");
+                        if (TypeId == cachedTypeId)
+                        {
+                            Search = await localStorage.GetItemAsync<Search>("Search");
+                        }
+                        await SearchType(null, null, null, false);
                     }
-                    await SearchType(null, null, null, false);
+                }
+                else if(cachedTypeId == null && TypeId != null)
+                {
+                    await SearchType(null, null, null, true);
                 }
             }
-            else if(cachedTypeId == null && TypeId != null)
+        }
+
+        async private Task TypeClick(ChangeEventArgs e)
+        {
+            TypeId = e.Value.ToString();
+            await SearchType(null, null, null, true);
+        }
+
+
+        /// <summary>
+        /// null parameters means the existing search parameter will not be overwritten.
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="sortBy"></param>
+        /// <param name="sortDirection"></param>
+        /// <param name="reset"></param>
+        /// <returns></returns>
+        async private Task SearchType(int? page, string sortBy, int? sortDirection, bool reset)
+        {
+            if (reset == true)
             {
-                await SearchType(null, null, null, true);
+                Search = new Search();
+                page = null;
+                sortBy = null;
+                sortDirection = null;
             }
-        }
-    }
 
-    async private Task TypeClick(ChangeEventArgs e)
-    {
-        TypeId = e.Value.ToString();
-        await SearchType(null, null, null, true);
-    }
-
-
-    /// <summary>
-    /// null parameters means the existing search parameter will not be overwritten.
-    /// </summary>
-    /// <param name="page"></param>
-    /// <param name="sortBy"></param>
-    /// <param name="sortDirection"></param>
-    /// <param name="reset"></param>
-    /// <returns></returns>
-    async private Task SearchType(int? page, string sortBy, int? sortDirection, bool reset)
-    {
-        if (reset == true)
-        {
-            Search = new Search();
-            page = null;
-            sortBy = null;
-            sortDirection = null;
-        }
-
-        if (Search.SortBy == null && sortBy == null)
-        {
-            sortBy = Types.FirstOrDefault(t => t.Id == TypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder).FirstOrDefault()?.Id;
-        }
+            if (Search?.SortBy == null && sortBy == null)
+            {
+                sortBy = Types.FirstOrDefault(t => t.Id == TypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder).FirstOrDefault()?.Id;
+            }
 
         Search = new Search()
         {
-            FilterText = string.IsNullOrEmpty(Search.FilterText) ? null : Search.FilterText,
+            FilterText = string.IsNullOrEmpty(Search?.FilterText) ? null : Search?.FilterText,
             Page = page == null ? Search.Page : (int)page,
             PageSize = PageSize,
             SortDirection = sortDirection == null ? Search.SortDirection : (int)sortDirection,

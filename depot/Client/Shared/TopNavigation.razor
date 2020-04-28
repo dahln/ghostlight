@@ -7,7 +7,7 @@
 
 <AuthorizeView>
     <Authorized>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#">depot</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navToggle" aria-controls="navToggle" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -18,23 +18,30 @@
                     <li class="nav-item">
                         <strong class="nav-link">@_appState.CurrentGroupName</strong>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Data
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <NavLink class="dropdown-item" href="counter">
-                                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-                            </NavLink>
-                            <NavLink class="dropdown-item" href="fetchdata">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-                            </NavLink>
-                            <div class="dropdown-divider"></div>
-                            <NavLink class="dropdown-item" href="fetchdata">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Data Manager
-                            </NavLink>
-                        </div>
-                    </li>
+                    @if (_appState.CurrentGroupId != null)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Data
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+
+                                @foreach (var type in _appState.DataTypes)
+                                {
+                                    <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/type/{type.Data}")">
+                                        <span class="oi oi-plus" aria-hidden="true"></span> @type.Text
+                                    </NavLink>
+                                }
+                                @if (_appState.DataTypes.Count > 0)
+                                {
+                                    <div class="dropdown-divider"></div>
+                                }
+                                <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/design")">
+                                    <span class="oi oi-list-rich" aria-hidden="true"></span> Data Manager
+                                </NavLink>
+                            </div>
+                        </li>
+                    }
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Group
@@ -46,10 +53,13 @@
                                     <span class="oi oi-plus" aria-hidden="true"></span> @group.Name
                                 </NavLink>
                             }
-                            <div class="dropdown-divider"></div>
-                            <NavLink class="dropdown-item" href="group/create">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Current Group Settings
-                            </NavLink>
+                            @if (_appState.CurrentGroupId != null)
+                            {
+                                <div class="dropdown-divider"></div>
+                                <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/settings")">
+                                    <span class="oi oi-list-rich" aria-hidden="true"></span> Current Group Settings
+                                </NavLink>
+                            }
                             <NavLink class="dropdown-item" href="group/create">
                                 <span class="oi oi-list-rich" aria-hidden="true"></span> Create New Group
                             </NavLink>
@@ -66,7 +76,7 @@
         </nav>
     </Authorized>
     <NotAuthorized>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#">Navbar</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navToggleUnAuth" aria-controls="navToggleUnAuth" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>

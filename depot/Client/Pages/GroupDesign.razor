@@ -1,5 +1,5 @@
 ﻿@attribute [Authorize]
-@page "/Group/{GroupId}/design"
+@page "/group/{GroupId}/design"
 
 @using Microsoft.AspNetCore.Authorization
 @using depot.Shared.RequestModels
@@ -9,12 +9,6 @@
 @inject API API
 @inject IToastService _toastService
 
-
-<h5>
-    <NavLink href="@($"Group/{GroupId}")">
-        &#171; Back to Portal
-    </NavLink>
-</h5>
 
 <h3 class="mt-3">Data Types</h3>
 

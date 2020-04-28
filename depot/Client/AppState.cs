@@ -18,6 +18,7 @@ namespace depot.Client
             set
             {
                 _currentGroupId = value;
+                NotifyStateChanged();
             }
         }
 
@@ -32,6 +33,7 @@ namespace depot.Client
             set
             {
                 _currentGroupName = value;
+                NotifyStateChanged();
             }
         }
 
@@ -76,7 +78,7 @@ namespace depot.Client
             AllowedGroups = new List<AllowedGroup>();
         }
 
-        async public Task UpdateAppState()
+        async public Task UpdateAppState(string selectedGroupId = null)
         {
             var userOrganizations = await _api.GetGroupsByAuthorizedUser();
 
@@ -84,14 +86,17 @@ namespace depot.Client
             {
                 AllowedGroups = userOrganizations.Select(o => new AllowedGroup() { Name = o.Name, Id = o.Id }).ToList();
 
-                var selectedOrganization = userOrganizations.FirstOrDefault();
-                CurrentGroupName = selectedOrganization.Name;
-                CurrentGroupId = selectedOrganization.Id;
-
-                if (selectedOrganization != null)
+                if (selectedGroupId != null)
                 {
-                    var orgTypes = await _api.GetGroupTypeAsMenuOptionList(selectedOrganization.Id);
-                    DataTypes = orgTypes.Select(o => new GroupTypeNav() { Text = o.Name, Data = o.Id }).ToList();
+                    var selectedOrganization = userOrganizations.FirstOrDefault(g => g.Id == selectedGroupId);
+                    if (selectedOrganization != null)
+                    {
+                        CurrentGroupName = selectedOrganization.Name;
+                        CurrentGroupId = selectedOrganization.Id;
+
+                        var orgTypes = await _api.GetGroupTypeAsMenuOptionList(selectedOrganization.Id);
+                        DataTypes = orgTypes.Select(o => new GroupTypeNav() { Text = o.Name, Data = o.Id }).ToList();
+                    }
                 }
             }
         }
