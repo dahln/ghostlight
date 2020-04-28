@@ -49,7 +49,7 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             @foreach (var group in _appState.AllowedGroups)
                             {
-                                <NavLink class="dropdown-item">
+                                <NavLink class="dropdown-item pointer" href="@($"group/{group.Id}")">
                                     <span class="oi oi-plus" aria-hidden="true"></span> @group.Name
                                 </NavLink>
                             }

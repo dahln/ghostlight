@@ -1,0 +1,43 @@
+﻿@implements IDisposable
+
+@attribute [Authorize]
+@page "/group/{GroupId}"
+
+@using Microsoft.AspNetCore.Authorization
+@using depot.Shared.ResponseModels
+
+@inject API API
+@inject NavigationManager _navigationManager
+@inject AppState _appState
+
+@if (_appState.CurrentGroupName != null)
+{
+    <div class="row mt-5">
+        <h4 class="mx-auto">switched to @_appState.CurrentGroupName</h4>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public string GroupId { get; set; }
+
+    async protected override Task OnInitializedAsync()
+    {
+        _appState.OnChange += StateHasChanged;
+        _navigationManager.LocationChanged += HandleLocationChanged;
+
+        await _appState.UpdateAppState(GroupId);
+    }
+
+    public void Dispose()
+    {
+        _navigationManager.LocationChanged -= HandleLocationChanged;
+    }
+
+    async private void HandleLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        await _appState.UpdateAppState(GroupId);
+    }
+}
+

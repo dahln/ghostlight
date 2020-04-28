@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Blazored.LocalStorage;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -70,9 +71,11 @@ namespace depot.Client
         public event Action OnChange;
 
         private API _api;
-        public AppState(API api)
+        private ILocalStorageService _localStorage;
+        public AppState(API api, ILocalStorageService localStorage)
         {
             _api = api;
+            _localStorage = localStorage;
 
             DataTypes = new List<GroupTypeNav>();
             AllowedGroups = new List<AllowedGroup>();
@@ -86,6 +89,15 @@ namespace depot.Client
             {
                 AllowedGroups = userOrganizations.Select(o => new AllowedGroup() { Name = o.Name, Id = o.Id }).ToList();
 
+                if(selectedGroupId == null)
+                {
+                    selectedGroupId = await _localStorage.GetItemAsync<string>("groupId");
+                    if(selectedGroupId == null && AllowedGroups.Any())
+                    {
+                        selectedGroupId = AllowedGroups.FirstOrDefault().Id;
+                    }
+                }
+
                 if (selectedGroupId != null)
                 {
                     var selectedOrganization = userOrganizations.FirstOrDefault(g => g.Id == selectedGroupId);
@@ -96,6 +108,8 @@ namespace depot.Client
 
                         var orgTypes = await _api.GetGroupTypeAsMenuOptionList(selectedOrganization.Id);
                         DataTypes = orgTypes.Select(o => new GroupTypeNav() { Text = o.Name, Data = o.Id }).ToList();
+
+                        await _localStorage.SetItemAsync("groupId", selectedGroupId);
                     }
                 }
             }
