@@ -1,4 +1,6 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,68 @@ namespace depot.Client
     //https://chrissainty.com/3-ways-to-communicate-between-components-in-blazor/
     public class AppState
     {
+        public event Action OnChange;
+
+        private API _api;
+        private ILocalStorageService _localStorage;
+        private AuthenticationStateProvider _authenticationStateProvider;
+
+        public AppState(API api, ILocalStorageService localStorage, AuthenticationStateProvider authenticationStateProvider)
+        {
+            _api = api;
+            _localStorage = localStorage;
+
+            DataTypes = new List<GroupTypeNav>();
+            AllowedGroups = new List<AllowedGroup>();
+            _authenticationStateProvider = authenticationStateProvider;
+        }
+
+        async public Task<bool> UpdateAppState(string selectedGroupId = null)
+        {
+            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated)
+            {
+                var userOrganizations = await _api.GetGroupsByAuthorizedUser();
+
+                if (userOrganizations != null)
+                {
+                    AllowedGroups = userOrganizations.Select(o => new AllowedGroup() { Name = o.Name, Id = o.Id }).ToList();
+
+                    if (selectedGroupId == null)
+                    {
+                        selectedGroupId = await _localStorage.GetItemAsync<string>("groupId");
+                        if (selectedGroupId == null && AllowedGroups.Any())
+                        {
+                            selectedGroupId = AllowedGroups.FirstOrDefault().Id;
+                        }
+                    }
+
+                    if (selectedGroupId != null)
+                    {
+                        var selectedOrganization = userOrganizations.FirstOrDefault(g => g.Id == selectedGroupId);
+                        if (selectedOrganization != null)
+                        {
+                            CurrentGroupName = selectedOrganization.Name;
+                            CurrentGroupId = selectedOrganization.Id;
+
+                            var orgTypes = await _api.GetGroupTypeAsMenuOptionList(selectedOrganization.Id);
+                            DataTypes = orgTypes.Select(o => new GroupTypeNav() { Text = o.Name, Data = o.Id }).ToList();
+
+                            await _localStorage.SetItemAsync("groupId", selectedGroupId);
+                        }
+                    }
+                }
+
+                return true;
+            }
+            return false;
+        }
+
+
+        private void NotifyStateChanged() => OnChange?.Invoke();
+
+
+
         private string _currentGroupId;
         public string CurrentGroupId
         {
@@ -67,56 +131,6 @@ namespace depot.Client
                 NotifyStateChanged();
             }
         }
-
-        public event Action OnChange;
-
-        private API _api;
-        private ILocalStorageService _localStorage;
-        public AppState(API api, ILocalStorageService localStorage)
-        {
-            _api = api;
-            _localStorage = localStorage;
-
-            DataTypes = new List<GroupTypeNav>();
-            AllowedGroups = new List<AllowedGroup>();
-        }
-
-        async public Task UpdateAppState(string selectedGroupId = null)
-        {
-            var userOrganizations = await _api.GetGroupsByAuthorizedUser();
-
-            if (userOrganizations != null)
-            {
-                AllowedGroups = userOrganizations.Select(o => new AllowedGroup() { Name = o.Name, Id = o.Id }).ToList();
-
-                if(selectedGroupId == null)
-                {
-                    selectedGroupId = await _localStorage.GetItemAsync<string>("groupId");
-                    if(selectedGroupId == null && AllowedGroups.Any())
-                    {
-                        selectedGroupId = AllowedGroups.FirstOrDefault().Id;
-                    }
-                }
-
-                if (selectedGroupId != null)
-                {
-                    var selectedOrganization = userOrganizations.FirstOrDefault(g => g.Id == selectedGroupId);
-                    if (selectedOrganization != null)
-                    {
-                        CurrentGroupName = selectedOrganization.Name;
-                        CurrentGroupId = selectedOrganization.Id;
-
-                        var orgTypes = await _api.GetGroupTypeAsMenuOptionList(selectedOrganization.Id);
-                        DataTypes = orgTypes.Select(o => new GroupTypeNav() { Text = o.Name, Data = o.Id }).ToList();
-
-                        await _localStorage.SetItemAsync("groupId", selectedGroupId);
-                    }
-                }
-            }
-        }
-
-
-        private void NotifyStateChanged() => OnChange?.Invoke();
     }
 
     public class GroupTypeNav

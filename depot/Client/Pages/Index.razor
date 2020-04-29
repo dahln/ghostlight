@@ -1,22 +1,63 @@
 ﻿@page "/"
-@inject AppState _appState
+@page "/group/{GroupId}"
 
-@if (_appState.CurrentGroupName != null)
-{
-    <div class="row mt-5">
-        <h4 class="mx-auto">@_appState.CurrentGroupName</h4>
-    </div>
-}
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+
+@inject AppState _appState
+@inject IToastService _toastService
+
+<AuthorizeView>
+    <Authorized>
+        @if (_appState.CurrentGroupName != null)
+        {
+            <div class="row mt-5 pt-5">
+                <h4 class="mx-auto">@_appState.CurrentGroupName</h4>
+            </div>
+            <div class="row mt-5">
+                <h6 class="mx-auto">Select what you wish to view/manage</h6>
+            </div>
+            <div class="row mt-5">
+                <div class="mx-auto dropdown">
+                    <button class="btn btn-outline-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Data
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        @foreach (var type in _appState.DataTypes)
+                        {
+                            <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/type/{type.Data}")">
+                                <span class="oi oi-plus" aria-hidden="true"></span> @type.Text
+                            </NavLink>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        }
+    </Authorized>
+</AuthorizeView>
 
 @code {
 
     [Parameter]
     public string GroupId { get; set; }
 
-    async protected override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _appState.OnChange += StateHasChanged;
 
-        await _appState.UpdateAppState(GroupId);
+        base.OnInitialized();
+    }
+
+    public async override Task SetParametersAsync(ParameterView parameters)
+    {
+        await base.SetParametersAsync(parameters);
+
+        var result = await _appState.UpdateAppState(GroupId);
+        if (GroupId != null && result == true && _appState.CurrentGroupName != null)
+        {
+            _toastService.ShowInfo($"Switched to {_appState.CurrentGroupName}");
+        }
     }
 }
+
