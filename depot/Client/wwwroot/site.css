@@ -25,3 +25,7 @@
     right: 0.75rem;
     top: 0.5rem;
 }
+
+.blazored-toast-container {
+    z-index: 10000;
+}

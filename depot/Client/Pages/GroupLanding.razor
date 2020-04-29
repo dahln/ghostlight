@@ -9,6 +9,7 @@
 @inject API API
 @inject NavigationManager _navigationManager
 @inject AppState _appState
+@inject IToastService _toastService 
 
 @if (_appState.CurrentGroupName != null)
 {
@@ -28,6 +29,7 @@
         _navigationManager.LocationChanged += HandleLocationChanged;
 
         await _appState.UpdateAppState(GroupId);
+        _toastService.ShowInfo($"Switched to {_appState.CurrentGroupName}");
     }
 
     public void Dispose()
@@ -37,7 +39,12 @@
 
     async private void HandleLocationChanged(object sender, LocationChangedEventArgs e)
     {
-        await _appState.UpdateAppState(GroupId);
+        this.
+        if (e.Location.Contains(GroupId))
+        {
+            await _appState.UpdateAppState(GroupId);
+            _toastService.ShowInfo($"Switched to {_appState.CurrentGroupName}");
+        } 
     }
 }
 
