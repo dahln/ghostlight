@@ -18,4 +18,13 @@ db.instances.createIndex( { GroupId: 1, TypeId: 1, "$**": "text" } )
 Tip: if you are using the MongoDB Atlas service, you can create the index by visiting the portal.
 
 As of 4.30.20 - here is the of items needed to be completed before I consider the application production ready:
----List coming---
+* Switch Group Search Instance bug
+* Modify styles/content of default Identity pages
+* Security/Authorization (in progress)
+* Loading Spinner on API calls
+* Add Confirmation Prompts
+* Linked fields (no necessary for v1)
+* File Attachments fields (no necessary for v1)
+* metadata
+* favicon
+* deploy to depot.dahln.io with ssl cert
