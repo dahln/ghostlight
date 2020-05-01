@@ -12,20 +12,25 @@ git update-index --assume-unchanged appsettings.json
 git update-index --assume-unchanged appsettings.Development.json
 Update the AppSettings.json to include this section, and add the appropriate values. If you don't want the sensative information in your AppSettings, You could include them as variables in your server configuration.
 
+The SQL Database use Entity Framework, code first.  Automatic migrations are not enabled. When starting up the application for the first time, run "Update-Database" from the nuget console in Visual Studio.
+
 The MongoBD database requires a $text index to support text searching across the dynmaic data types. Connect to the database, and run this monogo command to create the appropiate index:
 
 db.instances.createIndex( { GroupId: 1, TypeId: 1, "$**": "text" } )
 Tip: if you are using the MongoDB Atlas service, you can create the index by visiting the portal.
 
 As of 4.30.20 - here is the of items needed to be completed before I consider the application production ready:
+* Review/Adjust new user UI flow
+* Reivew/Adjust initial deployment process
 * Fix required/optional fields enforcement on instance view
 * Switch Group Search Instance bug
 * Modify styles/content of default Identity pages
-* Security/Authorization (in progress)
+* Security/Authorization
 * Loading Spinner on API calls
-* Add Confirmation Prompts
-* Linked fields (no necessary for v1)
-* File Attachments fields (no necessary for v1)
 * metadata
 * favicon
 * deploy to depot.dahln.io with ssl cert
+* -------- backlog --------
+* Add Confirmation Prompts (not necessary for v1)
+* Linked fields (not necessary for v1)
+* File Attachments fields (not necessary for v1)
