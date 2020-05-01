@@ -22,7 +22,7 @@ namespace depot.Server.Data
             //Connect to the database
             _client = new MongoClient(configuration.GetConnectionString("MongoDBConnectionString"));
 
-            Setup(configuration["DatabaseName"]);
+            Setup(configuration["MongoDBDatabaseName"]);
         }
 
         private void Setup(string database)
