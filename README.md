@@ -22,7 +22,7 @@ Tip: if you are using the MongoDB Atlas service, you can create the index by vis
 As of 4.30.20 - here is the of items needed to be completed before I consider the application production ready:
 * Review/Adjust new user UI flow
 * Reivew/Adjust initial deployment process
-* Fix required/optional fields enforcement on instance view
+* (FIXED) Fix required/optional fields enforcement on instance view
 * (FIXED) Switch Group Search Instance bug
 * Modify styles/content of default Identity pages
 * Security/Authorization
