@@ -23,7 +23,7 @@ As of 4.30.20 - here is the of items needed to be completed before I consider th
 * Review/Adjust new user UI flow
 * Reivew/Adjust initial deployment process
 * Fix required/optional fields enforcement on instance view
-* Switch Group Search Instance bug
+* (FIXED) Switch Group Search Instance bug
 * Modify styles/content of default Identity pages
 * Security/Authorization
 * Loading Spinner on API calls
