@@ -24,9 +24,9 @@ As of 4.30.20 - here is the of items needed to be completed before I consider th
 * Reivew/Adjust initial deployment process
 * (FIXED) Fix required/optional fields enforcement on instance view
 * (FIXED) Switch Group Search Instance bug
-* Modify styles/content of default Identity pages
-* Security/Authorization
-* Loading Spinner on API calls
+* (In Progress) Modify styles/content of default Identity pages
+* (In Progress) Security/Authorization
+* (DONE) Loading Spinner on API calls
 * metadata
 * favicon
 * deploy to depot.dahln.io with ssl cert
