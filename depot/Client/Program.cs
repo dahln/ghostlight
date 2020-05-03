@@ -20,6 +20,8 @@ namespace depot.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.Services.AddScoped<API>();
             builder.Services.AddScoped<AppState>();
+            builder.Services.AddScoped<SpinnerService>();
+
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddHttpClient("depot.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))

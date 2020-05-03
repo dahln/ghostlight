@@ -19,11 +19,13 @@ namespace depot.Client
         private IAccessTokenProvider _authenticationService { get; set; }
         private NavigationManager _navigationManger { get; set; }
         private IToastService _toastService { get; set; }
-        public API(IAccessTokenProvider authenticationService, NavigationManager navigationManager, IToastService toastService)
+        private SpinnerService _spinnerService { get; set; }
+        public API(IAccessTokenProvider authenticationService, NavigationManager navigationManager, IToastService toastService, SpinnerService spinnerService)
         {
             _authenticationService = authenticationService;
             _navigationManger = navigationManager;
             _toastService = toastService;
+            _spinnerService = spinnerService;
 
             _client = new HttpClient();
             _client.BaseAddress = new Uri(_navigationManger.BaseUri);
@@ -189,6 +191,10 @@ namespace depot.Client
 
         private async Task<HttpResponseMessage> Send(HttpMethod method, string path, object content = null)
         {
+            string guid = Guid.NewGuid().ToString();
+            Console.WriteLine($"Start: {guid}");
+            _spinnerService.Show();
+
             var httpWebRequest = new HttpRequestMessage(method, path);
 
             var tokenResult = await _authenticationService.RequestAccessToken();
@@ -216,6 +222,9 @@ namespace depot.Client
                 string responseContent = await response.Content.ReadAsStringAsync();
                 _toastService.ShowError(responseContent);
             }
+
+            _spinnerService.Hide();
+            Console.WriteLine($"Finish: {guid}");
             return response;
         }
 
