@@ -5,9 +5,9 @@
 @using depot.Shared.RequestModels
 @using depot.Shared.ResponseModels
 
-@inject API API
+@inject depot.Client.Services.API API
 @inject NavigationManager _navigationManager
-@inject AppState _appState
+@inject depot.Client.Services.AppState _appState
 
 @if (Group != null)
 {

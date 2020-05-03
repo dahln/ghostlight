@@ -1,17 +1,17 @@
-﻿@inject SpinnerService SpinnerService
+﻿@inject depot.Client.Services.LoadingBarService LoadingBarService 
 
 <style>
-    .spinner-container {
+    .loadingbar-container {
         z-index: 5000;
         margin-top: 25%;
         width: 50%;
     }
 
-        .spinner-container h4 {
-            color: white;
-        }
+    .loadingbar-container h4 {
+        color: white;
+    }
 
-    .spinner-overlay {
+    .loadingbar-overlay {
         position: fixed;
         top: 0;
         left: 0;
@@ -24,8 +24,8 @@
 @if (IsVisible)
 {
 
-    <div class="spinner-overlay">
-        <div class="spinner-container mx-auto">
+    <div class="loadingbar-overlay">
+        <div class="loadingbar-container mx-auto">
             <h4 class="mx-auto">Loading...</h4>
             <div class="progress">
                 <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
@@ -38,17 +38,17 @@
     protected bool IsVisible { get; set; }
     protected override void OnInitialized()
     {
-        SpinnerService.OnShow += ShowSpinner;
-        SpinnerService.OnHide += HideSpinner;
+        LoadingBarService.OnShow += ShowLoadingBar;
+        LoadingBarService.OnHide += HideLoadingBar;
     }
 
-    public void ShowSpinner()
+    public void ShowLoadingBar()
     {
         IsVisible = true;
         StateHasChanged();
     }
 
-    public void HideSpinner()
+    public void HideLoadingBar()
     {
         IsVisible = false;
         StateHasChanged();

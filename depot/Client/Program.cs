@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Blazored.Toast;
 using Blazored.LocalStorage;
+using depot.Client.Services;
 
 namespace depot.Client
 {
@@ -20,7 +21,7 @@ namespace depot.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.Services.AddScoped<API>();
             builder.Services.AddScoped<AppState>();
-            builder.Services.AddScoped<SpinnerService>();
+            builder.Services.AddScoped<LoadingBarService>();
 
             builder.RootComponents.Add<App>("app");
 

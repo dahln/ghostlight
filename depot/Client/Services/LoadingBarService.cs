@@ -5,9 +5,9 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace depot.Client
+namespace depot.Client.Services
 {
-	public class SpinnerService
+	public class LoadingBarService
 	{
 		public event Action OnShow;
 		public event Action OnHide;

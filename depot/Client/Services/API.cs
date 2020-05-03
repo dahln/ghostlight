@@ -11,7 +11,7 @@ using depot.Shared.RequestModels;
 using depot.Shared.ResponseModels;
 using Blazored.Toast.Services;
 
-namespace depot.Client
+namespace depot.Client.Services
 {
     public class API
     {
@@ -19,13 +19,13 @@ namespace depot.Client
         private IAccessTokenProvider _authenticationService { get; set; }
         private NavigationManager _navigationManger { get; set; }
         private IToastService _toastService { get; set; }
-        private SpinnerService _spinnerService { get; set; }
-        public API(IAccessTokenProvider authenticationService, NavigationManager navigationManager, IToastService toastService, SpinnerService spinnerService)
+        private LoadingBarService _loadingBarService { get; set; }
+        public API(IAccessTokenProvider authenticationService, NavigationManager navigationManager, IToastService toastService, LoadingBarService loadingBarService)
         {
             _authenticationService = authenticationService;
             _navigationManger = navigationManager;
             _toastService = toastService;
-            _spinnerService = spinnerService;
+            _loadingBarService = loadingBarService;
 
             _client = new HttpClient();
             _client.BaseAddress = new Uri(_navigationManger.BaseUri);
@@ -193,7 +193,7 @@ namespace depot.Client
         {
             string guid = Guid.NewGuid().ToString();
             Console.WriteLine($"Start: {guid}");
-            _spinnerService.Show();
+            _loadingBarService.Show();
 
             var httpWebRequest = new HttpRequestMessage(method, path);
 
@@ -223,7 +223,7 @@ namespace depot.Client
                 _toastService.ShowError(responseContent);
             }
 
-            _spinnerService.Hide();
+            _loadingBarService.Hide();
             Console.WriteLine($"Finish: {guid}");
             return response;
         }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace depot.Client
+namespace depot.Client.Services
 {
     //https://chrissainty.com/3-ways-to-communicate-between-components-in-blazor/
     public class AppState
