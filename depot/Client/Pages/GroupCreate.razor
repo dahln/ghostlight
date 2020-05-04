@@ -7,6 +7,7 @@
 @inject depot.Client.Services.API API
 @inject depot.Client.Services.AppState _appState
 @inject IToastService _toastService
+@inject NavigationManager _navigationManager
 
 <h3>Creating a Group? Lets take care of that.</h3>
 <p>Create a group. All data must be part of a group. This group name can be changed at any time.</p>
@@ -25,9 +26,11 @@
     {
         var content = new GroupCreateEditRequestModel() { Name = GroupName };
 
-        await API.GroupCreate(content);
-        _toastService.ShowSuccess("Group Created");
+        var response = await API.GroupCreate(content);
+        _toastService.ShowSuccess("Group Created. Switching to Group...");
 
+        await Task.Delay(1000);
         await _appState.UpdateAppState();
+        _navigationManager.NavigateTo($"/group/{response.Id}");
     }
 }

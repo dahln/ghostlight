@@ -32,11 +32,11 @@ namespace depot.Client.Services
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
             if (authState.User.Identity.IsAuthenticated)
             {
-                var userOrganizations = await _api.GetGroupsByAuthorizedUser();
+                var userGroups = await _api.GetGroupsByAuthorizedUser();
 
-                if (userOrganizations != null)
+                if (userGroups.Count > 0)
                 {
-                    AllowedGroups = userOrganizations.Select(o => new AllowedGroup() { Name = o.Name, Id = o.Id }).ToList();
+                    AllowedGroups = userGroups.Select(o => new AllowedGroup() { Name = o.Name, Id = o.Id, IsAdministrator = o.IsAdministrator }).ToList();
 
                     if (selectedGroupId == null)
                     {
@@ -49,18 +49,27 @@ namespace depot.Client.Services
 
                     if (selectedGroupId != null)
                     {
-                        var selectedOrganization = userOrganizations.FirstOrDefault(g => g.Id == selectedGroupId);
-                        if (selectedOrganization != null)
+                        var selectedGroup = userGroups.FirstOrDefault(g => g.Id == selectedGroupId);
+                        if (selectedGroup != null)
                         {
-                            CurrentGroupName = selectedOrganization.Name;
-                            CurrentGroupId = selectedOrganization.Id;
+                            CurrentGroupName = selectedGroup.Name;
+                            CurrentGroupId = selectedGroup.Id;
+                            CurrentGroupIsAdministrator = selectedGroup.IsAdministrator;
 
-                            var orgTypes = await _api.GetGroupTypeAsMenuOptionList(selectedOrganization.Id);
-                            DataTypes = orgTypes.Select(o => new GroupTypeNav() { Text = o.Name, Data = o.Id }).ToList();
+                            var groupTypes = await _api.GetGroupTypeAsMenuOptionList(selectedGroup.Id);
+                            DataTypes = groupTypes.Select(o => new GroupTypeNav() { Text = o.Name, Data = o.Id }).ToList();
 
                             await _localStorage.SetItemAsync("groupId", selectedGroupId);
                         }
                     }
+                }
+                else
+                {
+                    AllowedGroups = new List<AllowedGroup>();
+                    CurrentGroupId = default(string);
+                    CurrentGroupName = default(string);
+                    CurrentGroupIsAdministrator = false;
+                    DataTypes = new List<GroupTypeNav>();
                 }
 
                 return true;
@@ -83,6 +92,20 @@ namespace depot.Client.Services
             set
             {
                 _currentGroupId = value;
+                NotifyStateChanged();
+            }
+        }
+
+        private bool _currentGroupIsAdministrator;
+        public bool CurrentGroupIsAdministrator
+        {
+            get
+            {
+                return _currentGroupIsAdministrator;
+            }
+            set
+            {
+                _currentGroupIsAdministrator = value;
                 NotifyStateChanged();
             }
         }
@@ -143,5 +166,6 @@ namespace depot.Client.Services
     {
         public string Id { get; set; }
         public string Name { get; set; }
+        public bool IsAdministrator { get; set; } = false;
     }
 }

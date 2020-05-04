@@ -33,9 +33,9 @@ namespace depot.Client.Services
 
 
 
-        async public Task GroupCreate(GroupCreateEditRequestModel content)
+        async public Task<ResponseId> GroupCreate(GroupCreateEditRequestModel content)
         {
-            await PostAsync<ResponseId>("api/v1/Group", content);
+            return await PostAsync<ResponseId>("api/v1/Group", content);
         }
 
         async public Task GroupEditName(string GroupId, GroupCreateEditRequestModel content)

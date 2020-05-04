@@ -10,6 +10,5 @@ namespace depot.Server.Models
     public class ApplicationUser : IdentityUser
     {
         public List<GroupAuthorizedUser> GroupAuthorizedUsers { get; set; } = new List<GroupAuthorizedUser>();
-        public List<InstanceAuthorizedUser> InstanceAuthorizedUsers { get; set; } = new List<InstanceAuthorizedUser>();
     }
 }

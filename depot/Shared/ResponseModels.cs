@@ -14,6 +14,7 @@ namespace depot.Shared.ResponseModels
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; }
+        public bool IsAdministrator { get; set; } = false;
     }
 
 
@@ -46,17 +47,6 @@ namespace depot.Shared.ResponseModels
         public List<ResponseField> Fields { get; set; } = new List<ResponseField>();
 
         public List<ResponseInstance> Instances { get; set; } = new List<ResponseInstance>();
-
-        public List<ResponseInstanceAuthorizedUser> AuthorizedUsers { get; set; } = new List<ResponseInstanceAuthorizedUser>();
-    }
-    public class ResponseInstanceAuthorizedUser
-    {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public bool CanRead { get; set; } = true;
-        public bool CanWrite { get; set; } = true;
-
-        public string ApplicationUserId { get; set; }
-        public string ApplicationUserEmail { get; set; }
     }
 
     public class ResponseField

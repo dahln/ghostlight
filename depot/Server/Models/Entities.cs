@@ -36,24 +36,10 @@ namespace depot.Server.Entities
         public string Name { get; set; }
         public List<Field> Fields { get; set; } = new List<Field>();
 
-        public List<InstanceAuthorizedUser> AuthorizedUsers { get; set; } = new List<InstanceAuthorizedUser>();
-
         public string GroupId { get; set; }
         public Group Group { get; set; }
     }
-    public class InstanceAuthorizedUser
-    {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public bool CanRead { get; set; } = true;
-        public bool CanWrite { get; set; } = true;
-
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
-
-        public string InstanceTypeId { get; set; }
-        public InstanceType InstanceType { get; set; }
-    }
-
+    
     public class Field
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();

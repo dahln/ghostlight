@@ -23,7 +23,6 @@ namespace depot.Server.Data
         public DbSet<GroupAuthorizedUser> GroupAuthorizedUsers { get; set; }
         public DbSet<InstanceType> InstanceTypes { get; set; }
         public DbSet<Field> Fields { get; set; }
-        public DbSet<InstanceAuthorizedUser> InstanceAuthorizedUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,11 +41,6 @@ namespace depot.Server.Data
             modelBuilder.Entity<Field>()
                 .HasOne(c => c.InstanceType)
                 .WithMany(c => c.Fields)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<InstanceAuthorizedUser>()
-                .HasOne(c => c.InstanceType)
-                .WithMany(c => c.AuthorizedUsers)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

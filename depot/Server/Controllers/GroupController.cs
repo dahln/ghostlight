@@ -67,9 +67,11 @@ namespace CRM.Server.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/v1/Group/{GroupId}")]
-        async public Task<IActionResult> GroupCreate(string GroupId)
+        async public Task<IActionResult> GetGroupById(string GroupId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
 
             var response = await _db.Groups.Where(c => c.Id == GroupId)
                                     .Include(o => o.AuthorizedUsers)
@@ -77,14 +79,14 @@ namespace CRM.Server.Controllers
                                     {
                                         Id = o.Id,
                                         Name = o.Name,
-                                        AuthorizedUsers = o.AuthorizedUsers
+                                        AuthorizedUsers = o.AuthorizedUsers.Any(u => u.ApplicationUserId == userId && u.IsGroupAdmin == true) ? o.AuthorizedUsers
                                                             .Select(a => new ResponseGroupAuthorizedUser()
                                                             {
                                                                 Id = a.Id,
                                                                 ApplicationUserId = a.ApplicationUserId,
                                                                 ApplicationUserEmail = a.ApplicationUser.Email,
                                                                 IsGroupAdmin = a.IsGroupAdmin
-                                                            }).ToList()
+                                                            }).ToList() : null
                                     }).FirstOrDefaultAsync();
 
             return Ok(response);
@@ -102,7 +104,8 @@ namespace CRM.Server.Controllers
                                 .Select(o => new ResponseGroupShort()
                                 {
                                     Id = o.Group.Id,
-                                    Name = o.Group.Name
+                                    Name = o.Group.Name,
+                                    IsAdministrator = o.IsGroupAdmin
                                 }).ToListAsync();
 
             return Ok(Groups);
@@ -115,6 +118,8 @@ namespace CRM.Server.Controllers
         async public Task<IActionResult> UpdateGroupChangeName([FromBody]GroupCreateEditRequestModel model, string GroupId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId, true) == false)
+                return BadRequest("Cannot manage group");
 
             var Group = await _db.Groups.Where(o => o.Id == GroupId).FirstOrDefaultAsync();
             Group.Name = model.Name;
@@ -124,12 +129,17 @@ namespace CRM.Server.Controllers
             return Ok();
         }
 
+        
+
         [Authorize]
         [HttpPut]
         [Route("api/v1/Group/{GroupId}/user/authorized")]
         async public Task<IActionResult> UpdateGroupSetUserAuthorized([FromBody]GroupAddAuthorizedEmailModel model, string GroupId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId, true) == false)
+                return BadRequest("Cannot manage group");
+
             var foundUserByEmail = await _userManager.FindByNameAsync(model.Email);
             if (foundUserByEmail == null)
                 return BadRequest("User Not Found");
@@ -159,6 +169,8 @@ namespace CRM.Server.Controllers
         async public Task<IActionResult> UpdateGroupRemoveUserAuthorized(string GroupId, string applicationUserId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId, true) == false)
+                return BadRequest("Cannot manage group");
 
             var removeThese = _db.GroupAuthorizedUsers.Where(o => o.GroupId == GroupId && o.ApplicationUserId == applicationUserId);
             _db.GroupAuthorizedUsers.RemoveRange(removeThese);
@@ -171,9 +183,11 @@ namespace CRM.Server.Controllers
         [Authorize]
         [HttpPut]
         [Route("api/v1/Group/{GroupId}/user/{applicationUserId}/authorized/toggle")]
-        async public Task<IActionResult> UpdateGroupRemoveUserAuthorized([FromBody]GroupToggleAuthorizedModel model, string GroupId, string applicationUserId)
+        async public Task<IActionResult> UpdateGroupRemoveUserToggle([FromBody]GroupToggleAuthorizedModel model, string GroupId, string applicationUserId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId, true) == false)
+                return BadRequest("Cannot manage group");
 
             var updateThis = await _db.GroupAuthorizedUsers.Where(o => o.GroupId == GroupId && o.ApplicationUserId == applicationUserId).FirstOrDefaultAsync();
             updateThis.IsGroupAdmin = model.Administrator;
@@ -189,6 +203,8 @@ namespace CRM.Server.Controllers
         async public Task<IActionResult> DeleteGroup(string GroupId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId, true) == false)
+                return BadRequest("Cannot manage group");
 
             var authorizations = _db.GroupAuthorizedUsers.Where(o => o.GroupId == GroupId);
             _db.GroupAuthorizedUsers.RemoveRange(authorizations);
@@ -209,24 +225,16 @@ namespace CRM.Server.Controllers
         async public Task<IActionResult> CreateGroupType([FromBody]ResponseInstanceType model, string GroupId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId, true) == false)
+                return BadRequest("Cannot manage group");
 
             InstanceType newType = new InstanceType()
             {
                 Name = model.Name,
                 GroupId = GroupId
             };
-
-            InstanceAuthorizedUser instanceAuthorizedUser = new InstanceAuthorizedUser()
-            {
-                ApplicationUserId = userId,
-                CanRead = true,
-                CanWrite = true,
-                InstanceType = newType,
-                InstanceTypeId = newType.Id
-            };
-
+            
             _db.InstanceTypes.Add(newType);
-            _db.InstanceAuthorizedUsers.Add(instanceAuthorizedUser);
 
             await _db.SaveChangesAsync();
 
@@ -240,8 +248,10 @@ namespace CRM.Server.Controllers
         async public Task<IActionResult> GetGroupType(string GroupId, string instanceTypeId = null)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
 
-            if(instanceTypeId == "menu")
+            if (instanceTypeId == "menu")
             {
                 var listResponse = await _db.InstanceTypes.Where(i => i.GroupId == GroupId)
                                     .Select(i => new ResponseInstanceType()
@@ -257,19 +267,10 @@ namespace CRM.Server.Controllers
             {
                 var singleResponse = await _db.InstanceTypes.Where(i => i.Id == instanceTypeId && i.GroupId == GroupId)
                                     .Include(i => i.Fields)
-                                    .Include(i => i.AuthorizedUsers)
                                     .Select(i => new ResponseInstanceType()
                                     {
                                         Id = i.Id,
                                         Name = i.Name,
-                                        AuthorizedUsers = i.AuthorizedUsers.Select(a => new ResponseInstanceAuthorizedUser()
-                                        {
-                                            Id = a.Id,
-                                            ApplicationUserEmail = a.ApplicationUser.Email,
-                                            ApplicationUserId = a.ApplicationUserId,
-                                            CanRead = a.CanRead,
-                                            CanWrite = a.CanWrite
-                                        }).ToList(),
                                         Fields = i.Fields.Select(f => new ResponseField()
                                         {
                                             Id = f.Id,
@@ -291,19 +292,10 @@ namespace CRM.Server.Controllers
             {
                 var listResponse = await _db.InstanceTypes.Where(i => i.GroupId == GroupId)
                                     .Include(i => i.Fields)
-                                    .Include(i => i.AuthorizedUsers)
                                     .Select(i => new ResponseInstanceType()
                                     {
                                         Id = i.Id,
                                         Name = i.Name,
-                                        AuthorizedUsers = i.AuthorizedUsers.Select(a => new ResponseInstanceAuthorizedUser()
-                                        {
-                                            Id = a.Id,
-                                            ApplicationUserEmail = a.ApplicationUser.Email,
-                                            ApplicationUserId = a.ApplicationUserId,
-                                            CanRead = a.CanRead,
-                                            CanWrite = a.CanWrite
-                                        }).ToList(),
                                         Fields = i.Fields.Select(f => new ResponseField()
                                         {
                                             Id = f.Id,
@@ -330,6 +322,8 @@ namespace CRM.Server.Controllers
         async public Task<IActionResult> CreateGroupInstanceTypeField([FromBody]ResponseField model, string GroupId, string instanceTypeId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId, true) == false)
+                return BadRequest("Cannot manage group");
 
             Field field = new Field()
             {
@@ -357,6 +351,8 @@ namespace CRM.Server.Controllers
         async public Task<IActionResult> UpdateGroupInstanceTypeField([FromBody]ResponseField model, string GroupId, string instanceTypeId, string fieldId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId, true) == false)
+                return BadRequest("Cannot manage group");
 
             var field = await _db.Fields.Where(f => f.Id == fieldId &&
                                     f.InstanceTypeId == instanceTypeId &&
@@ -383,6 +379,8 @@ namespace CRM.Server.Controllers
         async public Task<IActionResult> DeleteGroupInstanceTypeField(string GroupId, string instanceTypeId, string fieldId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId, true) == false)
+                return BadRequest("Cannot manage group");
 
             var field = _db.Fields.Where(f => f.Id == fieldId &&
                                     f.InstanceTypeId == instanceTypeId &&
@@ -401,6 +399,8 @@ namespace CRM.Server.Controllers
         async public Task<IActionResult> SearchGroupInstancesByType([FromBody]Search model, string GroupId, string instanceTypeId)
         {
             string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
 
             if (GroupId == null || instanceTypeId == null || model.SortBy == null)
                 return Ok(new InstanceSearchResponse());
@@ -457,6 +457,10 @@ namespace CRM.Server.Controllers
         [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance")]
         async public Task<IActionResult> GroupCreateInstanceByType([FromBody]ResponseInstance model, string GroupId, string instanceTypeId)
         {
+            string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
+
             model.InstanceData.Add("InstanceId", Guid.NewGuid().ToString());
             model.InstanceData.Add("GroupId", GroupId);
             model.InstanceData.Add("TypeId", instanceTypeId);
@@ -471,6 +475,10 @@ namespace CRM.Server.Controllers
         [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}")]
         async public Task<IActionResult> GroupUpdateInstanceByType([FromBody]ResponseInstance model, string GroupId, string instanceTypeId, string instanceId)
         {
+            string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
+
             var query = new BsonDocument("$and",
                        new BsonArray
                        {
@@ -489,6 +497,10 @@ namespace CRM.Server.Controllers
         [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}")]
         async public Task<IActionResult> GroupDeleteInstanceByType(string GroupId, string instanceTypeId, string instanceId)
         {
+            string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
+
             var query = new BsonDocument("$and",
                         new BsonArray
                         {
@@ -508,6 +520,10 @@ namespace CRM.Server.Controllers
         [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}")]
         async public Task<IActionResult> GroupGetInstanceById(string GroupId, string instanceTypeId, string instanceId)
         {
+            string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
+
             //Query used in data results and count results. Separate the query from the rest of the pipeline so it can be reused.
             var query = new BsonDocument("$and",
                         new BsonArray
@@ -550,6 +566,25 @@ namespace CRM.Server.Controllers
             };
 
             return Ok(response);
+        }
+
+        async private Task<bool> CanManageGroup(string userId, string groupId, bool? requireAdmin = null)
+        {
+            if (requireAdmin == null)
+            {
+                return await _db.GroupAuthorizedUsers
+                                .AnyAsync(o => o.GroupId == groupId &&
+                                            o.ApplicationUserId == userId);
+            }
+            else if (requireAdmin != null)
+            {
+                return await _db.GroupAuthorizedUsers
+                                .AnyAsync(o => o.GroupId == groupId &&
+                                            o.ApplicationUserId == userId &&
+                                            o.IsGroupAdmin == requireAdmin);
+            }
+
+            return false;
         }
     }
 }
