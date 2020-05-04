@@ -51,6 +51,13 @@ namespace depot.Server.Data
              */
         }
 
+        async private Task EnsureIndexExists()
+        {
+            IndexKeysDefinition<Dictionary<string, string>> keys = "{ \"GroupId\":\"1\", \"TypeId\":\"1\", \"$**\":\"text\" }";
+            var indexModel = new CreateIndexModel<Dictionary<string, string>>(keys);
+            await this.Instances.Indexes.CreateOneAsync(indexModel);
+        }
+
         public IMongoCollection<Dictionary<string, string>> Instances { get; set; }
     }
 }

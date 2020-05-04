@@ -42,10 +42,12 @@
         LoadingBarService.OnHide += HideLoadingBar;
     }
 
-    public void ShowLoadingBar()
+    async public void ShowLoadingBar()
     {
         IsVisible = true;
-        StateHasChanged();
+        await Task.Delay(1000);
+        if(IsVisible == true)
+            StateHasChanged();
     }
 
     public void HideLoadingBar()
