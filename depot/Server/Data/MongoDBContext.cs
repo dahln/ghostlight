@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using System;
@@ -51,11 +52,27 @@ namespace depot.Server.Data
              */
         }
 
-        async private Task EnsureIndexExists()
+        public void EnsureIndexExists()
         {
-            IndexKeysDefinition<Dictionary<string, string>> keys = "{ \"GroupId\":\"1\", \"TypeId\":\"1\", \"$**\":\"text\" }";
-            var indexModel = new CreateIndexModel<Dictionary<string, string>>(keys);
-            await this.Instances.Indexes.CreateOneAsync(indexModel);
+            string indexName = "instance_search";
+
+            //I hate this loop. TODO: Find a better way to do this
+            var indexes = this.Instances.Indexes.List().ToList();
+            bool indexExists = false;
+            foreach(var i in indexes)
+            {
+                if (i.ToString().Contains(indexName) == true)
+                {
+                    indexExists = true;
+                }
+            }
+
+            if (indexExists == false)
+            {
+                IndexKeysDefinition<Dictionary<string, string>> keys = "{ GroupId:1, TypeId:1, '$**':'text' }";
+                var indexModel = new CreateIndexModel<Dictionary<string, string>>(keys, new CreateIndexOptions() { Name = indexName });
+                this.Instances.Indexes.CreateOne(indexModel);
+            }
         }
 
         public IMongoCollection<Dictionary<string, string>> Instances { get; set; }

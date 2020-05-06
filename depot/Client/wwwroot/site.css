@@ -1,5 +1,5 @@
 ﻿html, body {
-    font-family: "B_Proportional-Bold", Courier, monospace;
+    font-family: "B_Proportional-Bold", Courier, monospace !important;
     /*font-weight: 700;*/
 }
 
@@ -34,4 +34,8 @@
     color: red;
     font-weight: bold;
     font-size: 20px;
+}
+
+.header-separator{
+    color: orangered;
 }
