@@ -25,12 +25,6 @@ namespace depot.Client
 
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddHttpClient("depot.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
-                .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
-
-            // Supply HttpClient instances that include access tokens when making requests to the server project
-            builder.Services.AddTransient(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("depot.ServerAPI"));
-
             builder.Services.AddApiAuthorization();
 
             builder.Services.AddBlazoredLocalStorage();

@@ -28,5 +28,6 @@
     async protected override Task OnInitializedAsync()
     {
         await _appState.UpdateAppState();
+        _appState.Ready = true;
     }
 }

@@ -154,6 +154,20 @@ namespace depot.Client.Services
                 NotifyStateChanged();
             }
         }
+
+        private bool _ready;
+        public bool Ready
+        {
+            get
+            {
+                return _ready;
+            }
+            set
+            {
+                _ready = value;
+                NotifyStateChanged();
+            }
+        }
     }
 
     public class GroupTypeNav

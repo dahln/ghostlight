@@ -9,7 +9,7 @@
 
 <AuthorizeView>
     <Authorized>
-        @if (_appState.CurrentGroupName != null)
+        @if (_appState.Ready == true && _appState.CurrentGroupName != null)
         {
             <div class="row mt-5 pt-5">
                 <h4 class="mx-auto">@_appState.CurrentGroupName</h4>
@@ -40,7 +40,7 @@
             </div>
 
         }
-        else
+        else if(_appState.Ready == true)
         {
             <div class="row mt-5 pt-5">
                 <h4 class="mx-auto">Create a Group</h4>
