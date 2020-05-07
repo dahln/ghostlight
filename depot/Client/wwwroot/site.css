@@ -1,6 +1,4 @@
 ﻿html, body {
-    font-family: "B_Proportional-Bold", Courier, monospace !important;
-    /*font-weight: 700;*/
 }
 
 .pointer {
@@ -33,7 +31,6 @@
 .required-astrisk {
     color: red;
     font-weight: bold;
-    font-size: 20px;
 }
 
 .header-separator{

@@ -192,7 +192,6 @@ namespace depot.Client.Services
         private async Task<HttpResponseMessage> Send(HttpMethod method, string path, object content = null)
         {
             string guid = Guid.NewGuid().ToString();
-            Console.WriteLine($"Start: {guid}");
             _loadingBarService.Show();
 
             var httpWebRequest = new HttpRequestMessage(method, path);
@@ -224,7 +223,6 @@ namespace depot.Client.Services
             }
 
             _loadingBarService.Hide();
-            Console.WriteLine($"Finish: {guid}");
             return response;
         }
 

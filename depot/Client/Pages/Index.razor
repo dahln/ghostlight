@@ -29,6 +29,12 @@
                                 <span class="oi oi-plus" aria-hidden="true"></span> @type.Text
                             </NavLink>
                         }
+                        @if (_appState.DataTypes.Count == 0)
+                        {
+                            <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/design")">
+                                <span class="oi oi-list-rich" aria-hidden="true"></span> Data Manager
+                            </NavLink>
+                        }
                     </div>
                 </div>
             </div>
