@@ -19,14 +19,9 @@ The MongoBD database requires a $text index to support text searching across the
 db.instances.createIndex( { GroupId: 1, TypeId: 1, "$**": "text" } )
 Tip: if you are using the MongoDB Atlas service, you can create the index by visiting the portal.
 
-As of 4.30.20 - here is the of items needed to be completed before I consider the application production ready:
-* Review/Adjust new user UI flow
-* Reivew/Adjust initial deployment process
-* (FIXED) Fix required/optional fields enforcement on instance view
-* (FIXED) Switch Group Search Instance bug
+As of 5.17.20 - here is the of items needed to be completed before I consider the application production ready:
 * (In Progress) Modify styles/content of default Identity pages
 * (In Progress) Security/Authorization
-* (DONE) Loading Spinner on API calls
 * metadata
 * favicon
 * deploy to depot.dahln.io with ssl cert
