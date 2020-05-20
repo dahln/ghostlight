@@ -149,7 +149,7 @@ namespace depot.Server.Areas.Identity.Pages.Account.Manage
         {
             return string.Format(
                 AuthenticatorUriFormat,
-                _urlEncoder.Encode("depot.Server"),
+                _urlEncoder.Encode("depot"),
                 _urlEncoder.Encode(email),
                 unformattedKey);
         }
