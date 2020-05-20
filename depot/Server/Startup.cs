@@ -13,6 +13,9 @@ using Microsoft.Extensions.Hosting;
 using System.Linq;
 using depot.Server.Data;
 using depot.Server.Models;
+using depot.Server.Helpers;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using depot.Server.Services;
 
 namespace depot.Server
 {
@@ -41,6 +44,9 @@ namespace depot.Server
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
+
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<AuthMessageSenderOptions>(Configuration);
 
             services.AddControllersWithViews();
             services.AddRazorPages();
