@@ -33,33 +33,29 @@
                                 {
                                     @if (field.Type == FieldType.Text)
                                     {
-                                        <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name</label> @if (!field.Optional)
-                                            {<span class="required-astrisk">*</span>}
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
                                             <input id="@field.Id" type="text" class="form-control" @bind="InstanceData[field.Id]" />
                                         </div>
                                     }
                                     else if (field.Type == FieldType.TextArea)
                                     {
-                                        <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name</label> @if (!field.Optional)
-                                            {<span class="required-astrisk">*</span>}
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
                                             <textarea id="@field.Id" class="form-control" @bind="InstanceData[field.Id]"></textarea>
                                         </div>
                                     }
                                     else if (field.Type == FieldType.Number)
                                     {
-                                        <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name</label> @if (!field.Optional)
-                                            {<span class="required-astrisk">*</span>}
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
                                             <input id="@field.Id" type="number" class="form-control" @bind="InstanceData[field.Id]" />
                                         </div>
                                     }
                                     else if (field.Type == FieldType.Date)
                                     {
-                                        <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name</label> @if (!field.Optional)
-                                            {<span class="required-astrisk">*</span>}
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
                                             <div id="@field.Id">
                                                 <DateAsString @bind-Value="InstanceData[field.Id]"></DateAsString>
                                             </div>
@@ -67,9 +63,8 @@
                                     }
                                     else if (field.Type == FieldType.Time)
                                     {
-                                        <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name</label> @if (!field.Optional)
-                                            {<span class="required-astrisk">*</span>}
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
                                             <div id="@field.Id">
                                                 <TimeAsString Id="@field.Id" @bind-Value="InstanceData[field.Id]"></TimeAsString>
                                             </div>
@@ -77,9 +72,8 @@
                                     }
                                     else if (field.Type == FieldType.Enum)
                                     {
-                                        <div class="form-group col-md-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name</label> @if (!field.Optional)
-                                            {<span class="required-astrisk">*</span>}
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
                                             <select class="form-control" @bind="InstanceData[field.Id]">
                                                 <option value=""></option>
                                                 @foreach (var option in field.Options.Split(','))
