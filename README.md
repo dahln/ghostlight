@@ -24,10 +24,10 @@ Tip: if you are using the MongoDB Atlas service, you can create the index by vis
 As of 5.17.20 - here is the of items needed to be completed before I consider the application production ready:
 * (In Progress) Modify styles/content of default Identity pages
 * (In Progress) Security/Authorization
+* Add Confirmation Prompts
 * metadata
 * favicon
 * deploy to depot.dahln.io with ssl cert
 * -------- backlog --------
-* Add Confirmation Prompts (not necessary for v1)
 * Linked fields (not necessary for v1)
 * File Attachments fields (not necessary for v1)
