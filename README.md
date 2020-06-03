@@ -8,11 +8,13 @@ This application is open source. Please review the license for use and distribut
 
 This application uses SQL for all persistant storage - except for the storage of "instances" of the dynamic data types. The storage of those instances is stored in MongoDB.
 
-Sensative configuration data, such as the DB connection strings and the signing key should be added to the appsettings.json files. Do not check in these values to the repo. Use the following commands to ignore changes to the appsettings.json files.
+Sensative configuration data, such as the DB connection strings, and Send Grid config can be added to the appsettings.json files. Do not check in these values to the repo. Use the following commands to ignore changes to the appsettings.json files:
 
-git update-index --assume-unchanged appsettings.json
-git update-index --assume-unchanged appsettings.Development.json
-Update the AppSettings.json to include this section, and add the appropriate values. If you don't want the sensative information in your AppSettings, You could include them as variables in your server configuration.
+* git update-index --assume-unchanged appsettings.json
+* git update-index --assume-unchanged appsettings.Development.json
+* git update-index --assume-unchanged appsettings.Productions.json
+
+The other option to updating the appSettings files is to set the values as variables in your server config.
 
 The SQL Database use Entity Framework, code first.  Automatic migrations are not enabled. When starting up the application for the first time, run "Update-Database" from the nuget console in Visual Studio.
 
