@@ -10,6 +10,7 @@
 @inject NavigationManager _navigationManger
 @inject depot.Client.Services.API API
 @inject IToastService _toastService
+@inject IModalService _modalService 
 
 @if (Type != null)
 {
@@ -182,8 +183,14 @@
 
     async private Task DeleteInstance()
     {
-        await API.DeleteGroupInstance(GroupId, DataTypeId, InstanceId);
+        var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this?");
+        var modalResult = await modal.Result;
 
-        _navigationManger.NavigateTo($"Group/{GroupId}/type/{DataTypeId}");
+        if(modalResult.Cancelled) { }
+        else
+        {
+            await API.DeleteGroupInstance(GroupId, DataTypeId, InstanceId);
+            _navigationManger.NavigateTo($"Group/{GroupId}/type/{DataTypeId}");
+        }
     }
 }

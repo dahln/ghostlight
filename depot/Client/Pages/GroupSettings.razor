@@ -9,6 +9,7 @@
 @inject NavigationManager _navigationManager
 @inject depot.Client.Services.AppState _appState
 @inject IToastService _toastService 
+@inject IModalService _modalService
 
 @if (Group != null)
 {
@@ -102,8 +103,15 @@
 
     public async Task RemoveAuthorizedUser(ResponseGroupAuthorizedUser user)
     {
-        await API.UpdateGroupRemoveUserAuthorized(GroupId, user.ApplicationUserId);
-        Group = await API.GroupGetById(GroupId);
+        var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this?");
+        var modalResult = await modal.Result;
+
+        if (modalResult.Cancelled) { }
+        else
+        {
+            await API.UpdateGroupRemoveUserAuthorized(GroupId, user.ApplicationUserId);
+            Group = await API.GroupGetById(GroupId);
+        }
     }
 
     public async Task ToggleAuthorizedRole(ResponseGroupAuthorizedUser user)
@@ -117,12 +125,20 @@
 
     public async Task DeleteGroup()
     {
-        await API.DeleteGroup(GroupId);
-        await _appState.UpdateAppState();
-        _toastService.ShowSuccess($"Group \"{Group.Name}\" Deleted. Redirecting...");
+        var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this?");
+        var modalResult = await modal.Result;
 
-        await Task.Delay(1000);
-        _navigationManager.NavigateTo("/");
+        if (modalResult.Cancelled) { }
+        else
+        {
+
+            await API.DeleteGroup(GroupId);
+            await _appState.UpdateAppState();
+            _toastService.ShowSuccess($"Group \"{Group.Name}\" Deleted. Redirecting...");
+
+            await Task.Delay(1000);
+            _navigationManager.NavigateTo("/");
+        }
     }
 
     public async Task UpdateGroupName()

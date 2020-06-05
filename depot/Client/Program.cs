@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Blazored.Toast;
 using Blazored.LocalStorage;
 using depot.Client.Services;
+using Blazored.Modal;
 
 namespace depot.Client
 {
@@ -29,6 +30,7 @@ namespace depot.Client
 
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddBlazoredToast();
+            builder.Services.AddBlazoredModal();
 
             await builder.Build().RunAsync();
         }
