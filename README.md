@@ -24,7 +24,6 @@ db.instances.createIndex( { GroupId: 1, TypeId: 1, "$**": "text" } )
 Tip: if you are using the MongoDB Atlas service, you can create the index by visiting the portal.
 
 TODO
-* Add Confirmation Prompts
 * metadata
 * favicon
 * deploy to depot.dahln.io with ssl cert
