@@ -29,4 +29,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+      <!-- extends watching group to include *.razor files -->
+      <Watch Include="..\Client\**\*.razor" />
+  </ItemGroup>
+
 </Project>
