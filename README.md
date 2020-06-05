@@ -22,12 +22,3 @@ The MongoBD database requires a $text index to support text searching across the
 
 db.instances.createIndex( { GroupId: 1, TypeId: 1, "$**": "text" } )
 Tip: if you are using the MongoDB Atlas service, you can create the index by visiting the portal.
-
-TODO
-* metadata
-* favicon
-* deploy to depot.dahln.io with ssl cert
-* Add Login/Register buttons to the non-auth home page
-* -------- backlog --------
-* Linked fields (not necessary for v1)
-* File Attachments fields (not necessary for v1)
