@@ -1,5 +1,3 @@
-[![Build Status](https://dev.azure.com/dahln/depot/_apis/build/status/depot%20CI%20pipleline?branchName=master)](https://dev.azure.com/dahln/depot/_build/latest?definitionId=13&branchName=master)
-
 This is simple CRM/XRM application. Dynamic data types can be defined, managed, and searched by the users. 
 
 A user creates a group. Each groups has its own data types and user permissions. A user can belong to multiple groups (or no groups) and switch between them. All the data types created and managed fall under the management of an organization profile.
