@@ -48,6 +48,7 @@ namespace depot.Server.Entities
         public int Row { get; set; } = 1;
         public int Column { get; set; } = 1;
         public int ColumnSpan { get; set; } = 1;
+        public bool Primary { get; set; } = false;
         public string Options { get; set; }
         public bool Optional { get; set; } = true;
         public bool SearchShow { get; set; } = false;

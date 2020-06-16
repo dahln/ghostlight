@@ -26,7 +26,10 @@ namespace depot.Client
 
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddApiAuthorization();
+            builder.Services.AddApiAuthorization(options => {
+                options.AuthenticationPaths.LogOutCallbackPath = "/";
+            });
+
 
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddBlazoredToast();

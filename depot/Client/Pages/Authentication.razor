@@ -1,6 +1,40 @@
 @page "/authentication/{action}"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-<RemoteAuthenticatorView Action="@Action" />
+@using Microsoft.AspNetCore.Components.Authorization
+
+<RemoteAuthenticatorView Action="@Action">
+    <LoggingIn>
+        @* Left these empty - at this time I don't want messages *@
+    </LoggingIn>
+    <CompletingLoggingIn>
+        @* Left these empty - at this time I don't want messages *@
+    </CompletingLoggingIn>
+    <CompletingLogOut>
+        @* Left these empty - at this time I don't want messages *@
+    </CompletingLogOut>
+    <UserProfile>
+
+    </UserProfile>
+    <Registering>
+
+    </Registering>
+    <LogOutSucceeded>
+        <AuthorizeView>
+            <NotAuthorized>
+                <div class="row">
+                    <div class="mx-auto">
+                        <a class="btn btn-lg btn-outline-success btn-home mt-5" href="authentication/login">Log in</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="mx-auto">
+                        <a class="btn btn-lg btn-outline-primary btn-home mt-5" href="authentication/register">Register</a>
+                    </div>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </LogOutSucceeded>
+</RemoteAuthenticatorView>
 
 @code{
     [Parameter] public string Action { get; set; }

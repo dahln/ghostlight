@@ -40,7 +40,7 @@
             </div>
 
         }
-        else if(_appState.Ready == true)
+        else if (_appState.Ready == true)
         {
             <div class="row mt-5 pt-5">
                 <h4 class="mx-auto">Create a Group</h4>
@@ -53,6 +53,18 @@
             </div>
         }
     </Authorized>
+    <NotAuthorized>
+        <div class="row">
+            <div class="mx-auto">
+                <a class="btn btn-lg btn-outline-success btn-home mt-5" href="authentication/login">Log in</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="mx-auto">
+                <a class="btn btn-lg btn-outline-primary btn-home mt-5" href="authentication/register">Register</a>
+            </div>
+        </div>
+    </NotAuthorized>
 </AuthorizeView>
 
 @code {
