@@ -179,6 +179,13 @@
                                 <td></td>
                             </tr>
                             <tr>
+                                <td>Primary (Used for Searching when Linking Instances):</td>
+                                <td colspan="4">
+                                    <input type="checkbox" @bind="field.Primary" @onblur="(() => UpdateField(field))" />
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
                                 <td>Show in Search:</td>
                                 <td colspan="4">
                                     <input type="checkbox" @bind="field.SearchShow" @onblur="(() => UpdateField(field))" />

@@ -131,10 +131,22 @@ namespace depot.Client.Services
         {
             return await GetAsync<ResponseInstance>($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}");
         }
-
+        async public Task<ResponsePrimaryValue> GroupGetInstancePrimaryValueById(string GroupId, string instanceId)
+        {
+            return await GetAsync<ResponsePrimaryValue>($"api/v1/Group/{GroupId}/instance/{instanceId}/primary");
+        }
         async public Task DeleteGroupInstance(string GroupId, string instanceTypeId, string instanceId)
         {
             await DeleteAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}");
+        }
+
+        async public Task LinkInstanceByInstanceIds(string GroupId, string instanceTypeId, string instanceId, string linkInstanceId)
+        {
+            await PutAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}/link/{linkInstanceId}");
+        }
+        async public Task UnLinkInstanceByInstanceIds(string GroupId, string instanceTypeId, string instanceId, string linkedInstanceId)
+        {
+            await DeleteAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}/link/{linkedInstanceId}");
         }
 
         async public Task<InstanceSearchResponse> SearchGroupInstance(string GroupId, string instanceTypeId, Search content)
@@ -178,6 +190,10 @@ namespace depot.Client.Services
         {
             var response = await Send(HttpMethod.Put, path, content);
             return await ParseResponseObject<T>(response);
+        }
+        private async Task PutAsync(string path)
+        {
+            await Send(HttpMethod.Put, path);
         }
 
         private async Task DeleteAsync(string path)

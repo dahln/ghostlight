@@ -26,5 +26,6 @@ namespace depot.Shared.RequestModels
         public int SortDirection { get; set; } = 1;
         public int Page { get; set; } = 0;
         public int PageSize { get; set; } = 25;
+        public bool OnlyPrimary { get; set; } = false;
     }
 }

@@ -282,7 +282,8 @@ namespace CRM.Server.Controllers
                                             Optional = f.Optional,
                                             Options = f.Options,
                                             SearchOrder = f.SearchOrder,
-                                            SearchShow = f.SearchShow
+                                            SearchShow = f.SearchShow,
+                                            Primary = f.Primary
                                         }).ToList()
                                     }).FirstOrDefaultAsync();
 
@@ -307,7 +308,8 @@ namespace CRM.Server.Controllers
                                             Optional = f.Optional,
                                             Options = f.Options,
                                             SearchOrder = f.SearchOrder,
-                                            SearchShow = f.SearchShow
+                                            SearchShow = f.SearchShow,
+                                            Primary = f.Primary
                                         }).ToList()
                                     }).ToListAsync();
 
@@ -336,7 +338,8 @@ namespace CRM.Server.Controllers
                 Options = model.Options,
                 SearchOrder = model.SearchOrder,
                 SearchShow = model.SearchShow,
-                InstanceTypeId = instanceTypeId
+                InstanceTypeId = instanceTypeId,
+                Primary = model.Primary
             };
             _db.Fields.Add(field);
 
@@ -367,6 +370,7 @@ namespace CRM.Server.Controllers
             field.Options = model.Options;
             field.SearchOrder = model.SearchOrder;
             field.SearchShow = model.SearchShow;
+            field.Primary = model.Primary;
 
             await _db.SaveChangesAsync();
 
@@ -449,6 +453,15 @@ namespace CRM.Server.Controllers
             if (countResponse != null)
                 response.Total = countResponse.Total;
 
+            if(model.OnlyPrimary)
+            {
+                var primaryField = _db.Fields.Where(f => f.InstanceTypeId == instanceTypeId && f.Primary == true).FirstOrDefault();
+                for(int a = 0; a < response.Data.Count; a++)
+                {
+                    response.Data[a] = response.Data[a].Where(f => f.Key == "InstanceId" || f.Key == primaryField.Id).ToDictionary(t => t.Key, t => t.Value);
+                }
+            }
+
             return Ok(response);
         }
 
@@ -514,6 +527,83 @@ namespace CRM.Server.Controllers
             return Ok();
         }
 
+        [Authorize]
+        [HttpPut]
+        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}/link/{linkInstanceId}")]
+        async public Task<IActionResult> LinkInstanceByInstanceIds(string GroupId, string instanceTypeId, string instanceId, string linkInstanceId)
+        {
+            string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
+
+            var query = new BsonDocument("$and",
+                        new BsonArray
+                        {
+                            new BsonDocument("GroupId", GroupId),
+                            new BsonDocument("TypeId", instanceTypeId),
+                            new BsonDocument("InstanceId", instanceId)
+                        });
+
+            PipelineDefinition<Dictionary<string, string>, Dictionary<string, string>> pipelineData = new BsonDocument[]
+            {
+                new BsonDocument("$match", query),
+                new BsonDocument("$project",
+                new BsonDocument
+                    {
+                        { "_id", 0 },
+                    })
+            };
+
+            //Search
+            var data = await _mongoDBContext.Instances.Aggregate(pipelineData).FirstOrDefaultAsync();
+            data.Add($"LINK-{Guid.NewGuid().ToString()}", linkInstanceId);
+
+            await _mongoDBContext.Instances.ReplaceOneAsync(query, data);
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpDelete]
+        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}/link/{linkedInstanceId}")]
+        async public Task<IActionResult> UnLinkInstanceByInstanceIds(string GroupId, string instanceTypeId, string instanceId, string linkedInstanceId)
+        {
+            string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
+
+            var query = new BsonDocument("$and",
+                        new BsonArray
+                        {
+                            new BsonDocument("GroupId", GroupId),
+                            new BsonDocument("TypeId", instanceTypeId),
+                            new BsonDocument("InstanceId", instanceId)
+                        });
+
+            PipelineDefinition<Dictionary<string, string>, Dictionary<string, string>> pipelineData = new BsonDocument[]
+            {
+                new BsonDocument("$match", query),
+                new BsonDocument("$project",
+                new BsonDocument
+                    {
+                        { "_id", 0 },
+                    })
+            };
+
+            //Search
+            var data = await _mongoDBContext.Instances.Aggregate(pipelineData).FirstOrDefaultAsync();
+
+            var linksToRemove = data.Where(v => v.Key.Contains("LINK-") && v.Value == linkedInstanceId);
+            foreach(var link in linksToRemove)
+            {
+                data.Remove(link.Key);
+            }
+
+            await _mongoDBContext.Instances.ReplaceOneAsync(query, data);
+
+            return Ok();
+        }
+
 
         [Authorize]
         [HttpGet]
@@ -563,6 +653,54 @@ namespace CRM.Server.Controllers
             {
                 Id = instanceId,
                 InstanceData = data
+            };
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("api/v1/Group/{GroupId}/instance/{instanceId}/primary")]
+        async public Task<IActionResult> GroupGetInstancePrimaryValueById(string GroupId, string instanceId)
+        {
+            string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
+
+            //Query used in data results and count results. Separate the query from the rest of the pipeline so it can be reused.
+            var query = new BsonDocument("$and",
+                        new BsonArray
+                        {
+                            new BsonDocument("GroupId", GroupId),
+                            new BsonDocument("InstanceId", instanceId)
+                        });
+
+            PipelineDefinition<Dictionary<string, string>, Dictionary<string, string>> pipelineData = new BsonDocument[]
+            {
+                new BsonDocument("$match", query),
+                new BsonDocument("$project",
+                new BsonDocument
+                    {
+                        { "_id", 0 },
+                    })
+            };
+
+            //Search
+            var data = await _mongoDBContext.Instances.Aggregate(pipelineData).FirstOrDefaultAsync();
+
+            //Make sure the response object has all the fields defined
+            InstanceType instanceType = await _db.InstanceTypes
+                                                    .Include(i => i.Fields)
+                                                    .Where(i => i.GroupId == GroupId && i.Id == data["TypeId"])
+                                                    .FirstOrDefaultAsync();
+
+            var primary = instanceType.Fields.FirstOrDefault(f => f.Primary == true);
+
+            ResponsePrimaryValue response = new ResponsePrimaryValue()
+            {
+                Id = instanceId,
+                DataType = data["TypeId"],
+                Value = data.Where(f => f.Key == primary.Id).FirstOrDefault().Value
             };
 
             return Ok(response);

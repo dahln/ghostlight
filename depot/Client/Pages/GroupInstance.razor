@@ -10,7 +10,7 @@
 @inject NavigationManager _navigationManger
 @inject depot.Client.Services.API API
 @inject IToastService _toastService
-@inject IModalService _modalService 
+@inject IModalService _modalService
 
 @if (Type != null)
 {
@@ -19,86 +19,125 @@
             &#171; Back to Search
         </NavLink>
     </div>
-
-    <form @onsubmit="SaveInstance">
-        <div class="card">
-            <h5 class="card-header">@Type.Name</h5>
-            <div class="card-body">
-                <div class="card-body">
-                    @for (int row = 1; row <= Type.Fields.Select(f => f.Row).Max(); row++)
-                    {
-                        <div class="row">
-                            @for (int col = 1; col <= 12; col++)
+    <div class="row">
+        <div class="col-md-9">
+            <form @onsubmit="SaveInstance">
+                <div class="card">
+                    <h5 class="card-header">@Type.Name</h5>
+                    <div class="card-body">
+                        <div class="card-body">
+                            @for (int row = 1; row <= Type.Fields.Select(f => f.Row).Max(); row++)
                             {
-                                foreach (var field in Type.Fields.Where(f => f.Row == row && f.Column == col))
-                                {
-                                    @if (field.Type == FieldType.Text)
+                                <div class="row">
+                                    @for (int col = 1; col <= 12; col++)
                                     {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
-                                            <input id="@field.Id" type="text" class="form-control" @bind="InstanceData[field.Id]" />
-                                        </div>
-                                    }
-                                    else if (field.Type == FieldType.TextArea)
-                                    {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
-                                            <textarea id="@field.Id" class="form-control" @bind="InstanceData[field.Id]"></textarea>
-                                        </div>
-                                    }
-                                    else if (field.Type == FieldType.Number)
-                                    {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
-                                            <input id="@field.Id" type="number" class="form-control" @bind="InstanceData[field.Id]" />
-                                        </div>
-                                    }
-                                    else if (field.Type == FieldType.Date)
-                                    {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
-                                            <div id="@field.Id">
-                                                <DateAsString @bind-Value="InstanceData[field.Id]"></DateAsString>
-                                            </div>
-                                        </div>
-                                    }
-                                    else if (field.Type == FieldType.Time)
-                                    {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
-                                            <div id="@field.Id">
-                                                <TimeAsString Id="@field.Id" @bind-Value="InstanceData[field.Id]"></TimeAsString>
-                                            </div>
-                                        </div>
-                                    }
-                                    else if (field.Type == FieldType.Enum)
-                                    {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                            <label for="@field.Id">@field.Name @if (!field.Optional) {<span class="required-astrisk">*</span>} </label>
-                                            <select class="form-control" @bind="InstanceData[field.Id]">
-                                                <option value=""></option>
-                                                @foreach (var option in field.Options.Split(','))
-                                                {
-                                                    <option value="@option">@option</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    }
+                                        foreach (var field in Type.Fields.Where(f => f.Row == row && f.Column == col))
+                                        {
+                                            @if (field.Type == FieldType.Text)
+                                            {
+                                                <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                                    <label for="@field.Id">
+                                                        @field.Name @if (!field.Optional)
+                                                        {<span class="required-astrisk">*</span>}
+                                                    </label>
+                                                    <input id="@field.Id" type="text" class="form-control" @bind="InstanceData[field.Id]" />
+                                                </div>
+                                            }
+                                            else if (field.Type == FieldType.TextArea)
+                                            {
+                                                <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                                    <label for="@field.Id">
+                                                        @field.Name @if (!field.Optional)
+                                                        {<span class="required-astrisk">*</span>}
+                                                    </label>
+                                                    <textarea id="@field.Id" class="form-control" @bind="InstanceData[field.Id]"></textarea>
+                                                </div>
+                                            }
+                                            else if (field.Type == FieldType.Number)
+                                            {
+                                                <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                                    <label for="@field.Id">
+                                                        @field.Name @if (!field.Optional)
+                                                        {<span class="required-astrisk">*</span>}
+                                                    </label>
+                                                    <input id="@field.Id" type="number" class="form-control" @bind="InstanceData[field.Id]" />
+                                                </div>
+                                            }
+                                            else if (field.Type == FieldType.Date)
+                                            {
+                                                <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                                    <label for="@field.Id">
+                                                        @field.Name @if (!field.Optional)
+                                                        {<span class="required-astrisk">*</span>}
+                                                    </label>
+                                                    <div id="@field.Id">
+                                                        <DateAsString @bind-Value="InstanceData[field.Id]"></DateAsString>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else if (field.Type == FieldType.Time)
+                                            {
+                                                <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                                    <label for="@field.Id">
+                                                        @field.Name @if (!field.Optional)
+                                                        {<span class="required-astrisk">*</span>}
+                                                    </label>
+                                                    <div id="@field.Id">
+                                                        <TimeAsString Id="@field.Id" @bind-Value="InstanceData[field.Id]"></TimeAsString>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else if (field.Type == FieldType.Enum)
+                                            {
+                                                <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                                    <label for="@field.Id">
+                                                        @field.Name @if (!field.Optional)
+                                                        {<span class="required-astrisk">*</span>}
+                                                    </label>
+                                                    <select class="form-control" @bind="InstanceData[field.Id]">
+                                                        <option value=""></option>
+                                                        @foreach (var option in field.Options.Split(','))
+                                                        {
+                                                            <option value="@option">@option</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            }
 
-                                }
+                                        }
+                                    }
+                                </div>
+                            }
+
+                            <button class="btn btn-info float-right ml-2" type="submit"><i class="fas fa-check mr-2"></i>Save @Type.Name</button>
+                            @if (InstanceId != null)
+                            {
+                                <button class="btn btn-danger float-right" type="button" @onclick="DeleteInstance"><i class="fas fa-trash-alt mr-2"></i>Delete</button>
                             }
                         </div>
-                    }
+                    </div>
+                </div>
+            </form>
+        </div>
 
-                    <button class="btn btn-info float-right ml-2" type="submit"><i class="fas fa-check mr-2"></i>Save @Type.Name</button>
-                    @if (InstanceId != null)
-                    {
-                        <button class="btn btn-danger float-right" type="button" @onclick="DeleteInstance"><i class="fas fa-trash-alt mr-2"></i>Delete</button>
-                    }
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="button" class="w-100 btn btn-primary" value="Add Link" @onclick="StartAddLink" />
                 </div>
             </div>
+            @foreach (var l in Links)
+            {
+                <div class="row">
+                    <div class="col-md-12">
+                        <a class="btn btn-link" href="@($"/Group/{GroupId}/instance/{l.DataType}/{l.Id}")">
+                            @(l.Value)
+                        </a> <input type="button" class="btn btn-outline-danger btn-sm float-right mt-1" value="Remove" @onclick="(() => RemoveLink(l.Id))" />
+                    </div>
+                </div>
+            }
         </div>
-    </form>
+    </div>
 }
 
 @code {
@@ -116,12 +155,13 @@
     //Loaded from API
     public ResponseGroup Group { get; set; } = new ResponseGroup();
     public ResponseInstanceType Type { get; set; }
+    public List<ResponseInstanceType> Types { get; set; } = new List<ResponseInstanceType>();
 
     public Dictionary<string, string> InstanceData { get; set; } = new Dictionary<string, string>();
+    public List<ResponsePrimaryValue> Links { get; set; } = new List<ResponsePrimaryValue>();
 
-    async protected override Task OnInitializedAsync()
+    async protected override Task OnParametersSetAsync()
     {
-        Console.WriteLine($"InstanceId: {InstanceId}");
 
         await GetGroup();
         await GetDataTypes();
@@ -135,6 +175,7 @@
 
     async private Task GetDataTypes()
     {
+        Types = await API.GetGroupTypeAsList(GroupId);
         Type = await API.GetGroupTypeById(GroupId, DataTypeId);
 
         foreach (var t in Type.Fields)
@@ -149,6 +190,13 @@
         {
             var result = await API.GetGroupInstance(GroupId, DataTypeId, InstanceId);
             InstanceData = result.InstanceData;
+
+            Links = new List<ResponsePrimaryValue>();
+            foreach (var link in result.InstanceData.Where(k => k.Key.Contains("LINK-")))
+            {
+                var linkResult = await API.GroupGetInstancePrimaryValueById(GroupId, link.Value);
+                Links.Add(linkResult);
+            }
         }
     }
 
@@ -186,11 +234,37 @@
         var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this?");
         var modalResult = await modal.Result;
 
-        if(modalResult.Cancelled) { }
+        if (modalResult.Cancelled) { }
         else
         {
             await API.DeleteGroupInstance(GroupId, DataTypeId, InstanceId);
             _navigationManger.NavigateTo($"Group/{GroupId}/type/{DataTypeId}");
         }
+    }
+
+    async private Task StartAddLink()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(CreateNewLink.GroupId), GroupId);
+        parameters.Add(nameof(CreateNewLink.InstanceTypeId), DataTypeId);
+        parameters.Add(nameof(CreateNewLink.InstanceId), InstanceId);
+
+        var options = new ModalOptions();
+        options.Class = "blazored-modal CreateNewLink";
+
+        var modal =_modalService.Show<CreateNewLink>("Create New Link", parameters, options);
+        var modalResult = await modal.Result;
+
+        if (modalResult.Cancelled) { }
+        else
+        {
+            await GetSelectedInstance();
+        }
+    }
+
+    async private Task RemoveLink(string linkedInstanceId)
+    {
+        await API.UnLinkInstanceByInstanceIds(GroupId, DataTypeId, InstanceId, linkedInstanceId);
+        await GetSelectedInstance();
     }
 }
