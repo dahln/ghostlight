@@ -119,7 +119,7 @@
                 </div>
             </form>
         </div>
-        @if (Types.SelectMany(t => t.Fields).Any(t => t.Primary))
+        @if (Types.Where(t => t.Id != DataTypeId).SelectMany(t => t.Fields).Any(t => t.Primary))
         {
             <div class="col-md-3">
                 <div class="row">
@@ -129,20 +129,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="w-100 btn btn-success" @onclick="StartAddLink">
-                            <i class="fas fa-plus mr-1"></i><span>Attach File</span>
-                        </div>
-                    </div>
-                </div>
-                @foreach (var l in Links)
+                @foreach (var l in LinkPrimarys)
                 {
                     <div class="row">
                         <div class="col-md-12">
                             <a class="btn btn-link" href="@($"/Group/{GroupId}/instance/{l.DataType}/{l.Id}")">
                                 @(l.Value)
-                            </a> <input type="button" class="btn btn-outline-danger btn-sm float-right mt-1" value="Remove" @onclick="(() => RemoveLink(l.Id))" />
+                            </a> <input type="button" class="btn btn-outline-danger btn-sm float-right mt-1" value="Remove" @onclick="(() => RemoveLink(InstanceLinks.Where(i => i.LinkId1 == l.Id || i.LinkId2 == l.Id).Select(i => i.Id).FirstOrDefault()))" />
                         </div>
                     </div>
                 }
@@ -169,7 +162,8 @@
     public List<ResponseInstanceType> Types { get; set; } = new List<ResponseInstanceType>();
 
     public Dictionary<string, string> InstanceData { get; set; } = new Dictionary<string, string>();
-    public List<ResponsePrimaryValue> Links { get; set; } = new List<ResponsePrimaryValue>();
+    List<LinkedInstanceResponse> InstanceLinks { get; set; } = new List<LinkedInstanceResponse>();
+    public List<ResponsePrimaryValue> LinkPrimarys { get; set; } = new List<ResponsePrimaryValue>();
 
     async protected override Task OnParametersSetAsync()
     {
@@ -202,11 +196,13 @@
             var result = await API.GetGroupInstance(GroupId, DataTypeId, InstanceId);
             InstanceData = result.InstanceData;
 
-            Links = new List<ResponsePrimaryValue>();
-            foreach (var link in result.InstanceData.Where(k => k.Key.Contains("LINK-")))
+            LinkPrimarys = new List<ResponsePrimaryValue>();
+
+            InstanceLinks = await API.GetLinksForInstanceId(GroupId, InstanceId);
+            foreach (var link in InstanceLinks)
             {
-                var linkResult = await API.GroupGetInstancePrimaryValueById(GroupId, link.Value);
-                Links.Add(linkResult);
+                var linkResult = await API.GroupGetInstancePrimaryValueById(GroupId, link.LinkId1 == InstanceId ? link.LinkId2 : link.LinkId1);
+                LinkPrimarys.Add(linkResult);
             }
         }
     }
@@ -273,9 +269,9 @@
         }
     }
 
-    async private Task RemoveLink(string linkedInstanceId)
+    async private Task RemoveLink(string linkId)
     {
-        await API.UnLinkInstanceByInstanceIds(GroupId, DataTypeId, InstanceId, linkedInstanceId);
+        await API.UnLinkInstanceByInstanceIds(GroupId, linkId);
         await GetSelectedInstance();
     }
 }

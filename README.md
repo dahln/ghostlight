@@ -1,3 +1,5 @@
+** Application is essentially "feature complete". More features might be added in the future, but for now the focus will be on enhancing and cleaning up current features. **
+
 This is simple CRM/XRM application. Dynamic data types can be defined, managed, and searched by the users. 
 
 A user creates a group. Each groups has its own data types and user permissions. A user can belong to multiple groups (or no groups) and switch between them. All the data types created and managed fall under the management of an organization profile.

@@ -140,13 +140,17 @@ namespace depot.Client.Services
             await DeleteAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}");
         }
 
-        async public Task LinkInstanceByInstanceIds(string GroupId, string instanceTypeId, string instanceId, string linkInstanceId)
+        async public Task<List<LinkedInstanceResponse>> GetLinksForInstanceId(string GroupId, string instanceId)
         {
-            await PutAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}/link/{linkInstanceId}");
+            return await GetAsync<List<LinkedInstanceResponse>>($"api/v1/Group/{GroupId}/link/{instanceId}");
         }
-        async public Task UnLinkInstanceByInstanceIds(string GroupId, string instanceTypeId, string instanceId, string linkedInstanceId)
+        async public Task LinkInstanceByInstanceIds(string GroupId, string linkId1, string linkId2)
         {
-            await DeleteAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}/link/{linkedInstanceId}");
+            await PutAsync($"api/v1/Group/{GroupId}/link/{linkId1}/{linkId2}");
+        }
+        async public Task UnLinkInstanceByInstanceIds(string GroupId, string linkId)
+        {
+            await DeleteAsync($"api/v1/Group/{GroupId}/link/{linkId}");
         }
 
         async public Task<InstanceSearchResponse> SearchGroupInstance(string GroupId, string instanceTypeId, Search content)

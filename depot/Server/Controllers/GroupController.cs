@@ -528,78 +528,63 @@ namespace CRM.Server.Controllers
         }
 
         [Authorize]
-        [HttpPut]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}/link/{linkInstanceId}")]
-        async public Task<IActionResult> LinkInstanceByInstanceIds(string GroupId, string instanceTypeId, string instanceId, string linkInstanceId)
+        [HttpGet]
+        [Route("api/v1/Group/{GroupId}/link/{instanceId}")]
+        async public Task<IActionResult> GetLinksForInstanceId(string GroupId, string instanceId)
         {
             string userId = User.GetUserId();
             if (await CanManageGroup(userId, GroupId) == false)
                 return BadRequest("Cannot manage group");
 
-            var query = new BsonDocument("$and",
-                        new BsonArray
-                        {
-                            new BsonDocument("GroupId", GroupId),
-                            new BsonDocument("TypeId", instanceTypeId),
-                            new BsonDocument("InstanceId", instanceId)
-                        });
+            var links = _db.InstanceLinks
+                                .Where(i => i.LinkId1 == instanceId || i.LinkId2 == instanceId)
+                                .Select(i => new LinkedInstanceResponse()
+                                {
+                                    Id = i.Id,
+                                    GroupId = i.GroupId,
+                                    LinkId1 = i.LinkId1,
+                                    LinkId2 = i.LinkId2
+                                })
+                                .ToList();
 
-            PipelineDefinition<Dictionary<string, string>, Dictionary<string, string>> pipelineData = new BsonDocument[]
+            return Ok(links);
+        }
+
+        [Authorize]
+        [HttpPut]
+        [Route("api/v1/Group/{GroupId}/link/{linkId1}/{linkId2}")]
+        async public Task<IActionResult> LinkInstanceByInstanceIds(string GroupId, string linkId1, string linkId2)
+        {
+            string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
+
+            InstanceLink link = new InstanceLink()
             {
-                new BsonDocument("$match", query),
-                new BsonDocument("$project",
-                new BsonDocument
-                    {
-                        { "_id", 0 },
-                    })
+                GroupId = GroupId,
+                LinkId1 = linkId1,
+                LinkId2 = linkId2
             };
 
-            //Search
-            var data = await _mongoDBContext.Instances.Aggregate(pipelineData).FirstOrDefaultAsync();
-            data.Add($"LINK-{Guid.NewGuid().ToString()}", linkInstanceId);
-
-            await _mongoDBContext.Instances.ReplaceOneAsync(query, data);
+            _db.InstanceLinks.Add(link);
+            await _db.SaveChangesAsync();
 
             return Ok();
         }
 
         [Authorize]
         [HttpDelete]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}/link/{linkedInstanceId}")]
-        async public Task<IActionResult> UnLinkInstanceByInstanceIds(string GroupId, string instanceTypeId, string instanceId, string linkedInstanceId)
+        [Route("api/v1/Group/{GroupId}/link/{linkId}")]
+        async public Task<IActionResult> UnLinkInstanceByInstanceIds(string GroupId, string linkId)
         {
             string userId = User.GetUserId();
             if (await CanManageGroup(userId, GroupId) == false)
                 return BadRequest("Cannot manage group");
 
-            var query = new BsonDocument("$and",
-                        new BsonArray
-                        {
-                            new BsonDocument("GroupId", GroupId),
-                            new BsonDocument("TypeId", instanceTypeId),
-                            new BsonDocument("InstanceId", instanceId)
-                        });
+            var deleteThis = _db.InstanceLinks.Where(l => l.Id == linkId);
 
-            PipelineDefinition<Dictionary<string, string>, Dictionary<string, string>> pipelineData = new BsonDocument[]
-            {
-                new BsonDocument("$match", query),
-                new BsonDocument("$project",
-                new BsonDocument
-                    {
-                        { "_id", 0 },
-                    })
-            };
-
-            //Search
-            var data = await _mongoDBContext.Instances.Aggregate(pipelineData).FirstOrDefaultAsync();
-
-            var linksToRemove = data.Where(v => v.Key.Contains("LINK-") && v.Value == linkedInstanceId);
-            foreach(var link in linksToRemove)
-            {
-                data.Remove(link.Key);
-            }
-
-            await _mongoDBContext.Instances.ReplaceOneAsync(query, data);
+            _db.RemoveRange(deleteThis);
+            await _db.SaveChangesAsync();
 
             return Ok();
         }

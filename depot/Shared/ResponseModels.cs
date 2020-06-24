@@ -88,4 +88,12 @@ namespace depot.Shared.ResponseModels
     {
         public int Total { get; set; }
     }
+
+    public class LinkedInstanceResponse
+    {
+        public string Id { get; set; }
+        public string GroupId { get; set; }
+        public string LinkId1 { get; set; }
+        public string LinkId2 { get; set; }
+    }
 }

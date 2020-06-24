@@ -14,25 +14,26 @@
             <div class="row mt-5 pt-5">
                 <h4 class="mx-auto">@_appState.CurrentGroupName</h4>
             </div>
+            @if (_appState.DataTypes.Count == 0)
+            {
+                <div class="row mt-5">
+                    <h6 class="mx-auto">Visit the 'Data Manager' to create forms and types of data</h6>
+                </div>
+            }
             <div class="row mt-5">
-                <h6 class="mx-auto">Select what you wish to view/manage</h6>
-            </div>
-            <div class="row mt-5">
-                <div class="mx-auto dropdown">
-                    <button class="btn btn-outline-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Data
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <div class="col-md-4 offset-md-4">
+                    <div class="list-group w-100">
                         @foreach (var type in _appState.DataTypes)
                         {
-                            <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/type/{type.Data}")">
+                            <NavLink class="list-group-item list-group-item-action" href="@($"group/{_appState.CurrentGroupId}/type/{type.Data}")">
                                 <span class="oi oi-plus" aria-hidden="true"></span> @type.Text
                             </NavLink>
                         }
-                        @if (_appState.DataTypes.Count == 0)
+                        @if (_appState.DataTypes.Count == 0 && _appState.CurrentGroupIsAdministrator)
                         {
-                            <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/design")">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Data Manager
+
+                            <NavLink class="list-group-item list-group-item-action list-group-item-info" href="@($"group/{_appState.CurrentGroupId}/design")">
+                                <span class="oi oi-list-rich" aria-hidden="true"></span> Manage Data Types
                             </NavLink>
                         }
                     </div>

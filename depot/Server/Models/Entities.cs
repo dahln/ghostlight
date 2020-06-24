@@ -13,6 +13,7 @@ namespace depot.Server.Entities
         public string Name { get; set; }
         public List<InstanceType> InstanceTypes { get; set; } = new List<InstanceType>();
         public List<GroupAuthorizedUser> AuthorizedUsers { get; set; } = new List<GroupAuthorizedUser>();
+        public List<InstanceLink> InstanceLinks { get; set; } = new List<InstanceLink>();
     }
 
     public class GroupAuthorizedUser
@@ -56,5 +57,15 @@ namespace depot.Server.Entities
 
         public string InstanceTypeId { get; set; }
         public InstanceType InstanceType { get; set; }
+    }
+
+    public class InstanceLink
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string LinkId1 { get; set; }
+        public string LinkId2 { get; set; }
+
+        public string GroupId { get; set; }
+        public Group Group { get; set; }
     }
 }
