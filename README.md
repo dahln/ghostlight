@@ -1,4 +1,4 @@
-** Application is essentially "feature complete". More features might be added in the future, but for now the focus will be on enhancing and cleaning up current features. **
+**Application is essentially "feature complete". More features might be added in the future, but for now the focus will be on enhancing and cleaning up current features.**
 
 This is simple CRM/XRM application. Dynamic data types can be defined, managed, and searched by the users. 
 
