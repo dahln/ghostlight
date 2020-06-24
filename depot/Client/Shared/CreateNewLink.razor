@@ -10,9 +10,9 @@
     Link this record to another record in this group. This is useful if they are related.
 </p>
 <div class="row mt-2">
-    <div class="col-md-3">
+    <div class="col-md-4">
         <select class="form-control" @bind="LinkingType">
-            <option value="0">---Select Type---</option>
+            <option value="0">Select Type</option>
             @foreach (var type in Types.Where(t => t.Id != InstanceTypeId && t.Fields.Any(f => f.Primary)))
             {
                 <option value="@type.Id">@type.Name</option>
