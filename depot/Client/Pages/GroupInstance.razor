@@ -23,7 +23,7 @@
         <div class="col-md-9">
             <form @onsubmit="SaveInstance">
                 <div class="card">
-                    <h5 class="card-header">@Type.Name</h5>
+                    <h5 class="card-header text-white bg-info">@Type.Name</h5>
                     <div class="card-body">
                         <div class="card-body">
                             @for (int row = 1; row <= Type.Fields.Select(f => f.Row).Max(); row++)
@@ -119,24 +119,35 @@
                 </div>
             </form>
         </div>
-
-        <div class="col-md-3">
-            <div class="row">
-                <div class="col-md-12">
-                    <input type="button" class="w-100 btn btn-primary" value="Add Link" @onclick="StartAddLink" />
-                </div>
-            </div>
-            @foreach (var l in Links)
-            {
+        @if (Types.SelectMany(t => t.Fields).Any(t => t.Primary))
+        {
+            <div class="col-md-3">
                 <div class="row">
                     <div class="col-md-12">
-                        <a class="btn btn-link" href="@($"/Group/{GroupId}/instance/{l.DataType}/{l.Id}")">
-                            @(l.Value)
-                        </a> <input type="button" class="btn btn-outline-danger btn-sm float-right mt-1" value="Remove" @onclick="(() => RemoveLink(l.Id))" />
+                        <div class="w-100 btn btn-primary" @onclick="StartAddLink">
+                            <i class="fas fa-plus mr-1"></i><span>Add Link</span>   
+                        </div>
                     </div>
                 </div>
-            }
-        </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="w-100 btn btn-success" @onclick="StartAddLink">
+                            <i class="fas fa-plus mr-1"></i><span>Attach File</span>
+                        </div>
+                    </div>
+                </div>
+                @foreach (var l in Links)
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a class="btn btn-link" href="@($"/Group/{GroupId}/instance/{l.DataType}/{l.Id}")">
+                                @(l.Value)
+                            </a> <input type="button" class="btn btn-outline-danger btn-sm float-right mt-1" value="Remove" @onclick="(() => RemoveLink(l.Id))" />
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     </div>
 }
 

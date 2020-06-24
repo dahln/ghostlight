@@ -9,7 +9,7 @@
 <div class="row mt-2">
     <select class="form-control" @bind="LinkingType">
         <option value="0">---Select Type---</option>
-        @foreach (var type in Types)
+        @foreach (var type in Types.Where(t => t.Fields.Any(f => f.Primary)))
         {
             <option value="@type.Id">@type.Name</option>
         }
