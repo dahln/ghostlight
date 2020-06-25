@@ -18,61 +18,58 @@
                     @if (_appState.CurrentGroupId != null)
                     {
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Data
+                            <a class="nav-link dropdown-toggle mr-2" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <strong><i class="fas fa-sync mr-1"></i>Switch Type</strong>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
 
                                 @foreach (var type in _appState.DataTypes)
                                 {
                                     <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/type/{type.Data}")">
-                                        <span class="oi oi-plus" aria-hidden="true"></span> @type.Text
+                                        <i class="fas fa-list-ol mr-1"></i> @type.Text
                                     </NavLink>
                                 }
-                                @if (_appState.CurrentGroupIsAdministrator)
-                                {
-                                    if (_appState.DataTypes.Count > 0)
-                                    {
-                                        <div class="dropdown-divider"></div>
-                                    }
-                                    <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/design")">
-                                        <span class="oi oi-list-rich" aria-hidden="true"></span> Data Manager
-                                    </NavLink>
-                                }
+                                
                             </div>
                         </li>
                     }
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Group
+                        <a class="nav-link dropdown-toggle mr-2" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-layer-group mr-1"></i> Group
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             @foreach (var group in _appState.AllowedGroups)
                             {
                                 <NavLink class="dropdown-item pointer" href="@($"group/{group.Id}")">
-                                    <span class="oi oi-plus" aria-hidden="true"></span> @group.Name
+                                    <i class="fas fa-sync mr-1"></i> @group.Name
                                 </NavLink>
                             }
                             @if (_appState.AllowedGroups.Count > 0)
                             {
                                 <div class="dropdown-divider"></div>
                             }
+                            @if (_appState.CurrentGroupIsAdministrator)
+                            {
+                                <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/design")">
+                                    <i class="fas fa-tools mr-1"></i> Group Data Manager
+                                </NavLink>
+                            }
                             @if (_appState.CurrentGroupId != null && _appState.CurrentGroupIsAdministrator)
                             {
                                 <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/settings")">
-                                    <span class="oi oi-list-rich" aria-hidden="true"></span> Current Group Settings
+                                    <i class="fas fa-cog mr-1"></i> Current Group Settings
                                 </NavLink>
                             }
                             <a class="dropdown-item" href="group">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Create New Group
+                                <i class="fas fa-plus mr-1"></i> Create New Group
                             </a>
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="authentication/profile">@context.User.Identity.Name</a>
+                        <a class="nav-link mr-2" href="authentication/profile">@context.User.Identity.Name</a>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link btn btn-link" @onclick="BeginSignOut">Log out</button>
+                        <button class="nav-link btn btn-link" @onclick="BeginSignOut"><i class="fas fa-sign-out-alt mr-1"></i>Log out</button>
                     </li>
                 </ul>
             </div>
