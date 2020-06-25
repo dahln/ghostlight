@@ -681,10 +681,13 @@ namespace CRM.Server.Controllers
 
             var primary = instanceType.Fields.FirstOrDefault(f => f.Primary == true);
 
+            var dataTypeName = _db.InstanceTypes.Where(t => t.Id == data["TypeId"]).FirstOrDefault()?.Name;
+
             ResponsePrimaryValue response = new ResponsePrimaryValue()
             {
                 Id = instanceId,
                 DataType = data["TypeId"],
+                DataTypeName = dataTypeName,
                 Value = data.Where(f => f.Key == primary.Id).FirstOrDefault().Value
             };
 

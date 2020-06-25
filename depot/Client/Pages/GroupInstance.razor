@@ -135,10 +135,12 @@
             @foreach (var l in LinkPrimarys)
             {
                 <div class="row">
-                    <div class="col-md-12">
-                        <a class="btn btn-link" href="@($"/Group/{GroupId}/instance/{l.DataType}/{l.Id}")">
-                            @(l.Value)
-                        </a> <input type="button" class="btn btn-outline-danger btn-sm float-right mt-1" value="Remove" @onclick="(() => RemoveLink(InstanceLinks.Where(i => i.LinkId1 == l.Id || i.LinkId2 == l.Id).Select(i => i.Id).FirstOrDefault()))" />
+                    <div class="col-md-12 mb-1">
+                        <div class="link pr-1">
+                            <a class="btn btn-link" href="@($"/Group/{GroupId}/instance/{l.DataType}/{l.Id}")">
+                                <strong>@l.DataTypeName: </strong>@(l.Value)
+                            </a> <input type="button" class="btn btn-outline-danger btn-sm float-right mt-1" value="Remove" @onclick="(() => RemoveLink(InstanceLinks.Where(i => i.LinkId1 == l.Id || i.LinkId2 == l.Id).Select(i => i.Id).FirstOrDefault()))" />
+                        </div>
                     </div>
                 </div>
             }
