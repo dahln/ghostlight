@@ -133,6 +133,9 @@
         {
 
             await API.DeleteGroup(GroupId);
+            _appState.CurrentGroupId = null;
+            _appState.CurrentGroupName = null;
+
             await _appState.UpdateAppState();
             _toastService.ShowSuccess($"Group \"{Group.Name}\" Deleted. Redirecting...");
 
@@ -149,6 +152,8 @@
         };
 
         await API.GroupEditName(Group.Id, model);
+
+        _toastService.ShowSuccess("Group Updated");
 
         await _appState.UpdateAppState();
     }

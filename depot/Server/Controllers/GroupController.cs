@@ -212,7 +212,19 @@ namespace CRM.Server.Controllers
             var Group = _db.Groups.Where(o => o.Id == GroupId);
             _db.Groups.RemoveRange(Group);
 
+            var links = _db.InstanceLinks.Where(l => l.GroupId == GroupId);
+            _db.InstanceLinks.RemoveRange(links);
+
             await _db.SaveChangesAsync();
+
+            var query = new BsonDocument("$and",
+                        new BsonArray
+                        {
+                            new BsonDocument("GroupId", GroupId)
+                        });
+
+            await _mongoDBContext.Instances.DeleteManyAsync(query);
+
 
             return Ok();
         }
@@ -239,6 +251,73 @@ namespace CRM.Server.Controllers
             await _db.SaveChangesAsync();
 
             return Ok(new ResponseId() { Id = newType.Id });
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}")]
+        async public Task<IActionResult> UpdateGroupTypeName([FromBody]ResponseInstanceType model, string GroupId, string instanceTypeId)
+        {
+            string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId, true) == false)
+                return BadRequest("Cannot manage group");
+
+            var type = _db.InstanceTypes.Where(d => d.GroupId == GroupId && d.Id == instanceTypeId).FirstOrDefault();
+            type.Name = model.Name;
+            
+            await _db.SaveChangesAsync();
+
+            return Ok(new ResponseId() { Id = type.Id });
+        }
+
+
+        [Authorize]
+        [HttpDelete]
+        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}")]
+        async public Task<IActionResult> DeleteGroupTypeById(string GroupId, string instanceTypeId)
+        {
+            string userId = User.GetUserId();
+            if (await CanManageGroup(userId, GroupId) == false)
+                return BadRequest("Cannot manage group");
+
+            //Delete the type
+            var deleteThis = _db.InstanceTypes.Where(d => d.GroupId == GroupId && d.Id == instanceTypeId);
+            _db.InstanceTypes.RemoveRange(deleteThis);
+
+            //Find the instances that belong to the Group and Type.
+            //Deleting a group type, means deleting the instances of that type. Before deleting those instances,
+            //first determine if they are part of any "InstanceLinks"
+            var query = new BsonDocument("$and",
+                            new BsonArray
+                            {
+                                new BsonDocument("GroupId", GroupId),
+                                new BsonDocument("TypeId", instanceTypeId)
+                            });
+            PipelineDefinition<Dictionary<string, string>, Dictionary<string, string>> pipelineData = new BsonDocument[]
+            {
+                new BsonDocument("$match", query),
+                new BsonDocument("$project",
+                new BsonDocument
+                    {
+                        { "_id", 0 },
+                    })
+            };
+
+            var instances = await _mongoDBContext.Instances.Aggregate(pipelineData).ToListAsync();
+            List<string> instanceIds = new List<string>();
+            foreach (var instance in instances)
+            {
+                instanceIds.Add(instance["InstanceId"]);
+            }
+
+            //Delete links of instances associated with this type.
+            var links = _db.InstanceLinks.Where(l => l.GroupId == GroupId && (instanceIds.Contains(l.LinkId1) || instanceIds.Contains(l.LinkId2)));
+            _db.InstanceLinks.RemoveRange(links);
+
+            await _db.SaveChangesAsync();
+            await _mongoDBContext.Instances.DeleteManyAsync(query);
+
+            return Ok();
         }
 
         [Authorize]
@@ -523,6 +602,10 @@ namespace CRM.Server.Controllers
                         });
 
             await _mongoDBContext.Instances.DeleteOneAsync(query);
+
+            var links = _db.InstanceLinks.Where(l => l.GroupId == GroupId && (l.LinkId1 == instanceId || l.LinkId2 == instanceId));
+            _db.InstanceLinks.RemoveRange(links);
+            await _db.SaveChangesAsync();
 
             return Ok();
         }

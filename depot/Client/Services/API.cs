@@ -78,10 +78,20 @@ namespace depot.Client.Services
             return await PostAsync<ResponseId>($"api/v1/Group/{GroupId}/type", content);
         }
 
+        async public Task<ResponseId> UpdateGroupTypeName(string GroupId, string instanceTypeId, ResponseInstanceType content)
+        {
+            return await PostAsync<ResponseId>($"api/v1/Group/{GroupId}/type/{instanceTypeId}", content);
+        }
+
         async public Task<ResponseInstanceType> GetGroupTypeById(string GroupId, string instanceTypeId)
         {
             return await GetAsync<ResponseInstanceType>($"api/v1/Group/{GroupId}/type/{instanceTypeId}");
         }
+        async public Task DeleteGroupTypeById(string GroupId, string instanceTypeId)
+        {
+            await DeleteAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}");
+        }
+
 
         async public Task<List<ResponseInstanceType>> GetGroupTypeAsList(string GroupId)
         {

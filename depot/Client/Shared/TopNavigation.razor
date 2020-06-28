@@ -15,7 +15,7 @@
 
             <div class="collapse navbar-collapse" id="navToggle">
                 <ul class="navbar-nav ml-md-auto">
-                    @if (_appState.CurrentGroupId != null)
+                    @if (_appState.CurrentGroupId != null && _appState.DataTypes.Count > 0)
                     {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle mr-2" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -19,7 +19,7 @@
         <div class="input-group mb-3 float-right">
             <input type="text" class="form-control" placeholder="New Data Type" aria-label="New Data Type" aria-describedby="button-addon2" @bind="NewDataTypeName" />
             <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" id="button-addon2" @onclick="(() => CreateDataType(NewDataTypeName))">Create New Type</button>
+                <button class="btn btn-outline-secondary" type="button" id="button-addon2" @onclick="CreateDataType">Create New Type</button>
             </div>
         </div>
     </div>
@@ -40,6 +40,27 @@
 
 @if (SelectedType != null)
 {
+
+    <div class="col-md-6 mt-5">
+        <div class="row">
+            <div class="input-group input-group-lg">
+                <input type="text" class="form-control" @bind="Types.FirstOrDefault(t => t.Id == SelectedType).Name" placeholder="Data Type Name" aria-label="Data Type Name" aria-describedby="button-addon2" />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-dark" type="button" id="button-addon2" @onclick="UpdateDataTypeName">Change Data Type Name</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mt-5">
+        <div class="row">
+            <p>
+                Don't need this type anymore? Delete it - becareful, this can't be undone.
+            </p>
+            <input type="button" class="btn btn-danger" value="Delete Data Type" @onclick="DeleteDataType" />
+        </div>
+    </div>
+
     <div class="row mt-5">
         <div class="col-md-6">
             <h4>Data Fields in Type</h4>
@@ -249,15 +270,17 @@
         Types = await API.GetGroupTypeAsList(GroupId);
     }
 
-    async private Task CreateDataType(string name)
+    async private Task CreateDataType()
     {
         ResponseInstanceType model = new ResponseInstanceType()
         {
-            Name = name
+            Name = NewDataTypeName
         };
         await API.CreateGroupType(GroupId, model);
         await GetDataTypes();
         NewField = new ResponseField();
+
+        NewDataTypeName = null;
 
         _toastService.ShowSuccess("Type Created");
 
@@ -291,6 +314,45 @@
             await GetDataTypes();
 
             _toastService.ShowSuccess("Field Deleted");
+        }
+    }
+
+    async private Task UpdateDataTypeName()
+    {
+        if (SelectedType != null)
+        {
+            ResponseInstanceType model = new ResponseInstanceType()
+            {
+                Name = Types.FirstOrDefault(t => t.Id == SelectedType).Name
+            };
+
+            await API.UpdateGroupTypeName(GroupId, Types.FirstOrDefault(t => t.Id == SelectedType).Id, model);
+            await GetDataTypes();
+
+            _toastService.ShowSuccess("Type Updated");
+
+            await _appState.UpdateAppState();
+        }
+    }
+
+    async private Task DeleteDataType()
+    {
+        if (SelectedType != null)
+        {
+            var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this?");
+            var modelResult = await modal.Result;
+
+            if (modelResult.Cancelled) { }
+            else
+            {
+                await API.DeleteGroupTypeById(GroupId, Types.FirstOrDefault(t => t.Id == SelectedType).Id);
+                SelectedType = null;
+
+                _toastService.ShowSuccess("Type Deleted");
+
+                await GetDataTypes();
+                await _appState.UpdateAppState();
+            }
         }
     }
 }
