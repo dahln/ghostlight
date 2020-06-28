@@ -122,6 +122,10 @@
                             <i class="fas fa-plus mr-1"></i><span>Add Link</span>
                         </div>
                     }
+                    else
+                    {
+                        <p class="mt-2">After you save/create this new record, you will be able to link it to other existing records.</p>
+                    }
                 </div>
             </div>
             @if (LinkPrimarys.Count > 0)
@@ -136,9 +140,9 @@
             {
                 <div class="row">
                     <div class="col-md-12 mb-1 link pr-1 pb-1">
-                            <a class="btn btn-link" href="@($"/Group/{GroupId}/instance/{l.DataType}/{l.Id}")">
-                                <strong>@l.DataTypeName: </strong>@(l.Value)
-                            </a> <input type="button" class="btn btn-outline-danger btn-sm float-right mt-1" value="Remove" @onclick="(() => RemoveLink(InstanceLinks.Where(i => i.LinkId1 == l.Id || i.LinkId2 == l.Id).Select(i => i.Id).FirstOrDefault()))" />
+                        <a class="btn btn-link" href="@($"/Group/{GroupId}/instance/{l.DataType}/{l.Id}")">
+                            <strong>@l.DataTypeName: </strong>@(l.Value)
+                        </a> <input type="button" class="btn btn-outline-danger btn-sm float-right mt-1" value="Remove" @onclick="(() => RemoveLink(InstanceLinks.Where(i => i.LinkId1 == l.Id || i.LinkId2 == l.Id).Select(i => i.Id).FirstOrDefault()))" />
                     </div>
                 </div>
             }
@@ -229,13 +233,20 @@
             return;
 
         if (InstanceId == null)
-            await API.CreateGroupInstance(GroupId, DataTypeId, InstanceData);
+        {
+            var response = await API.CreateGroupInstance(GroupId, DataTypeId, InstanceData);
+            InstanceId = response.Id;
+            await GetSelectedInstance();
+            _navigationManger.NavigateTo($"/Group/{GroupId}/instance/{DataTypeId}/{InstanceId}");
+        }
         else if (InstanceId != null)
+        {
             await API.UpdateGroupInstance(GroupId, DataTypeId, InstanceId, InstanceData);
-
-        await GetSelectedInstance();
+            await GetSelectedInstance();
+        }
 
         _toastService.ShowSuccess("Saved");
+
     }
 
     async private Task DeleteInstance()
@@ -261,7 +272,7 @@
         var options = new ModalOptions();
         options.Class = "blazored-modal CreateNewLink";
 
-        var modal =_modalService.Show<CreateNewLink>("Create New Link", parameters, options);
+        var modal = _modalService.Show<CreateNewLink>("Create New Link", parameters, options);
         var modalResult = await modal.Result;
 
         if (modalResult.Cancelled) { }

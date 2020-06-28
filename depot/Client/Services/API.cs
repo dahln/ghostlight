@@ -118,13 +118,13 @@ namespace depot.Client.Services
             await DeleteAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/field/{fieldId}");
         }
 
-        async public Task CreateGroupInstance(string GroupId, string instanceTypeId, Dictionary<string,string> model)
+        async public Task<ResponseId> CreateGroupInstance(string GroupId, string instanceTypeId, Dictionary<string,string> model)
         {
             ResponseInstance content = new ResponseInstance()
             {
                 InstanceData = model
             };
-            await PostAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance", content);
+            return await PostAsync<ResponseId>($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance", content);
         }
 
         async public Task UpdateGroupInstance(string GroupId, string instanceTypeId, string instanceId, Dictionary<string, string> model)
