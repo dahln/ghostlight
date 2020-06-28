@@ -278,6 +278,7 @@
         if (modalResult.Cancelled) { }
         else
         {
+            _toastService.ShowSuccess("Added Link");
             await GetSelectedInstance();
         }
     }
