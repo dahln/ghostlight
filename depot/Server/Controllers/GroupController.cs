@@ -262,7 +262,7 @@ namespace CRM.Server.Controllers
             if (await CanManageGroup(userId, GroupId, true) == false)
                 return BadRequest("Cannot manage group");
 
-            var type = _db.InstanceTypes.Where(d => d.GroupId == GroupId && d.Id == instanceTypeId).FirstOrDefault();
+            var type = await _db.InstanceTypes.Where(d => d.GroupId == GroupId && d.Id == instanceTypeId).FirstOrDefaultAsync();
             type.Name = model.Name;
             
             await _db.SaveChangesAsync();
@@ -534,7 +534,7 @@ namespace CRM.Server.Controllers
 
             if(model.OnlyPrimary)
             {
-                var primaryField = _db.Fields.Where(f => f.InstanceTypeId == instanceTypeId && f.Primary == true).FirstOrDefault();
+                var primaryField = await _db.Fields.Where(f => f.InstanceTypeId == instanceTypeId && f.Primary == true).FirstOrDefaultAsync();
                 for(int a = 0; a < response.Data.Count; a++)
                 {
                     response.Data[a] = response.Data[a].Where(f => f.Key == "InstanceId" || f.Key == primaryField.Id).ToDictionary(t => t.Key, t => t.Value);
@@ -619,7 +619,7 @@ namespace CRM.Server.Controllers
             if (await CanManageGroup(userId, GroupId) == false)
                 return BadRequest("Cannot manage group");
 
-            var links = _db.InstanceLinks
+            var links = await _db.InstanceLinks
                                 .Where(i => i.LinkId1 == instanceId || i.LinkId2 == instanceId)
                                 .Select(i => new LinkedInstanceResponse()
                                 {
@@ -628,7 +628,7 @@ namespace CRM.Server.Controllers
                                     LinkId1 = i.LinkId1,
                                     LinkId2 = i.LinkId2
                                 })
-                                .ToList();
+                                .ToListAsync();
 
             return Ok(links);
         }
@@ -764,13 +764,11 @@ namespace CRM.Server.Controllers
 
             var primary = instanceType.Fields.FirstOrDefault(f => f.Primary == true);
 
-            var dataTypeName = _db.InstanceTypes.Where(t => t.Id == data["TypeId"]).FirstOrDefault()?.Name;
-
             ResponsePrimaryValue response = new ResponsePrimaryValue()
             {
                 Id = instanceId,
                 DataType = data["TypeId"],
-                DataTypeName = dataTypeName,
+                DataTypeName = instanceType.Name,
                 Value = data.Where(f => f.Key == primary.Id).FirstOrDefault().Value
             };
 
