@@ -19,13 +19,13 @@ namespace depot.Client.Services
         private IAccessTokenProvider _authenticationService { get; set; }
         private NavigationManager _navigationManger { get; set; }
         private IToastService _toastService { get; set; }
-        private LoadingBarService _loadingBarService { get; set; }
-        public API(IAccessTokenProvider authenticationService, NavigationManager navigationManager, IToastService toastService, LoadingBarService loadingBarService)
+        private LoadingSpinnerService _loadingSpinnerService { get; set; }
+        public API(IAccessTokenProvider authenticationService, NavigationManager navigationManager, IToastService toastService, LoadingSpinnerService loadingSpinnerService)
         {
             _authenticationService = authenticationService;
             _navigationManger = navigationManager;
             _toastService = toastService;
-            _loadingBarService = loadingBarService;
+            _loadingSpinnerService = loadingSpinnerService;
 
             _client = new HttpClient();
             _client.BaseAddress = new Uri(_navigationManger.BaseUri);
@@ -222,7 +222,7 @@ namespace depot.Client.Services
         private async Task<HttpResponseMessage> Send(HttpMethod method, string path, object content = null)
         {
             string guid = Guid.NewGuid().ToString();
-            _loadingBarService.Show();
+            _loadingSpinnerService.Show();
 
             var httpWebRequest = new HttpRequestMessage(method, path);
 
@@ -252,7 +252,7 @@ namespace depot.Client.Services
                 _toastService.ShowError(responseContent);
             }
 
-            _loadingBarService.Hide();
+            _loadingSpinnerService.Hide();
             return response;
         }
 

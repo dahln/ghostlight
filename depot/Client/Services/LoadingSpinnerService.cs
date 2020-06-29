@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace depot.Client.Services
 {
-	public class LoadingBarService
+	public class LoadingSpinnerService
 	{
 		public event Action OnShow;
 		public event Action OnHide;

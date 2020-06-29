@@ -22,7 +22,7 @@ namespace depot.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.Services.AddScoped<API>();
             builder.Services.AddScoped<AppState>();
-            builder.Services.AddScoped<LoadingBarService>();
+            builder.Services.AddScoped<LoadingSpinnerService>();
 
             builder.RootComponents.Add<App>("app");
 
