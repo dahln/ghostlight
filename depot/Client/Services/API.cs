@@ -154,9 +154,9 @@ namespace depot.Client.Services
         {
             return await GetAsync<List<LinkedInstanceResponse>>($"api/v1/Group/{GroupId}/link/{instanceId}");
         }
-        async public Task LinkInstanceByInstanceIds(string GroupId, string linkId1, string linkId2)
+        async public Task LinkInstanceByInstanceIds(string GroupId, string linkId1_TypeId, string linkId1, string linkId2_TypeId, string linkId2)
         {
-            await PutAsync($"api/v1/Group/{GroupId}/link/{linkId1}/{linkId2}");
+            await PutAsync($"api/v1/Group/{GroupId}/link/type/{linkId1_TypeId}/instance/{linkId1}/type/{linkId2_TypeId}/instance/{linkId2}");
         }
         async public Task UnLinkInstanceByInstanceIds(string GroupId, string linkId)
         {

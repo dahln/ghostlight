@@ -149,7 +149,7 @@
 
     async private Task LinkingSelectedResult(string selectedInstanceId)
     {
-        await API.LinkInstanceByInstanceIds(GroupId, InstanceId, selectedInstanceId);
+        await API.LinkInstanceByInstanceIds(GroupId, InstanceTypeId, InstanceId, LinkingType, selectedInstanceId);
 
         BlazoredModal.Close(ModalResult.Ok(string.Empty));
     }

@@ -283,38 +283,19 @@ namespace CRM.Server.Controllers
             //Delete the type
             var deleteThis = _db.InstanceTypes.Where(d => d.GroupId == GroupId && d.Id == instanceTypeId);
             _db.InstanceTypes.RemoveRange(deleteThis);
+            
+            //Delete links of instances associated with this type.
+            var links = _db.InstanceLinks.Where(l => l.GroupId == GroupId && (l.LinkId1_TypeId == instanceTypeId || l.LinkId2_TypeId == instanceTypeId));
+            _db.InstanceLinks.RemoveRange(links);
 
-            //Find the instances that belong to the Group and Type.
-            //Deleting a group type, means deleting the instances of that type. Before deleting those instances,
-            //first determine if they are part of any "InstanceLinks"
+            await _db.SaveChangesAsync();
+
             var query = new BsonDocument("$and",
                             new BsonArray
                             {
                                 new BsonDocument("GroupId", GroupId),
                                 new BsonDocument("TypeId", instanceTypeId)
                             });
-            PipelineDefinition<Dictionary<string, string>, Dictionary<string, string>> pipelineData = new BsonDocument[]
-            {
-                new BsonDocument("$match", query),
-                new BsonDocument("$project",
-                new BsonDocument
-                    {
-                        { "_id", 0 },
-                    })
-            };
-
-            var instances = await _mongoDBContext.Instances.Aggregate(pipelineData).ToListAsync();
-            List<string> instanceIds = new List<string>();
-            foreach (var instance in instances)
-            {
-                instanceIds.Add(instance["InstanceId"]);
-            }
-
-            //Delete links of instances associated with this type.
-            var links = _db.InstanceLinks.Where(l => l.GroupId == GroupId && (instanceIds.Contains(l.LinkId1) || instanceIds.Contains(l.LinkId2)));
-            _db.InstanceLinks.RemoveRange(links);
-
-            await _db.SaveChangesAsync();
             await _mongoDBContext.Instances.DeleteManyAsync(query);
 
             return Ok();
@@ -406,6 +387,13 @@ namespace CRM.Server.Controllers
             if (await CanManageGroup(userId, GroupId, true) == false)
                 return BadRequest("Cannot manage group");
 
+            var existingPrimary = await _db.Fields.AnyAsync(f => f.InstanceTypeId == instanceTypeId
+                                                                && f.InstanceType.GroupId == GroupId
+                                                                && f.Primary == true);
+            if (existingPrimary == true && model.Primary == true)
+                return BadRequest("There is already a primary field on this type - unselect 'Primary' to create this field.");
+
+
             Field field = new Field()
             {
                 Name = model.Name,
@@ -435,6 +423,14 @@ namespace CRM.Server.Controllers
             string userId = User.GetUserId();
             if (await CanManageGroup(userId, GroupId, true) == false)
                 return BadRequest("Cannot manage group");
+
+            var existingPrimary = await _db.Fields.FirstOrDefaultAsync(f => f.InstanceTypeId == instanceTypeId 
+                                                                && f.InstanceType.GroupId == GroupId
+                                                                && f.Primary == true);
+
+            //If a primary does NOT exist and the fieldId is NOT the current primary, then throw the error
+            if (existingPrimary != null && fieldId != existingPrimary.Id)
+                return BadRequest("This type already has a 'primary' field. Unselect the existing primary before selecting a new primary.");
 
             var field = await _db.Fields.Where(f => f.Id == fieldId &&
                                     f.InstanceTypeId == instanceTypeId &&
@@ -635,24 +631,37 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPut]
-        [Route("api/v1/Group/{GroupId}/link/{linkId1}/{linkId2}")]
-        async public Task<IActionResult> LinkInstanceByInstanceIds(string GroupId, string linkId1, string linkId2)
+        [Route("api/v1/Group/{GroupId}/link/type/{linkId1_TypeId}/instance/{linkId1}/type/{linkId2_TypeId}/instance/{linkId2}")]
+        async public Task<IActionResult> LinkInstanceByInstanceIds(string GroupId, string linkId1_TypeId, string linkId1, string linkId2_TypeId, string linkId2)
         {
             string userId = User.GetUserId();
             if (await CanManageGroup(userId, GroupId) == false)
                 return BadRequest("Cannot manage group");
 
-            InstanceLink link = new InstanceLink()
+            var type1Fields = await _db.InstanceTypes.Where(t => t.Id == linkId1_TypeId).SelectMany(t => t.Fields).ToListAsync();
+            var type2Fields = await _db.InstanceTypes.Where(t => t.Id == linkId2_TypeId).SelectMany(t => t.Fields).ToListAsync();
+
+            if (type1Fields.Any(f => f.Primary == true) || type2Fields.Any(f => f.Primary == true))
             {
-                GroupId = GroupId,
-                LinkId1 = linkId1,
-                LinkId2 = linkId2
-            };
 
-            _db.InstanceLinks.Add(link);
-            await _db.SaveChangesAsync();
+                InstanceLink link = new InstanceLink()
+                {
+                    GroupId = GroupId,
+                    LinkId1 = linkId1,
+                    LinkId2 = linkId2,
+                    LinkId1_TypeId = linkId1_TypeId,
+                    LinkId2_TypeId = linkId2_TypeId
+                };
 
-            return Ok();
+                _db.InstanceLinks.Add(link);
+                await _db.SaveChangesAsync();
+
+                return Ok();
+            }
+            else
+            {
+                return BadRequest("Both linking types must have a primary field selected");
+            }
         }
 
         [Authorize]

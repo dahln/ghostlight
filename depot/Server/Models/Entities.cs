@@ -65,6 +65,9 @@ namespace depot.Server.Entities
         public string LinkId1 { get; set; }
         public string LinkId2 { get; set; }
 
+        public string LinkId1_TypeId { get; set; }
+        public string LinkId2_TypeId { get; set; }
+
         public string GroupId { get; set; }
         public Group Group { get; set; }
     }

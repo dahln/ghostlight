@@ -118,9 +118,16 @@
                     @if (InstanceId != null)
                     {
                         <div class="btn btn-danger w-100" @onclick="DeleteInstance"><i class="fas fa-trash-alt mr-2"></i>Delete</div>
-                        <div class="w-100 btn btn-primary" @onclick="StartAddLink">
-                            <i class="fas fa-plus mr-1"></i><span>Add Link</span>
-                        </div>
+                        @if (Type.Fields.Any(f => f.Primary == true))
+                        {
+                            <div class="w-100 btn btn-primary" @onclick="StartAddLink">
+                                <i class="fas fa-plus mr-1"></i><span>Add Link</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="mt-2">Linking records requires that those types have a "primary" field selected. Visit the <a href="@($"group/{GroupId}/design")">'Group Data Manager'</a> to select the primary field for this type.</p>
+                        }
                     }
                     else
                     {

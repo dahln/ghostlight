@@ -302,16 +302,29 @@
 
     async private Task CreateField()
     {
-        await API.CreateGroupInstanceTypeField(GroupId, SelectedType, NewField);
-        await GetDataTypes();
-        NewField = new ResponseField();
+        var response = await API.CreateGroupInstanceTypeField(GroupId, SelectedType, NewField);
+        if (response?.Id != null)
+        {
+            await GetDataTypes();
+            NewField = new ResponseField();
 
-        _toastService.ShowSuccess("Field Created");
+            _toastService.ShowSuccess("Field Created");
+        }
     }
 
     async private Task UpdateField(ResponseField field)
     {
-        await API.UpdateGroupInstanceTypeField(GroupId, SelectedType, field.Id, field);
+        var response = await API.UpdateGroupInstanceTypeField(GroupId, SelectedType, field.Id, field);
+        if(response?.Id == null)
+        {
+            //Error - reload the types
+            await GetDataTypes();
+        }
+        else
+        {
+            //Success
+            _toastService.ShowSuccess("Field Updated");
+        }
     }
 
     async private Task DeleteField(ResponseField field)
