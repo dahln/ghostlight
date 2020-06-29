@@ -59,7 +59,7 @@ namespace depot.Shared.ResponseModels
         public int ColumnSpan { get; set; } = 1;
         public string Options { get; set; }
         public bool Optional { get; set; } = true;
-        public bool SearchShow { get; set; } = false;
+        public bool SearchShow { get; set; } = true;
         public int SearchOrder { get; set; } = 1;
         public bool Primary { get; set; } = false;
     }

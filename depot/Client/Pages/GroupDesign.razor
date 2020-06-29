@@ -40,9 +40,11 @@
 
 @if (SelectedType != null)
 {
-
-    <div class="col-md-6 mt-5">
-        <div class="row">
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h4>Name of Type</h4>
+        </div>
+        <div class="col-md-12">
             <div class="input-group input-group-lg">
                 <input type="text" class="form-control" @bind="Types.FirstOrDefault(t => t.Id == SelectedType).Name" placeholder="Data Type Name" aria-label="Data Type Name" aria-describedby="button-addon2" />
                 <div class="input-group-append">
@@ -52,14 +54,6 @@
         </div>
     </div>
 
-    <div class="col-md-6 mt-5">
-        <div class="row">
-            <p>
-                Don't need this type anymore? Delete it - becareful, this can't be undone.
-            </p>
-            <input type="button" class="btn btn-danger" value="Delete Data Type" @onclick="DeleteDataType" />
-        </div>
-    </div>
 
     <div class="row mt-5">
         <div class="col-md-6">
@@ -236,6 +230,18 @@
             </table>
         </div>
     </div>
+
+    <div class="alert alert-warning mt-5" role="alert">
+        <div class="col-md-12">
+            <strong class="row">
+                Don't need this type anymore? Delete it. This cannot be undone.
+            </strong>
+            <div class="row">
+                <input type="button" class="btn btn-danger" value="Delete Data Type" @onclick="DeleteDataType" />
+            </div>
+        </div>
+    </div>
+
 }
 
 @code {
