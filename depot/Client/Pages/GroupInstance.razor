@@ -121,26 +121,29 @@
                     }
                 </div>
             </div>
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    <strong>Update On: </strong>@InstanceData.GetValueOrDefault("UpdatedOn")
+            @if(InstanceId != null)
+            {
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <strong>Update On: </strong>@InstanceData.GetValueOrDefault("UpdatedOn")
+                    </div>
                 </div>
-            </div>
-            <div class="row mt-1">
-                <div class="col-md-12">
-                    <strong>Update By: </strong>@InstanceData.GetValueOrDefault("UpdatedBy")
+                <div class="row mt-1">
+                    <div class="col-md-12">
+                        <strong>Update By: </strong>@InstanceData.GetValueOrDefault("UpdatedBy")
+                    </div>
                 </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    <strong>Created On: </strong>@InstanceData.GetValueOrDefault("CreatedOn")
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <strong>Created On: </strong>@InstanceData.GetValueOrDefault("CreatedOn")
+                    </div>
                 </div>
-            </div>
-            <div class="row mt-1">
-                <div class="col-md-12">
-                    <strong>Created By: </strong>@InstanceData.GetValueOrDefault("CreatedBy")
+                <div class="row mt-1">
+                    <div class="col-md-12">
+                        <strong>Created By: </strong>@InstanceData.GetValueOrDefault("CreatedBy")
+                    </div>
                 </div>
-            </div>
+            }
         </div>
     </form>
 }
