@@ -141,37 +141,16 @@ namespace depot.Client.Services
         {
             return await GetAsync<ResponseInstance>($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}");
         }
-        async public Task<ResponsePrimaryValue> GroupGetInstancePrimaryValueById(string GroupId, string instanceId)
-        {
-            return await GetAsync<ResponsePrimaryValue>($"api/v1/Group/{GroupId}/instance/{instanceId}/primary");
-        }
+
         async public Task DeleteGroupInstance(string GroupId, string instanceTypeId, string instanceId)
         {
             await DeleteAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}");
-        }
-
-        async public Task<List<LinkedInstanceResponse>> GetLinksForInstanceId(string GroupId, string instanceId)
-        {
-            return await GetAsync<List<LinkedInstanceResponse>>($"api/v1/Group/{GroupId}/link/{instanceId}");
-        }
-        async public Task LinkInstanceByInstanceIds(string GroupId, string linkId1_TypeId, string linkId1, string linkId2_TypeId, string linkId2)
-        {
-            await PutAsync($"api/v1/Group/{GroupId}/link/type/{linkId1_TypeId}/instance/{linkId1}/type/{linkId2_TypeId}/instance/{linkId2}");
-        }
-        async public Task UnLinkInstanceByInstanceIds(string GroupId, string linkId)
-        {
-            await DeleteAsync($"api/v1/Group/{GroupId}/link/{linkId}");
         }
 
         async public Task<InstanceSearchResponse> SearchGroupInstance(string GroupId, string instanceTypeId, Search content)
         {
             return await PostAsync<InstanceSearchResponse>($"api/v1/Group/{GroupId}/type/{instanceTypeId}/search", content);
         }
-
-
-        
-
-
 
 
 

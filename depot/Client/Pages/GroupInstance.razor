@@ -118,41 +118,29 @@
                     @if (InstanceId != null)
                     {
                         <div class="btn btn-danger w-100" @onclick="DeleteInstance"><i class="fas fa-trash-alt mr-2"></i>Delete</div>
-                        @if (Type.Fields.Any(f => f.Primary == true))
-                        {
-                            <div class="w-100 btn btn-primary" @onclick="StartAddLink">
-                                <i class="fas fa-plus mr-1"></i><span>Add Link</span>
-                            </div>
-                        }
-                        else
-                        {
-                            <p class="mt-2">Linking records requires that those types have a "primary" field selected. Visit the <a href="@($"group/{GroupId}/design")">'Group Data Manager'</a> to select the primary field for this type.</p>
-                        }
-                    }
-                    else
-                    {
-                        <p class="mt-2">After you save/create this new record, you will be able to link it to other existing records.</p>
                     }
                 </div>
             </div>
-            @if (LinkPrimarys.Count > 0)
-            {
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <strong>Links:</strong>
-                    </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <strong>Update On: </strong>@InstanceData.GetValueOrDefault("UpdatedOn")
                 </div>
-            }
-            @foreach (var l in LinkPrimarys)
-            {
-                <div class="row">
-                    <div class="col-md-12 mb-1 link pr-1 pb-1">
-                        <a class="btn btn-link" href="@($"/Group/{GroupId}/instance/{l.DataType}/{l.Id}")">
-                            <strong>@l.DataTypeName: </strong>@(l.Value)
-                        </a> <input type="button" class="btn btn-outline-danger btn-sm float-right mt-1" value="Remove" @onclick="(() => RemoveLink(InstanceLinks.Where(i => i.LinkId1 == l.Id || i.LinkId2 == l.Id).Select(i => i.Id).FirstOrDefault()))" />
-                    </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-md-12">
+                    <strong>Update By: </strong>@InstanceData.GetValueOrDefault("UpdatedBy")
                 </div>
-            }
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <strong>Created On: </strong>@InstanceData.GetValueOrDefault("CreatedOn")
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-md-12">
+                    <strong>Created By: </strong>@InstanceData.GetValueOrDefault("CreatedBy")
+                </div>
+            </div>
         </div>
     </form>
 }
@@ -173,10 +161,7 @@
     public ResponseGroup Group { get; set; } = new ResponseGroup();
     public ResponseInstanceType Type { get; set; }
     public List<ResponseInstanceType> Types { get; set; } = new List<ResponseInstanceType>();
-
     public Dictionary<string, string> InstanceData { get; set; } = new Dictionary<string, string>();
-    List<LinkedInstanceResponse> InstanceLinks { get; set; } = new List<LinkedInstanceResponse>();
-    public List<ResponsePrimaryValue> LinkPrimarys { get; set; } = new List<ResponsePrimaryValue>();
 
     async protected override Task OnParametersSetAsync()
     {
@@ -208,15 +193,6 @@
         {
             var result = await API.GetGroupInstance(GroupId, DataTypeId, InstanceId);
             InstanceData = result.InstanceData;
-
-            LinkPrimarys = new List<ResponsePrimaryValue>();
-
-            InstanceLinks = await API.GetLinksForInstanceId(GroupId, InstanceId);
-            foreach (var link in InstanceLinks)
-            {
-                var linkResult = await API.GroupGetInstancePrimaryValueById(GroupId, link.LinkId1 == InstanceId ? link.LinkId2 : link.LinkId1);
-                LinkPrimarys.Add(linkResult);
-            }
         }
     }
 
@@ -267,32 +243,5 @@
             await API.DeleteGroupInstance(GroupId, DataTypeId, InstanceId);
             _navigationManger.NavigateTo($"Group/{GroupId}/type/{DataTypeId}");
         }
-    }
-
-    async private Task StartAddLink()
-    {
-        var parameters = new ModalParameters();
-        parameters.Add(nameof(CreateNewLink.GroupId), GroupId);
-        parameters.Add(nameof(CreateNewLink.InstanceTypeId), DataTypeId);
-        parameters.Add(nameof(CreateNewLink.InstanceId), InstanceId);
-
-        var options = new ModalOptions();
-        options.Class = "blazored-modal CreateNewLink";
-
-        var modal = _modalService.Show<CreateNewLink>("Create New Link", parameters, options);
-        var modalResult = await modal.Result;
-
-        if (modalResult.Cancelled) { }
-        else
-        {
-            _toastService.ShowSuccess("Added Link");
-            await GetSelectedInstance();
-        }
-    }
-
-    async private Task RemoveLink(string linkId)
-    {
-        await API.UnLinkInstanceByInstanceIds(GroupId, linkId);
-        await GetSelectedInstance();
     }
 }

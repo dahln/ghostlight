@@ -61,22 +61,12 @@ namespace depot.Shared.ResponseModels
         public bool Optional { get; set; } = true;
         public bool SearchShow { get; set; } = true;
         public int SearchOrder { get; set; } = 1;
-        public bool Primary { get; set; } = false;
     }
-
 
     public class ResponseInstance
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public Dictionary<string, string> InstanceData { get; set; } = new Dictionary<string, string>();
-    }
-
-    public class ResponsePrimaryValue
-    { 
-        public string Id { get; set; }
-        public string DataType { get; set; }
-        public string DataTypeName { get; set; }
-        public string Value { get; set; }
     }
 
     public class InstanceSearchResponse
@@ -88,13 +78,5 @@ namespace depot.Shared.ResponseModels
     public class AggregationTotal
     {
         public int Total { get; set; }
-    }
-
-    public class LinkedInstanceResponse
-    {
-        public string Id { get; set; }
-        public string GroupId { get; set; }
-        public string LinkId1 { get; set; }
-        public string LinkId2 { get; set; }
     }
 }

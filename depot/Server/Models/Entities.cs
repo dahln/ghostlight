@@ -13,7 +13,6 @@ namespace depot.Server.Entities
         public string Name { get; set; }
         public List<InstanceType> InstanceTypes { get; set; } = new List<InstanceType>();
         public List<GroupAuthorizedUser> AuthorizedUsers { get; set; } = new List<GroupAuthorizedUser>();
-        public List<InstanceLink> InstanceLinks { get; set; } = new List<InstanceLink>();
     }
 
     public class GroupAuthorizedUser
@@ -27,9 +26,6 @@ namespace depot.Server.Entities
         public string GroupId { get; set; }
         public Group Group { get; set; }
     }
-
-
-
 
     public class InstanceType
     {
@@ -49,7 +45,6 @@ namespace depot.Server.Entities
         public int Row { get; set; } = 1;
         public int Column { get; set; } = 1;
         public int ColumnSpan { get; set; } = 1;
-        public bool Primary { get; set; } = false;
         public string Options { get; set; }
         public bool Optional { get; set; } = true;
         public bool SearchShow { get; set; } = false;
@@ -57,18 +52,5 @@ namespace depot.Server.Entities
 
         public string InstanceTypeId { get; set; }
         public InstanceType InstanceType { get; set; }
-    }
-
-    public class InstanceLink
-    {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string LinkId1 { get; set; }
-        public string LinkId2 { get; set; }
-
-        public string LinkId1_TypeId { get; set; }
-        public string LinkId2_TypeId { get; set; }
-
-        public string GroupId { get; set; }
-        public Group Group { get; set; }
     }
 }

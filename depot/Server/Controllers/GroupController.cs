@@ -212,9 +212,6 @@ namespace CRM.Server.Controllers
             var Group = _db.Groups.Where(o => o.Id == GroupId);
             _db.Groups.RemoveRange(Group);
 
-            var links = _db.InstanceLinks.Where(l => l.GroupId == GroupId);
-            _db.InstanceLinks.RemoveRange(links);
-
             await _db.SaveChangesAsync();
 
             var query = new BsonDocument("$and",
@@ -283,10 +280,6 @@ namespace CRM.Server.Controllers
             //Delete the type
             var deleteThis = _db.InstanceTypes.Where(d => d.GroupId == GroupId && d.Id == instanceTypeId);
             _db.InstanceTypes.RemoveRange(deleteThis);
-            
-            //Delete links of instances associated with this type.
-            var links = _db.InstanceLinks.Where(l => l.GroupId == GroupId && (l.LinkId1_TypeId == instanceTypeId || l.LinkId2_TypeId == instanceTypeId));
-            _db.InstanceLinks.RemoveRange(links);
 
             await _db.SaveChangesAsync();
 
@@ -342,8 +335,7 @@ namespace CRM.Server.Controllers
                                             Optional = f.Optional,
                                             Options = f.Options,
                                             SearchOrder = f.SearchOrder,
-                                            SearchShow = f.SearchShow,
-                                            Primary = f.Primary
+                                            SearchShow = f.SearchShow
                                         }).ToList()
                                     }).FirstOrDefaultAsync();
 
@@ -368,8 +360,7 @@ namespace CRM.Server.Controllers
                                             Optional = f.Optional,
                                             Options = f.Options,
                                             SearchOrder = f.SearchOrder,
-                                            SearchShow = f.SearchShow,
-                                            Primary = f.Primary
+                                            SearchShow = f.SearchShow
                                         }).ToList()
                                     }).ToListAsync();
 
@@ -387,13 +378,6 @@ namespace CRM.Server.Controllers
             if (await CanManageGroup(userId, GroupId, true) == false)
                 return BadRequest("Cannot manage group");
 
-            var existingPrimary = await _db.Fields.AnyAsync(f => f.InstanceTypeId == instanceTypeId
-                                                                && f.InstanceType.GroupId == GroupId
-                                                                && f.Primary == true);
-            if (existingPrimary == true && model.Primary == true)
-                return BadRequest("There is already a primary field on this type - unselect 'Primary' to create this field.");
-
-
             Field field = new Field()
             {
                 Name = model.Name,
@@ -405,8 +389,7 @@ namespace CRM.Server.Controllers
                 Options = model.Options,
                 SearchOrder = model.SearchOrder,
                 SearchShow = model.SearchShow,
-                InstanceTypeId = instanceTypeId,
-                Primary = model.Primary
+                InstanceTypeId = instanceTypeId
             };
             _db.Fields.Add(field);
 
@@ -424,14 +407,6 @@ namespace CRM.Server.Controllers
             if (await CanManageGroup(userId, GroupId, true) == false)
                 return BadRequest("Cannot manage group");
 
-            var existingPrimary = await _db.Fields.FirstOrDefaultAsync(f => f.InstanceTypeId == instanceTypeId 
-                                                                && f.InstanceType.GroupId == GroupId
-                                                                && f.Primary == true);
-
-            //If a primary does NOT exist and the fieldId is NOT the current primary, then throw the error
-            if (existingPrimary != null && fieldId != existingPrimary.Id)
-                return BadRequest("This type already has a 'primary' field. Unselect the existing primary before selecting a new primary.");
-
             var field = await _db.Fields.Where(f => f.Id == fieldId &&
                                     f.InstanceTypeId == instanceTypeId &&
                                     f.InstanceType.GroupId == GroupId).FirstOrDefaultAsync();
@@ -445,7 +420,6 @@ namespace CRM.Server.Controllers
             field.Options = model.Options;
             field.SearchOrder = model.SearchOrder;
             field.SearchShow = model.SearchShow;
-            field.Primary = model.Primary;
 
             await _db.SaveChangesAsync();
 
@@ -528,15 +502,6 @@ namespace CRM.Server.Controllers
             if (countResponse != null)
                 response.Total = countResponse.Total;
 
-            if(model.OnlyPrimary)
-            {
-                var primaryField = await _db.Fields.Where(f => f.InstanceTypeId == instanceTypeId && f.Primary == true).FirstOrDefaultAsync();
-                for(int a = 0; a < response.Data.Count; a++)
-                {
-                    response.Data[a] = response.Data[a].Where(f => f.Key == "InstanceId" || f.Key == primaryField.Id).ToDictionary(t => t.Key, t => t.Value);
-                }
-            }
-
             return Ok(response);
         }
 
@@ -549,9 +514,15 @@ namespace CRM.Server.Controllers
             if (await CanManageGroup(userId, GroupId) == false)
                 return BadRequest("Cannot manage group");
 
+            var user = await _userManager.FindByIdAsync(userId);
+
             model.InstanceData.Add("InstanceId", Guid.NewGuid().ToString());
             model.InstanceData.Add("GroupId", GroupId);
             model.InstanceData.Add("TypeId", instanceTypeId);
+            model.InstanceData.Add("CreatedOn", DateTime.Now.ToString("dd-MMM-yyyy hh:mm tt"));
+            model.InstanceData.Add("CreatedBy", user.Email);
+            model.InstanceData.Add("UpdatedOn", null);
+            model.InstanceData.Add("UpdatedBy", null);
             await _mongoDBContext.Instances.InsertOneAsync(model.InstanceData);
 
             return Ok(new ResponseId() { Id = model.InstanceData["InstanceId"] });
@@ -567,6 +538,8 @@ namespace CRM.Server.Controllers
             if (await CanManageGroup(userId, GroupId) == false)
                 return BadRequest("Cannot manage group");
 
+            var user = await _userManager.FindByIdAsync(userId);
+
             var query = new BsonDocument("$and",
                        new BsonArray
                        {
@@ -574,6 +547,9 @@ namespace CRM.Server.Controllers
                             new BsonDocument("TypeId", instanceTypeId),
                             new BsonDocument("InstanceId", instanceId)
                        });
+
+            model.InstanceData["UpdatedOn"] = DateTime.Now.ToString("dd-MMM-yyyy hh:mm tt");
+            model.InstanceData["UpdatedBy"] = user.Email;
 
             await _mongoDBContext.Instances.ReplaceOneAsync(query, model.InstanceData);
 
@@ -598,85 +574,6 @@ namespace CRM.Server.Controllers
                         });
 
             await _mongoDBContext.Instances.DeleteOneAsync(query);
-
-            var links = _db.InstanceLinks.Where(l => l.GroupId == GroupId && (l.LinkId1 == instanceId || l.LinkId2 == instanceId));
-            _db.InstanceLinks.RemoveRange(links);
-            await _db.SaveChangesAsync();
-
-            return Ok();
-        }
-
-        [Authorize]
-        [HttpGet]
-        [Route("api/v1/Group/{GroupId}/link/{instanceId}")]
-        async public Task<IActionResult> GetLinksForInstanceId(string GroupId, string instanceId)
-        {
-            string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
-
-            var links = await _db.InstanceLinks
-                                .Where(i => i.LinkId1 == instanceId || i.LinkId2 == instanceId)
-                                .Select(i => new LinkedInstanceResponse()
-                                {
-                                    Id = i.Id,
-                                    GroupId = i.GroupId,
-                                    LinkId1 = i.LinkId1,
-                                    LinkId2 = i.LinkId2
-                                })
-                                .ToListAsync();
-
-            return Ok(links);
-        }
-
-        [Authorize]
-        [HttpPut]
-        [Route("api/v1/Group/{GroupId}/link/type/{linkId1_TypeId}/instance/{linkId1}/type/{linkId2_TypeId}/instance/{linkId2}")]
-        async public Task<IActionResult> LinkInstanceByInstanceIds(string GroupId, string linkId1_TypeId, string linkId1, string linkId2_TypeId, string linkId2)
-        {
-            string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
-
-            var type1Fields = await _db.InstanceTypes.Where(t => t.Id == linkId1_TypeId).SelectMany(t => t.Fields).ToListAsync();
-            var type2Fields = await _db.InstanceTypes.Where(t => t.Id == linkId2_TypeId).SelectMany(t => t.Fields).ToListAsync();
-
-            if (type1Fields.Any(f => f.Primary == true) || type2Fields.Any(f => f.Primary == true))
-            {
-
-                InstanceLink link = new InstanceLink()
-                {
-                    GroupId = GroupId,
-                    LinkId1 = linkId1,
-                    LinkId2 = linkId2,
-                    LinkId1_TypeId = linkId1_TypeId,
-                    LinkId2_TypeId = linkId2_TypeId
-                };
-
-                _db.InstanceLinks.Add(link);
-                await _db.SaveChangesAsync();
-
-                return Ok();
-            }
-            else
-            {
-                return BadRequest("Both linking types must have a primary field selected");
-            }
-        }
-
-        [Authorize]
-        [HttpDelete]
-        [Route("api/v1/Group/{GroupId}/link/{linkId}")]
-        async public Task<IActionResult> UnLinkInstanceByInstanceIds(string GroupId, string linkId)
-        {
-            string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
-
-            var deleteThis = _db.InstanceLinks.Where(l => l.Id == linkId);
-
-            _db.RemoveRange(deleteThis);
-            await _db.SaveChangesAsync();
 
             return Ok();
         }
@@ -734,56 +631,7 @@ namespace CRM.Server.Controllers
 
             return Ok(response);
         }
-
-        [Authorize]
-        [HttpGet]
-        [Route("api/v1/Group/{GroupId}/instance/{instanceId}/primary")]
-        async public Task<IActionResult> GroupGetInstancePrimaryValueById(string GroupId, string instanceId)
-        {
-            string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
-
-            //Query used in data results and count results. Separate the query from the rest of the pipeline so it can be reused.
-            var query = new BsonDocument("$and",
-                        new BsonArray
-                        {
-                            new BsonDocument("GroupId", GroupId),
-                            new BsonDocument("InstanceId", instanceId)
-                        });
-
-            PipelineDefinition<Dictionary<string, string>, Dictionary<string, string>> pipelineData = new BsonDocument[]
-            {
-                new BsonDocument("$match", query),
-                new BsonDocument("$project",
-                new BsonDocument
-                    {
-                        { "_id", 0 },
-                    })
-            };
-
-            //Search
-            var data = await _mongoDBContext.Instances.Aggregate(pipelineData).FirstOrDefaultAsync();
-
-            //Make sure the response object has all the fields defined
-            InstanceType instanceType = await _db.InstanceTypes
-                                                    .Include(i => i.Fields)
-                                                    .Where(i => i.GroupId == GroupId && i.Id == data["TypeId"])
-                                                    .FirstOrDefaultAsync();
-
-            var primary = instanceType.Fields.FirstOrDefault(f => f.Primary == true);
-
-            ResponsePrimaryValue response = new ResponsePrimaryValue()
-            {
-                Id = instanceId,
-                DataType = data["TypeId"],
-                DataTypeName = instanceType.Name,
-                Value = data.Where(f => f.Key == primary.Id).FirstOrDefault().Value
-            };
-
-            return Ok(response);
-        }
-
+        
         async private Task<bool> CanManageGroup(string userId, string groupId, bool? requireAdmin = null)
         {
             if (requireAdmin == null)
