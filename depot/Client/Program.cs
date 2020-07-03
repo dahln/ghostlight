@@ -12,6 +12,7 @@ using Blazored.Toast;
 using Blazored.LocalStorage;
 using depot.Client.Services;
 using Blazored.Modal;
+using BlazorSpinner;
 
 namespace depot.Client
 {
@@ -22,7 +23,7 @@ namespace depot.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.Services.AddScoped<API>();
             builder.Services.AddScoped<AppState>();
-            builder.Services.AddScoped<LoadingSpinnerService>();
+            builder.Services.AddScoped<SpinnerService>();
 
             builder.RootComponents.Add<App>("app");
 

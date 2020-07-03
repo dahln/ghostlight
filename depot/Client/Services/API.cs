@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components;
 using depot.Shared.RequestModels;
 using depot.Shared.ResponseModels;
 using Blazored.Toast.Services;
+using BlazorSpinner;
 
 namespace depot.Client.Services
 {
@@ -19,13 +20,13 @@ namespace depot.Client.Services
         private IAccessTokenProvider _authenticationService { get; set; }
         private NavigationManager _navigationManger { get; set; }
         private IToastService _toastService { get; set; }
-        private LoadingSpinnerService _loadingSpinnerService { get; set; }
-        public API(IAccessTokenProvider authenticationService, NavigationManager navigationManager, IToastService toastService, LoadingSpinnerService loadingSpinnerService)
+        private SpinnerService _spinnerService { get; set; }
+        public API(IAccessTokenProvider authenticationService, NavigationManager navigationManager, IToastService toastService, SpinnerService spinnerService)
         {
             _authenticationService = authenticationService;
             _navigationManger = navigationManager;
             _toastService = toastService;
-            _loadingSpinnerService = loadingSpinnerService;
+            _spinnerService = spinnerService;
 
             _client = new HttpClient();
             _client.BaseAddress = new Uri(_navigationManger.BaseUri);
@@ -201,7 +202,7 @@ namespace depot.Client.Services
         private async Task<HttpResponseMessage> Send(HttpMethod method, string path, object content = null)
         {
             string guid = Guid.NewGuid().ToString();
-            _loadingSpinnerService.Show();
+            _spinnerService.Show();
 
             var httpWebRequest = new HttpRequestMessage(method, path);
 
@@ -231,7 +232,7 @@ namespace depot.Client.Services
                 _toastService.ShowError(responseContent);
             }
 
-            _loadingSpinnerService.Hide();
+            _spinnerService.Hide();
             return response;
         }
 
