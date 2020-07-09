@@ -124,7 +124,7 @@ namespace depot.Client.Services
             ResponseInstance content = new ResponseInstance()
             {
                 InstanceData = model,
-                LocalDateTime = DateTime.Now.ToString("r")
+                LocalDateTime = DateTime.Now.ToString("d-MMM-yyyy h:mm tt")
             };
             return await PostAsync<ResponseId>($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance", content);
         }
@@ -135,7 +135,7 @@ namespace depot.Client.Services
             {
                 Id = instanceId,
                 InstanceData = model,
-                LocalDateTime = DateTime.Now.ToString("r")
+                LocalDateTime = DateTime.Now.ToString("d-MMM-yyyy h:mm tt")
             };
             await PutAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}", content);
         }
