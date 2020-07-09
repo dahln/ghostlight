@@ -519,7 +519,7 @@ namespace CRM.Server.Controllers
             model.InstanceData.Add("InstanceId", Guid.NewGuid().ToString());
             model.InstanceData.Add("GroupId", GroupId);
             model.InstanceData.Add("TypeId", instanceTypeId);
-            model.InstanceData.Add("CreatedOn", DateTime.Now.ToString("dd-MMM-yyyy hh:mm tt"));
+            model.InstanceData.Add("CreatedOn", model.LocalDateTime);
             model.InstanceData.Add("CreatedBy", user.Email);
             model.InstanceData.Add("UpdatedOn", null);
             model.InstanceData.Add("UpdatedBy", null);
@@ -548,7 +548,7 @@ namespace CRM.Server.Controllers
                             new BsonDocument("InstanceId", instanceId)
                        });
 
-            model.InstanceData["UpdatedOn"] = DateTime.Now.ToString("dd-MMM-yyyy hh:mm tt");
+            model.InstanceData["UpdatedOn"] = model.LocalDateTime;
             model.InstanceData["UpdatedBy"] = user.Email;
 
             await _mongoDBContext.Instances.ReplaceOneAsync(query, model.InstanceData);

@@ -66,6 +66,7 @@ namespace depot.Shared.ResponseModels
     public class ResponseInstance
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string LocalDateTime { get; set; }
         public Dictionary<string, string> InstanceData { get; set; } = new Dictionary<string, string>();
     }
 
