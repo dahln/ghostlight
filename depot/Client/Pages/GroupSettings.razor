@@ -39,34 +39,35 @@
             </div>
         </div>
     </div>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th scope="col">Email Address</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in Group.AuthorizedUsers)
-            {
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
                 <tr>
-                    <th scope="row">@user.ApplicationUserEmail</th>
-                    <td>
-                        <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" id="@($"authorized_{@user.ApplicationUserEmail}")" checked="@(user.IsGroupAdmin ? "checked" : null )" @onchange="(() => ToggleAuthorizedRole(user))" />
-                            <label class="custom-control-label" for="@($"authorized_{@user.ApplicationUserEmail}")">Administrator</label>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="btn btn-danger" @onclick="(() => RemoveAuthorizedUser(user))"><i class="fas fa-trash-alt"></i></div>
-                    </td>
+                    <th scope="col">Email Address</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-
+            </thead>
+            <tbody>
+                @foreach (var user in Group.AuthorizedUsers)
+                {
+                    <tr>
+                        <th scope="row">@user.ApplicationUserEmail</th>
+                        <td>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="@($"authorized_{@user.ApplicationUserEmail}")" checked="@(user.IsGroupAdmin ? "checked" : null )" @onchange="(() => ToggleAuthorizedRole(user))" />
+                                <label class="custom-control-label" for="@($"authorized_{@user.ApplicationUserEmail}")">Administrator</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn btn-danger" @onclick="(() => RemoveAuthorizedUser(user))"><i class="fas fa-trash-alt"></i></div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
     <h3 class="mb-2 text-muted mt-5">Delete Group</h3>
     <p>
         Click the button below to delete your Group. This will delete all Group data, customers, owners and authorized users. This action cannot be undone! Your account will remain active, but your Group will be deleted.

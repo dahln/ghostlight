@@ -44,14 +44,17 @@
         else if (_appState.Ready == true)
         {
             <div class="row mt-5 pt-5">
-                <h4 class="mx-auto">Create a Group</h4>
+                <h4 class="mx-auto">Create a new Group</h4>
             </div>
-            <div class="row mt-5 pt-5">
-                <h4 class="mx-auto">or</h4>
-            </div>
-            <div class="row mt-5 pt-5">
-                <h4 class="mx-auto">Select an existing Group</h4>
-            </div>
+            @if (_appState.AllowedGroups.Count > 0)
+            {
+                <div class="row mt-5 pt-5">
+                    <h4 class="mx-auto">or</h4>
+                </div>
+                <div class="row mt-5 pt-5">
+                    <h4 class="mx-auto">Select an existing Group</h4>
+                </div>
+            }
         }
     </Authorized>
     <NotAuthorized>

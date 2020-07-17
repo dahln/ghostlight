@@ -49,7 +49,7 @@
                                                     @field.Name @if (!field.Optional)
                                                     {<span class="required-astrisk">*</span>}
                                                 </label>
-                                                <textarea id="@field.Id" class="form-control" @bind="InstanceData[field.Id]"></textarea>
+                                                <textarea rows="@(!string.IsNullOrEmpty(field.Options) ? field.Options : (5).ToString())" id="@field.Id" class="form-control" @bind="InstanceData[field.Id]"></textarea>
                                             </div>
                                         }
                                         else if (field.Type == FieldType.Number)

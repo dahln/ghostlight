@@ -53,60 +53,62 @@
     </div>
     @if (Instances.Count > 0)
     {
-        <table class="table table-hover mt-3">
-            <thead>
-                <tr>
-                    @foreach (var column in Types.FirstOrDefault(t => t.Id == TypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
-                    {
-                        <th scope="col" class="pointer" @onclick="(() => SearchType(null, column.Id, (Search.SortDirection * -1), false))">
-                            <span class="mr-2">@column.Name</span>
-                            @if (Search.SortBy == column.Id && Search.SortDirection == -1)
-                            {
-                                <i class="fas fa-caret-up"></i>
-                            }
-                            else if (Search.SortBy == column.Id && Search.SortDirection == 1)
-                            {
-                                <i class="fas fa-caret-down"></i>
-                            }
-                        </th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var instance in Instances)
-                {
-                    <tr class="pointer" @onclick="(() => SelectInstance(instance.FirstOrDefault(i => i.Key == InstanceIdLabel).Value))">
+        <div class="table-responsive">
+            <table class="table table-hover mt-3">
+                <thead>
+                    <tr>
                         @foreach (var column in Types.FirstOrDefault(t => t.Id == TypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
                         {
-                            @if (instance.Where(i => i.Key == column.Id).Count() > 0)
-                            {
-                                <td>@instance.Where(i => i.Key == column.Id).FirstOrDefault().Value</td>
-                            }
-                            else
-                            {
-                                <td></td>
-                            }
+                            <th scope="col" class="pointer" @onclick="(() => SearchType(null, column.Id, (Search.SortDirection * -1), false))">
+                                <span class="mr-2">@column.Name</span>
+                                @if (Search.SortBy == column.Id && Search.SortDirection == -1)
+                                {
+                                    <i class="fas fa-caret-up"></i>
+                                }
+                                else if (Search.SortBy == column.Id && Search.SortDirection == 1)
+                                {
+                                    <i class="fas fa-caret-down"></i>
+                                }
+                            </th>
                         }
                     </tr>
-                }
-            </tbody>
-        </table>
-        <nav aria-label="Page navigation example">
-            <ul class="pagination float-right">
-                @if (TotalFound != null)
-                {
-                    @if ((Search.Page + 1) > 1)
+                </thead>
+                <tbody>
+                    @foreach (var instance in Instances)
                     {
-                        <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchType(Search.Page - 1, null, null, false))">Previous</div></li>
+                        <tr class="pointer" @onclick="(() => SelectInstance(instance.FirstOrDefault(i => i.Key == InstanceIdLabel).Value))">
+                            @foreach (var column in Types.FirstOrDefault(t => t.Id == TypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
+                            {
+                                @if (instance.Where(i => i.Key == column.Id).Count() > 0)
+                                {
+                                    <td>@instance.Where(i => i.Key == column.Id).FirstOrDefault().Value</td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                            }
+                        </tr>
                     }
-                    <li class="page-item"><div class="page-link">Page @(Search.Page + 1) of @(Math.Ceiling((double)TotalFound / PageSize))</div></li>
-                    @if ((Search.Page + 1) < (Math.Ceiling((double)TotalFound / PageSize)))
+                </tbody>
+            </table>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination float-right">
+                    @if (TotalFound != null)
                     {
-                        <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchType(Search.Page + 1, null, null, false))">Next</div></li>
+                        @if ((Search.Page + 1) > 1)
+                        {
+                            <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchType(Search.Page - 1, null, null, false))">Previous</div></li>
+                        }
+                        <li class="page-item"><div class="page-link">Page @(Search.Page + 1) of @(Math.Ceiling((double)TotalFound / PageSize))</div></li>
+                        @if ((Search.Page + 1) < (Math.Ceiling((double)TotalFound / PageSize)))
+                        {
+                            <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchType(Search.Page + 1, null, null, false))">Next</div></li>
+                        }
                     }
-                }
-            </ul>
-        </nav>
+                </ul>
+            </nav>
+        </div>
     }
 }
 
