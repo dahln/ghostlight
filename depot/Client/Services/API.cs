@@ -34,102 +34,102 @@ namespace depot.Client.Services
 
 
 
-        async public Task<ResponseId> GroupCreate(GroupCreateEditRequestModel content)
+        async public Task<ResponseId> FolderCreate(FolderCreateEditRequestModel content)
         {
-            return await PostAsync<ResponseId>("api/v1/Group", content);
+            return await PostAsync<ResponseId>("api/v1/folder", content);
         }
 
-        async public Task GroupEditName(string GroupId, GroupCreateEditRequestModel content)
+        async public Task FolderEditName(string folderId, FolderCreateEditRequestModel content)
         {
-            await PutAsync($"api/v1/Group/{GroupId}", content);
+            await PutAsync($"api/v1/folder/{folderId}", content);
         }
 
-        async public Task<ResponseGroup> GroupGetById(string GroupId)
+        async public Task<ResponseFolder> FolderGetById(string folderId)
         {
-            return await GetAsync<ResponseGroup>($"api/v1/Group/{GroupId}");
+            return await GetAsync<ResponseFolder>($"api/v1/folder/{folderId}");
         }
 
-        async public Task<List<ResponseGroupShort>> GetGroupsByAuthorizedUser()
+        async public Task<List<ResponseFolderShort>> GetFoldersByAuthorizedUser()
         {
-            return await GetAsync<List<ResponseGroupShort>>("api/v1/Group/user/authorized");
+            return await GetAsync<List<ResponseFolderShort>>("api/v1/folder/user/authorized");
         }
 
-        async public Task UpdateGroupSetUserAuthorized(string GroupId, GroupAddAuthorizedEmailModel model)
+        async public Task UpdateFolderSetUserAuthorized(string folderId, FolderAddAuthorizedEmailModel model)
         {
-            await PutAsync($"api/v1/Group/{GroupId}/user/authorized", model);
+            await PutAsync($"api/v1/folder/{folderId}/user/authorized", model);
         }
 
-        async public Task UpdateGroupToggleUserAdministrator(string GroupId, string applicationUserId, GroupToggleAuthorizedModel model)
+        async public Task UpdateFolderToggleUserAdministrator(string folderId, string applicationUserId, FolderToggleAuthorizedModel model)
         {
-            await PutAsync($"api/v1/Group/{GroupId}/user/{applicationUserId}/authorized/toggle", model);
+            await PutAsync($"api/v1/folder/{folderId}/user/{applicationUserId}/authorized/toggle", model);
         }
 
-        async public Task UpdateGroupRemoveUserAuthorized(string GroupId, string applicationUserId)
+        async public Task UpdateFolderRemoveUserAuthorized(string folderId, string applicationUserId)
         {
-            await DeleteAsync($"api/v1/Group/{GroupId}/user/{applicationUserId}/authorized");
+            await DeleteAsync($"api/v1/folder/{folderId}/user/{applicationUserId}/authorized");
         }
 
-        async public Task DeleteGroup(string GroupId)
+        async public Task DeleteFolder(string folderId)
         {
-            await DeleteAsync($"api/v1/Group/{GroupId}");
+            await DeleteAsync($"api/v1/folder/{folderId}");
         }
 
-        async public Task<ResponseId> CreateGroupType(string GroupId, ResponseInstanceType content )
+        async public Task<ResponseId> CreateFolderType(string folderId, ResponseDataType content )
         {
-            return await PostAsync<ResponseId>($"api/v1/Group/{GroupId}/type", content);
+            return await PostAsync<ResponseId>($"api/v1/folder/{folderId}/type", content);
         }
 
-        async public Task<ResponseId> UpdateGroupTypeName(string GroupId, string instanceTypeId, ResponseInstanceType content)
+        async public Task<ResponseId> UpdateFolderTypeName(string folderId, string dataTypeId, ResponseDataType content)
         {
-            return await PostAsync<ResponseId>($"api/v1/Group/{GroupId}/type/{instanceTypeId}", content);
+            return await PostAsync<ResponseId>($"api/v1/folder/{folderId}/type/{dataTypeId}", content);
         }
 
-        async public Task<ResponseInstanceType> GetGroupTypeById(string GroupId, string instanceTypeId)
+        async public Task<ResponseDataType> GetFolderTypeById(string folderId, string dataTypeId)
         {
-            return await GetAsync<ResponseInstanceType>($"api/v1/Group/{GroupId}/type/{instanceTypeId}");
+            return await GetAsync<ResponseDataType>($"api/v1/folder/{folderId}/type/{dataTypeId}");
         }
-        async public Task DeleteGroupTypeById(string GroupId, string instanceTypeId)
+        async public Task DeleteFolderTypeById(string folderId, string dataTypeId)
         {
-            await DeleteAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}");
-        }
-
-
-        async public Task<List<ResponseInstanceType>> GetGroupTypeAsList(string GroupId)
-        {
-            return await GetAsync<List<ResponseInstanceType>>($"api/v1/Group/{GroupId}/type");
+            await DeleteAsync($"api/v1/folder/{folderId}/type/{dataTypeId}");
         }
 
-        async public Task<List<ResponseInstanceType>> GetGroupTypeAsMenuOptionList(string GroupId)
+
+        async public Task<List<ResponseDataType>> GetFolderTypeAsList(string folderId)
         {
-            return await GetAsync<List<ResponseInstanceType>>($"api/v1/Group/{GroupId}/type/menu");
+            return await GetAsync<List<ResponseDataType>>($"api/v1/folder/{folderId}/type");
         }
 
-        async public Task<ResponseId> CreateGroupInstanceTypeField(string GroupId, string instanceTypeId, ResponseField content)
+        async public Task<List<ResponseDataType>> GetFolderTypeAsMenuOptionList(string folderId)
         {
-            return await PostAsync<ResponseId>($"api/v1/Group/{GroupId}/type/{instanceTypeId}/field", content);
+            return await GetAsync<List<ResponseDataType>>($"api/v1/folder/{folderId}/type/menu");
         }
 
-        async public Task<ResponseId> UpdateGroupInstanceTypeField(string GroupId, string instanceTypeId, string fieldId, ResponseField content)
+        async public Task<ResponseId> CreateFolderDataTypeField(string folderId, string dataTypeId, ResponseField content)
         {
-            return await PutAsync<ResponseId>($"api/v1/Group/{GroupId}/type/{instanceTypeId}/field/{fieldId}", content);
+            return await PostAsync<ResponseId>($"api/v1/folder/{folderId}/type/{dataTypeId}/field", content);
         }
 
-        async public Task DeleteGroupInstanceTypeField(string GroupId, string instanceTypeId, string fieldId)
+        async public Task<ResponseId> UpdateFolderDataTypeField(string folderId, string dataTypeId, string fieldId, ResponseField content)
         {
-            await DeleteAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/field/{fieldId}");
+            return await PutAsync<ResponseId>($"api/v1/folder/{folderId}/type/{dataTypeId}/field/{fieldId}", content);
         }
 
-        async public Task<ResponseId> CreateGroupInstance(string GroupId, string instanceTypeId, Dictionary<string,string> model)
+        async public Task DeleteFolderDataTypeField(string folderId, string dataTypeId, string fieldId)
+        {
+            await DeleteAsync($"api/v1/folder/{folderId}/type/{dataTypeId}/field/{fieldId}");
+        }
+
+        async public Task<ResponseId> CreateFolderInstance(string folderId, string dataTypeId, Dictionary<string,string> model)
         {
             ResponseInstance content = new ResponseInstance()
             {
                 InstanceData = model,
                 LocalDateTime = DateTime.Now.ToString("d-MMM-yyyy h:mm tt")
             };
-            return await PostAsync<ResponseId>($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance", content);
+            return await PostAsync<ResponseId>($"api/v1/folder/{folderId}/type/{dataTypeId}/instance", content);
         }
 
-        async public Task UpdateGroupInstance(string GroupId, string instanceTypeId, string instanceId, Dictionary<string, string> model)
+        async public Task UpdateFolderInstance(string folderId, string dataTypeId, string instanceId, Dictionary<string, string> model)
         {
             ResponseInstance content = new ResponseInstance()
             {
@@ -137,22 +137,22 @@ namespace depot.Client.Services
                 InstanceData = model,
                 LocalDateTime = DateTime.Now.ToString("d-MMM-yyyy h:mm tt")
             };
-            await PutAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}", content);
+            await PutAsync($"api/v1/folder/{folderId}/type/{dataTypeId}/instance/{instanceId}", content);
         }
 
-        async public Task<ResponseInstance> GetGroupInstance(string GroupId, string instanceTypeId, string instanceId)
+        async public Task<ResponseInstance> GetFolderInstance(string folderId, string dataTypeId, string instanceId)
         {
-            return await GetAsync<ResponseInstance>($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}");
+            return await GetAsync<ResponseInstance>($"api/v1/folder/{folderId}/type/{dataTypeId}/instance/{instanceId}");
         }
 
-        async public Task DeleteGroupInstance(string GroupId, string instanceTypeId, string instanceId)
+        async public Task DeleteFolderInstance(string folderId, string dataTypeId, string instanceId)
         {
-            await DeleteAsync($"api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}");
+            await DeleteAsync($"api/v1/folder/{folderId}/type/{dataTypeId}/instance/{instanceId}");
         }
 
-        async public Task<InstanceSearchResponse> SearchGroupInstance(string GroupId, string instanceTypeId, Search content)
+        async public Task<InstanceSearchResponse> SearchFolderInstance(string folderId, string dataTypeId, Search content)
         {
-            return await PostAsync<InstanceSearchResponse>($"api/v1/Group/{GroupId}/type/{instanceTypeId}/search", content);
+            return await PostAsync<InstanceSearchResponse>($"api/v1/folder/{folderId}/type/{dataTypeId}/search", content);
         }
 
 

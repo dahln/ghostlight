@@ -4,17 +4,17 @@ using System.Text;
 
 namespace depot.Shared.RequestModels
 {
-    public class GroupCreateEditRequestModel
+    public class FolderCreateEditRequestModel
     {
         public string Name { get; set; }
     }
 
-    public class GroupAddAuthorizedEmailModel
+    public class FolderAddAuthorizedEmailModel
     {
         public string Email { get; set; }
     }
 
-    public class GroupToggleAuthorizedModel
+    public class FolderToggleAuthorizedModel
     {
         public bool Administrator { get; set; }
     }

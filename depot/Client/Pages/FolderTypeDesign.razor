@@ -1,5 +1,5 @@
 ﻿@attribute [Authorize]
-@page "/group/{GroupId}/design"
+@page "/folder/{FolderId}/design"
 
 @using Microsoft.AspNetCore.Authorization
 @using depot.Shared.RequestModels
@@ -235,12 +235,12 @@
 @code {
 
     [Parameter]
-    public string GroupId { get; set; }
+    public string FolderId { get; set; }
 
 
     //Loaded from API
-    public ResponseGroup Group { get; set; } = new ResponseGroup();
-    public List<ResponseInstanceType> Types { get; set; } = new List<ResponseInstanceType>();
+    public ResponseFolder Folder { get; set; } = new ResponseFolder();
+    public List<ResponseDataType> Types { get; set; } = new List<ResponseDataType>();
 
     //Creation Fields
     public ResponseField NewField { get; set; } = new ResponseField();
@@ -251,7 +251,7 @@
 
     async protected override Task OnInitializedAsync()
     {
-        await GetGroup();
+        await GetFolder();
         await GetDataTypes();
     }
 
@@ -261,23 +261,23 @@
     }
 
 
-    async private Task GetGroup()
+    async private Task GetFolder()
     {
-        Group = await API.GroupGetById(GroupId);
+        Folder = await API.FolderGetById(FolderId);
     }
 
     async private Task GetDataTypes()
     {
-        Types = await API.GetGroupTypeAsList(GroupId);
+        Types = await API.GetFolderTypeAsList(FolderId);
     }
 
     async private Task CreateDataType()
     {
-        ResponseInstanceType model = new ResponseInstanceType()
+        ResponseDataType model = new ResponseDataType()
         {
             Name = NewDataTypeName
         };
-        await API.CreateGroupType(GroupId, model);
+        await API.CreateFolderType(FolderId, model);
         await GetDataTypes();
         NewField = new ResponseField();
 
@@ -290,7 +290,7 @@
 
     async private Task CreateField()
     {
-        var response = await API.CreateGroupInstanceTypeField(GroupId, SelectedType, NewField);
+        var response = await API.CreateFolderDataTypeField(FolderId, SelectedType, NewField);
         if (response?.Id != null)
         {
             await GetDataTypes();
@@ -302,7 +302,7 @@
 
     async private Task UpdateField(ResponseField field)
     {
-        var response = await API.UpdateGroupInstanceTypeField(GroupId, SelectedType, field.Id, field);
+        var response = await API.UpdateFolderDataTypeField(FolderId, SelectedType, field.Id, field);
         if(response?.Id == null)
         {
             //Error - reload the types
@@ -324,7 +324,7 @@
         if (modalResult.Cancelled) { }
         else
         {
-            await API.DeleteGroupInstanceTypeField(GroupId, SelectedType, field.Id);
+            await API.DeleteFolderDataTypeField(FolderId, SelectedType, field.Id);
             await GetDataTypes();
 
             _toastService.ShowSuccess("Field Deleted");
@@ -335,12 +335,12 @@
     {
         if (SelectedType != null)
         {
-            ResponseInstanceType model = new ResponseInstanceType()
+            ResponseDataType model = new ResponseDataType()
             {
                 Name = Types.FirstOrDefault(t => t.Id == SelectedType).Name
             };
 
-            await API.UpdateGroupTypeName(GroupId, Types.FirstOrDefault(t => t.Id == SelectedType).Id, model);
+            await API.UpdateFolderTypeName(FolderId, Types.FirstOrDefault(t => t.Id == SelectedType).Id, model);
             await GetDataTypes();
 
             _toastService.ShowSuccess("Type Updated");
@@ -359,7 +359,7 @@
             if (modelResult.Cancelled) { }
             else
             {
-                await API.DeleteGroupTypeById(GroupId, Types.FirstOrDefault(t => t.Id == SelectedType).Id);
+                await API.DeleteFolderTypeById(FolderId, Types.FirstOrDefault(t => t.Id == SelectedType).Id);
                 SelectedType = null;
 
                 _toastService.ShowSuccess("Type Deleted");

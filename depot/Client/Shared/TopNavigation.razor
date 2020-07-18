@@ -8,14 +8,14 @@
 <AuthorizeView>
     <Authorized>
         <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="/">depot @if (string.IsNullOrEmpty(_appState.CurrentGroupName) == false) { <span class="d-none d-sm-inline"> <i class="fas fa-angle-right mx-2 header-separator"></i> @_appState.CurrentGroupName</span> }</a>
+            <a class="navbar-brand" href="/">depot @if (string.IsNullOrEmpty(_appState.CurrentFolderName) == false) { <span class="d-none d-sm-inline"> <i class="fas fa-angle-right mx-2 header-separator"></i> @_appState.CurrentFolderName</span> }</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navToggle" aria-controls="navToggle" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navToggle">
                 <ul class="navbar-nav ml-md-auto">
-                    @if (_appState.DataTypes.Count > 0 || _appState.AllowedGroups.Count > 0)
+                    @if (_appState.DataTypes.Count > 0 || _appState.AllowedFolders.Count > 0)
                     {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle mr-2" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -23,12 +23,12 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <div class="dropdown-header">
-                                    @_appState.CurrentGroupName
+                                    <i class="far fa-folder-open mr-1"></i> @_appState.CurrentFolderName
                                 </div>
                                 @foreach (var type in _appState.DataTypes)
                                 {
-                                    <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/type/{type.Data}")">
-                                        <i class="fas fa-list-ol mr-1"></i> @type.Text
+                                    <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/type/{type.Data}/search")">
+                                        <i class="fas fa-search mr-1"></i> @type.Text
                                     </NavLink>
                                 }
                                 @if(_appState.DataTypes.Count == 0)
@@ -37,14 +37,14 @@
                                         No data types. Create some!
                                     </div>
                                 }
-                                @if (_appState.CurrentGroupId != null ? _appState.AllowedGroups.Where(g => g.Id != _appState.CurrentGroupId).Count() > 0 : _appState.AllowedGroups.Count > 0)
+                                @if (_appState.CurrentFolderId != null ? _appState.AllowedFolders.Where(g => g.Id != _appState.CurrentFolderId).Count() > 0 : _appState.AllowedFolders.Count > 0)
                                 {
                                     <div class="dropdown-divider"></div>
                                 }
-                                @foreach (var group in _appState.CurrentGroupId != null ? _appState.AllowedGroups.Where(g => g.Id != _appState.CurrentGroupId) : _appState.AllowedGroups)
+                                @foreach (var folder in _appState.CurrentFolderId != null ? _appState.AllowedFolders.Where(g => g.Id != _appState.CurrentFolderId) : _appState.AllowedFolders)
                                 {
-                                    <NavLink class="dropdown-item pointer" href="@($"group/{group.Id}")">
-                                        <i class="fas fa-sync mr-1"></i> @group.Name
+                                    <NavLink class="dropdown-item pointer" href="@($"folder/{folder.Id}")">
+                                        <i class="far fa-folder mr-1"></i> @folder.Name
                                     </NavLink>
                                 }
 
@@ -53,26 +53,33 @@
                     }
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle mr-2" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-cogs mr-1"></i> Settings
+                            <i class="fas fa-cog mr-1"></i> Settings
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <div class="dropdown-header">
-                                @_appState.CurrentGroupName
-                            </div>
-                            @if (_appState.CurrentGroupIsAdministrator)
+                            @if (_appState.CurrentFolderIsAdministrator)
                             {
-                                <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/design")">
+                                <div class="dropdown-header">
+                                    <i class="far fa-folder-open mr-1"></i> @_appState.CurrentFolderName
+                                </div>
+                            }
+                            @if (_appState.CurrentFolderIsAdministrator)
+                            {
+                                <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/design")">
                                     <i class="fas fa-tools mr-1"></i> Data Designer
                                 </NavLink>
                             }
-                            @if (_appState.CurrentGroupId != null && _appState.CurrentGroupIsAdministrator)
+                            @if (_appState.CurrentFolderId != null && _appState.CurrentFolderIsAdministrator)
                             {
-                                <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/settings")">
+                                <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/settings")">
                                     <i class="fas fa-cog mr-1"></i> Settings
                                 </NavLink>
                             }
-                            <a class="dropdown-item" href="group">
-                                <i class="fas fa-plus mr-1"></i> Create New Group
+                            @if (_appState.CurrentFolderIsAdministrator)
+                            {
+                                <div class="dropdown-divider"></div>
+                            }
+                            <a class="dropdown-item" href="folder">
+                                <i class="fas fa-plus mr-1"></i> Create New Folder
                             </a>
                         </div>
                     </li>

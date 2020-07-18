@@ -20,12 +20,12 @@ using MongoDB.Driver;
 namespace CRM.Server.Controllers
 {
     [ApiController]
-    public class GroupController : ControllerBase
+    public class DataController : ControllerBase
     {
         private ApplicationDbContext _db;
         private MongoDBContext _mongoDBContext;
         private readonly UserManager<ApplicationUser> _userManager;
-        public GroupController(ApplicationDbContext dbContext, MongoDBContext mongoDBContext, UserManager<ApplicationUser> userManager)
+        public DataController(ApplicationDbContext dbContext, MongoDBContext mongoDBContext, UserManager<ApplicationUser> userManager)
         {
             _db = dbContext;
             _userManager = userManager;
@@ -34,58 +34,58 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("api/v1/Group")]
-        async public Task<IActionResult> GroupCreate([FromBody]GroupCreateEditRequestModel model)
+        [Route("api/v1/folder")]
+        async public Task<IActionResult> FolderCreate([FromBody]FolderCreateEditRequestModel model)
         {
             string userId = User.GetUserId();
             
-            Group Group = new Group()
+            Folder Folder = new Folder()
             {
                 Name = model.Name,
             };
-            _db.Groups.Add(Group);
+            _db.Folders.Add(Folder);
 
             //Create authorization for creating user
-            GroupAuthorizedUser GroupAuthorizedUser = new GroupAuthorizedUser()
+            FolderAuthorizedUser FolderAuthorizedUser = new FolderAuthorizedUser()
             {
-                IsGroupAdmin = true,
-                GroupId = Group.Id,
-                Group = Group,
+                IsFolderAdmin = true,
+                FolderId = Folder.Id,
+                Folder = Folder,
                 ApplicationUserId = userId
             };
-            _db.GroupAuthorizedUsers.Add(GroupAuthorizedUser);
+            _db.FolderAuthorizedUsers.Add(FolderAuthorizedUser);
             
             await _db.SaveChangesAsync();
 
             ResponseId response = new ResponseId()
             {
-                Id = Group.Id
+                Id = Folder.Id
             };
             return Ok(response);
         }
 
         [Authorize]
         [HttpGet]
-        [Route("api/v1/Group/{GroupId}")]
-        async public Task<IActionResult> GetGroupById(string GroupId)
+        [Route("api/v1/folder/{folderId}")]
+        async public Task<IActionResult> GetFolderById(string folderId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId) == false)
+                return BadRequest("Cannot Manage Folder");
 
-            var response = await _db.Groups.Where(c => c.Id == GroupId)
+            var response = await _db.Folders.Where(c => c.Id == folderId)
                                     .Include(o => o.AuthorizedUsers)
-                                    .Select(o => new ResponseGroup()
+                                    .Select(o => new ResponseFolder()
                                     {
                                         Id = o.Id,
                                         Name = o.Name,
-                                        AuthorizedUsers = o.AuthorizedUsers.Any(u => u.ApplicationUserId == userId && u.IsGroupAdmin == true) ? o.AuthorizedUsers
-                                                            .Select(a => new ResponseGroupAuthorizedUser()
+                                        AuthorizedUsers = o.AuthorizedUsers.Any(u => u.ApplicationUserId == userId && u.IsFolderAdmin == true) ? o.AuthorizedUsers
+                                                            .Select(a => new ResponseFolderAuthorizedUser()
                                                             {
                                                                 Id = a.Id,
                                                                 ApplicationUserId = a.ApplicationUserId,
                                                                 ApplicationUserEmail = a.ApplicationUser.Email,
-                                                                IsGroupAdmin = a.IsGroupAdmin
+                                                                IsFolderAdmin = a.IsFolderAdmin
                                                             }).ToList() : null
                                     }).FirstOrDefaultAsync();
 
@@ -94,35 +94,35 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("api/v1/Group/user/authorized")]
-        async public Task<IActionResult> GetGroupsByAuthorization()
+        [Route("api/v1/folder/user/authorized")]
+        async public Task<IActionResult> GetFoldersByAuthorization()
         {
             string userId = User.GetUserId();
 
-            var Groups = await _db.GroupAuthorizedUsers.Where(o => o.ApplicationUserId == userId)
-                                .Include(o => o.Group)
-                                .Select(o => new ResponseGroupShort()
+            var Folders = await _db.FolderAuthorizedUsers.Where(o => o.ApplicationUserId == userId)
+                                .Include(o => o.Folder)
+                                .Select(o => new ResponseFolderShort()
                                 {
-                                    Id = o.Group.Id,
-                                    Name = o.Group.Name,
-                                    IsAdministrator = o.IsGroupAdmin
+                                    Id = o.Folder.Id,
+                                    Name = o.Folder.Name,
+                                    IsAdministrator = o.IsFolderAdmin
                                 }).ToListAsync();
 
-            return Ok(Groups);
+            return Ok(Folders);
         }
 
 
         [Authorize]
         [HttpPut]
-        [Route("api/v1/Group/{GroupId}")]
-        async public Task<IActionResult> UpdateGroupChangeName([FromBody]GroupCreateEditRequestModel model, string GroupId)
+        [Route("api/v1/folder/{folderId}")]
+        async public Task<IActionResult> UpdateFolderChangeName([FromBody]FolderCreateEditRequestModel model, string folderId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId, true) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId, true) == false)
+                return BadRequest("Cannot Manage Folder");
 
-            var Group = await _db.Groups.Where(o => o.Id == GroupId).FirstOrDefaultAsync();
-            Group.Name = model.Name;
+            var Folder = await _db.Folders.Where(o => o.Id == folderId).FirstOrDefaultAsync();
+            Folder.Name = model.Name;
 
             await _db.SaveChangesAsync();
 
@@ -133,30 +133,30 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPut]
-        [Route("api/v1/Group/{GroupId}/user/authorized")]
-        async public Task<IActionResult> UpdateGroupSetUserAuthorized([FromBody]GroupAddAuthorizedEmailModel model, string GroupId)
+        [Route("api/v1/folder/{folderId}/user/authorized")]
+        async public Task<IActionResult> UpdateFolderSetUserAuthorized([FromBody]FolderAddAuthorizedEmailModel model, string folderId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId, true) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId, true) == false)
+                return BadRequest("Cannot Manage Folder");
 
             var foundUserByEmail = await _userManager.FindByNameAsync(model.Email);
             if (foundUserByEmail == null)
                 return BadRequest("User Not Found");
 
-            var Group = await _db.Groups.FirstOrDefaultAsync(o => o.Id == GroupId);
-            if (Group == null)
-                return BadRequest("Group not found");
+            var Folder = await _db.Folders.FirstOrDefaultAsync(o => o.Id == folderId);
+            if (Folder == null)
+                return BadRequest("Folder not found");
 
-            GroupAuthorizedUser authorizedUser = new GroupAuthorizedUser()
+            FolderAuthorizedUser authorizedUser = new FolderAuthorizedUser()
             {
-                GroupId = Group.Id,
-                Group = Group,
+                FolderId = Folder.Id,
+                Folder = Folder,
                 ApplicationUser = foundUserByEmail,
                 ApplicationUserId = foundUserByEmail.Id
             };
 
-            _db.GroupAuthorizedUsers.Add(authorizedUser);
+            _db.FolderAuthorizedUsers.Add(authorizedUser);
 
             await _db.SaveChangesAsync();
 
@@ -165,15 +165,15 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpDelete]
-        [Route("api/v1/Group/{GroupId}/user/{applicationUserId}/authorized")]
-        async public Task<IActionResult> UpdateGroupRemoveUserAuthorized(string GroupId, string applicationUserId)
+        [Route("api/v1/folder/{folderId}/user/{applicationUserId}/authorized")]
+        async public Task<IActionResult> UpdateFolderRemoveUserAuthorized(string folderId, string applicationUserId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId, true) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId, true) == false)
+                return BadRequest("Cannot Manage Folder");
 
-            var removeThese = _db.GroupAuthorizedUsers.Where(o => o.GroupId == GroupId && o.ApplicationUserId == applicationUserId);
-            _db.GroupAuthorizedUsers.RemoveRange(removeThese);
+            var removeThese = _db.FolderAuthorizedUsers.Where(o => o.FolderId == folderId && o.ApplicationUserId == applicationUserId);
+            _db.FolderAuthorizedUsers.RemoveRange(removeThese);
 
             await _db.SaveChangesAsync();
 
@@ -182,15 +182,15 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPut]
-        [Route("api/v1/Group/{GroupId}/user/{applicationUserId}/authorized/toggle")]
-        async public Task<IActionResult> UpdateGroupRemoveUserToggle([FromBody]GroupToggleAuthorizedModel model, string GroupId, string applicationUserId)
+        [Route("api/v1/folder/{folderId}/user/{applicationUserId}/authorized/toggle")]
+        async public Task<IActionResult> UpdateFolderRemoveUserToggle([FromBody]FolderToggleAuthorizedModel model, string folderId, string applicationUserId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId, true) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId, true) == false)
+                return BadRequest("Cannot Manage Folder");
 
-            var updateThis = await _db.GroupAuthorizedUsers.Where(o => o.GroupId == GroupId && o.ApplicationUserId == applicationUserId).FirstOrDefaultAsync();
-            updateThis.IsGroupAdmin = model.Administrator;
+            var updateThis = await _db.FolderAuthorizedUsers.Where(o => o.FolderId == folderId && o.ApplicationUserId == applicationUserId).FirstOrDefaultAsync();
+            updateThis.IsFolderAdmin = model.Administrator;
 
             await _db.SaveChangesAsync();
 
@@ -199,25 +199,25 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpDelete]
-        [Route("api/v1/Group/{GroupId}")]
-        async public Task<IActionResult> DeleteGroup(string GroupId)
+        [Route("api/v1/folder/{folderId}")]
+        async public Task<IActionResult> DeleteFolder(string folderId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId, true) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId, true) == false)
+                return BadRequest("Cannot Manage Folder");
 
-            var authorizations = _db.GroupAuthorizedUsers.Where(o => o.GroupId == GroupId);
-            _db.GroupAuthorizedUsers.RemoveRange(authorizations);
+            var authorizations = _db.FolderAuthorizedUsers.Where(o => o.FolderId == folderId);
+            _db.FolderAuthorizedUsers.RemoveRange(authorizations);
 
-            var Group = _db.Groups.Where(o => o.Id == GroupId);
-            _db.Groups.RemoveRange(Group);
+            var Folder = _db.Folders.Where(o => o.Id == folderId);
+            _db.Folders.RemoveRange(Folder);
 
             await _db.SaveChangesAsync();
 
             var query = new BsonDocument("$and",
                         new BsonArray
                         {
-                            new BsonDocument("GroupId", GroupId)
+                            new BsonDocument("FolderId", folderId)
                         });
 
             await _mongoDBContext.Instances.DeleteManyAsync(query);
@@ -230,20 +230,20 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("api/v1/Group/{GroupId}/type")]
-        async public Task<IActionResult> CreateGroupType([FromBody]ResponseInstanceType model, string GroupId)
+        [Route("api/v1/folder/{folderId}/type")]
+        async public Task<IActionResult> CreateFolderType([FromBody]ResponseDataType model, string folderId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId, true) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId, true) == false)
+                return BadRequest("Cannot Manage Folder");
 
-            InstanceType newType = new InstanceType()
+            DataType newType = new DataType()
             {
                 Name = model.Name,
-                GroupId = GroupId
+                FolderId = folderId
             };
             
-            _db.InstanceTypes.Add(newType);
+            _db.DataTypes.Add(newType);
 
             await _db.SaveChangesAsync();
 
@@ -252,14 +252,14 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}")]
-        async public Task<IActionResult> UpdateGroupTypeName([FromBody]ResponseInstanceType model, string GroupId, string instanceTypeId)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}")]
+        async public Task<IActionResult> UpdateFolderTypeName([FromBody]ResponseDataType model, string folderId, string dataTypeId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId, true) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId, true) == false)
+                return BadRequest("Cannot Manage Folder");
 
-            var type = await _db.InstanceTypes.Where(d => d.GroupId == GroupId && d.Id == instanceTypeId).FirstOrDefaultAsync();
+            var type = await _db.DataTypes.Where(d => d.FolderId == folderId && d.Id == dataTypeId).FirstOrDefaultAsync();
             type.Name = model.Name;
             
             await _db.SaveChangesAsync();
@@ -270,24 +270,24 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpDelete]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}")]
-        async public Task<IActionResult> DeleteGroupTypeById(string GroupId, string instanceTypeId)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}")]
+        async public Task<IActionResult> DeleteFolderTypeById(string folderId, string dataTypeId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId) == false)
+                return BadRequest("Cannot Manage Folder");
 
             //Delete the type
-            var deleteThis = _db.InstanceTypes.Where(d => d.GroupId == GroupId && d.Id == instanceTypeId);
-            _db.InstanceTypes.RemoveRange(deleteThis);
+            var deleteThis = _db.DataTypes.Where(d => d.FolderId == folderId && d.Id == dataTypeId);
+            _db.DataTypes.RemoveRange(deleteThis);
 
             await _db.SaveChangesAsync();
 
             var query = new BsonDocument("$and",
                             new BsonArray
                             {
-                                new BsonDocument("GroupId", GroupId),
-                                new BsonDocument("TypeId", instanceTypeId)
+                                new BsonDocument("FolderId", folderId),
+                                new BsonDocument("TypeId", dataTypeId)
                             });
             await _mongoDBContext.Instances.DeleteManyAsync(query);
 
@@ -296,18 +296,18 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}")]
-        [Route("api/v1/Group/{GroupId}/type")]
-        async public Task<IActionResult> GetGroupType(string GroupId, string instanceTypeId = null)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}")]
+        [Route("api/v1/folder/{folderId}/type")]
+        async public Task<IActionResult> GetFolderType(string folderId, string dataTypeId = null)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId) == false)
+                return BadRequest("Cannot Manage Folder");
 
-            if (instanceTypeId == "menu")
+            if (dataTypeId == "menu")
             {
-                var listResponse = await _db.InstanceTypes.Where(i => i.GroupId == GroupId)
-                                    .Select(i => new ResponseInstanceType()
+                var listResponse = await _db.DataTypes.Where(i => i.FolderId == folderId)
+                                    .Select(i => new ResponseDataType()
                                     {
                                         Id = i.Id,
                                         Name = i.Name
@@ -316,11 +316,11 @@ namespace CRM.Server.Controllers
                 return Ok(listResponse);
             }
 
-            if (instanceTypeId != null)
+            if (dataTypeId != null)
             {
-                var singleResponse = await _db.InstanceTypes.Where(i => i.Id == instanceTypeId && i.GroupId == GroupId)
+                var singleResponse = await _db.DataTypes.Where(i => i.Id == dataTypeId && i.FolderId == folderId)
                                     .Include(i => i.Fields)
-                                    .Select(i => new ResponseInstanceType()
+                                    .Select(i => new ResponseDataType()
                                     {
                                         Id = i.Id,
                                         Name = i.Name,
@@ -343,9 +343,9 @@ namespace CRM.Server.Controllers
             }
             else
             {
-                var listResponse = await _db.InstanceTypes.Where(i => i.GroupId == GroupId)
+                var listResponse = await _db.DataTypes.Where(i => i.FolderId == folderId)
                                     .Include(i => i.Fields)
-                                    .Select(i => new ResponseInstanceType()
+                                    .Select(i => new ResponseDataType()
                                     {
                                         Id = i.Id,
                                         Name = i.Name,
@@ -371,12 +371,12 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/field")]
-        async public Task<IActionResult> CreateGroupInstanceTypeField([FromBody]ResponseField model, string GroupId, string instanceTypeId)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}/field")]
+        async public Task<IActionResult> CreateFolderInstanceTypeField([FromBody]ResponseField model, string folderId, string dataTypeId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId, true) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId, true) == false)
+                return BadRequest("Cannot Manage Folder");
 
             Field field = new Field()
             {
@@ -389,7 +389,7 @@ namespace CRM.Server.Controllers
                 Options = model.Options,
                 SearchOrder = model.SearchOrder,
                 SearchShow = model.SearchShow,
-                InstanceTypeId = instanceTypeId
+                DataTypeId = dataTypeId
             };
             _db.Fields.Add(field);
 
@@ -400,16 +400,16 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPut]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/field/{fieldId}")]
-        async public Task<IActionResult> UpdateGroupInstanceTypeField([FromBody]ResponseField model, string GroupId, string instanceTypeId, string fieldId)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}/field/{fieldId}")]
+        async public Task<IActionResult> UpdateFolderInstanceTypeField([FromBody]ResponseField model, string folderId, string dataTypeId, string fieldId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId, true) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId, true) == false)
+                return BadRequest("Cannot Manage Folder");
 
             var field = await _db.Fields.Where(f => f.Id == fieldId &&
-                                    f.InstanceTypeId == instanceTypeId &&
-                                    f.InstanceType.GroupId == GroupId).FirstOrDefaultAsync();
+                                    f.DataTypeId == dataTypeId &&
+                                    f.DataType.FolderId == folderId).FirstOrDefaultAsync();
 
             field.Name = model.Name;
             field.Row = model.Row;
@@ -428,16 +428,16 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpDelete]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/field/{fieldId}")]
-        async public Task<IActionResult> DeleteGroupInstanceTypeField(string GroupId, string instanceTypeId, string fieldId)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}/field/{fieldId}")]
+        async public Task<IActionResult> DeleteFolderInstanceTypeField(string folderId, string dataTypeId, string fieldId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId, true) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId, true) == false)
+                return BadRequest("Cannot Manage Folder");
 
             var field = _db.Fields.Where(f => f.Id == fieldId &&
-                                    f.InstanceTypeId == instanceTypeId &&
-                                    f.InstanceType.GroupId == GroupId);
+                                    f.DataTypeId == dataTypeId &&
+                                    f.DataType.FolderId == folderId);
 
             _db.Fields.RemoveRange(field);
 
@@ -448,14 +448,14 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/search")]
-        async public Task<IActionResult> SearchGroupInstancesByType([FromBody]Search model, string GroupId, string instanceTypeId)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}/search")]
+        async public Task<IActionResult> SearchFolderInstancesByType([FromBody]Search model, string folderId, string dataTypeId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId) == false)
+                return BadRequest("Cannot Manage Folder");
 
-            if (GroupId == null || instanceTypeId == null || model.SortBy == null)
+            if (folderId == null || dataTypeId == null || model.SortBy == null)
                 return Ok(new InstanceSearchResponse());
 
             BsonDocument sort = default(BsonDocument);
@@ -468,8 +468,8 @@ namespace CRM.Server.Controllers
             var query = new BsonDocument("$and",
                         new BsonArray
                         {
-                            new BsonDocument("GroupId", GroupId),
-                            new BsonDocument("TypeId", instanceTypeId),
+                            new BsonDocument("FolderId", folderId),
+                            new BsonDocument("TypeId", dataTypeId),
                             model.FilterText != null
                                 ? new BsonDocument("$text", new BsonDocument {{ "$search", model.FilterText }, { "$caseSensitive", false } })
                                 : new BsonDocument("_id", new BsonDocument("$ne", BsonNull.Value)),
@@ -507,18 +507,18 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance")]
-        async public Task<IActionResult> GroupCreateInstanceByType([FromBody]ResponseInstance model, string GroupId, string instanceTypeId)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}/instance")]
+        async public Task<IActionResult> FolderCreateInstanceByType([FromBody]ResponseInstance model, string folderId, string dataTypeId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId) == false)
+                return BadRequest("Cannot Manage Folder");
 
             var user = await _userManager.FindByIdAsync(userId);
 
             model.InstanceData.Add("InstanceId", Guid.NewGuid().ToString());
-            model.InstanceData.Add("GroupId", GroupId);
-            model.InstanceData.Add("TypeId", instanceTypeId);
+            model.InstanceData.Add("FolderId", folderId);
+            model.InstanceData.Add("TypeId", dataTypeId);
             model.InstanceData.Add("CreatedOn", model.LocalDateTime);
             model.InstanceData.Add("CreatedBy", user.Email);
             model.InstanceData.Add("UpdatedOn", null);
@@ -531,20 +531,20 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpPut]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}")]
-        async public Task<IActionResult> GroupUpdateInstanceByType([FromBody]ResponseInstance model, string GroupId, string instanceTypeId, string instanceId)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}/instance/{instanceId}")]
+        async public Task<IActionResult> FolderUpdateInstanceByType([FromBody]ResponseInstance model, string folderId, string dataTypeId, string instanceId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId) == false)
+                return BadRequest("Cannot Manage Folder");
 
             var user = await _userManager.FindByIdAsync(userId);
 
             var query = new BsonDocument("$and",
                        new BsonArray
                        {
-                            new BsonDocument("GroupId", GroupId),
-                            new BsonDocument("TypeId", instanceTypeId),
+                            new BsonDocument("FolderId", folderId),
+                            new BsonDocument("TypeId", dataTypeId),
                             new BsonDocument("InstanceId", instanceId)
                        });
 
@@ -558,18 +558,18 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpDelete]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}")]
-        async public Task<IActionResult> GroupDeleteInstanceByType(string GroupId, string instanceTypeId, string instanceId)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}/instance/{instanceId}")]
+        async public Task<IActionResult> FolderDeleteInstanceByType(string folderId, string dataTypeId, string instanceId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId) == false)
+                return BadRequest("Cannot Manage Folder");
 
             var query = new BsonDocument("$and",
                         new BsonArray
                         {
-                            new BsonDocument("GroupId", GroupId),
-                            new BsonDocument("TypeId", instanceTypeId),
+                            new BsonDocument("FolderId", folderId),
+                            new BsonDocument("TypeId", dataTypeId),
                             new BsonDocument("InstanceId", instanceId)
                         });
 
@@ -581,19 +581,19 @@ namespace CRM.Server.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("api/v1/Group/{GroupId}/type/{instanceTypeId}/instance/{instanceId}")]
-        async public Task<IActionResult> GroupGetInstanceById(string GroupId, string instanceTypeId, string instanceId)
+        [Route("api/v1/folder/{folderId}/type/{dataTypeId}/instance/{instanceId}")]
+        async public Task<IActionResult> FolderGetInstanceById(string folderId, string dataTypeId, string instanceId)
         {
             string userId = User.GetUserId();
-            if (await CanManageGroup(userId, GroupId) == false)
-                return BadRequest("Cannot manage group");
+            if (await CanManageFolder(userId, folderId) == false)
+                return BadRequest("Cannot Manage Folder");
 
             //Query used in data results and count results. Separate the query from the rest of the pipeline so it can be reused.
             var query = new BsonDocument("$and",
                         new BsonArray
                         {
-                            new BsonDocument("GroupId", GroupId),
-                            new BsonDocument("TypeId", instanceTypeId),
+                            new BsonDocument("FolderId", folderId),
+                            new BsonDocument("TypeId", dataTypeId),
                             new BsonDocument("InstanceId", instanceId)
                         });
 
@@ -611,9 +611,9 @@ namespace CRM.Server.Controllers
             var data = await _mongoDBContext.Instances.Aggregate(pipelineData).FirstOrDefaultAsync();
 
             //Make sure the response object has all the fields defined
-            InstanceType instanceType = await _db.InstanceTypes
+            DataType instanceType = await _db.DataTypes
                                                     .Include(i => i.Fields)
-                                                    .Where(i => i.GroupId == GroupId && i.Id == instanceTypeId)
+                                                    .Where(i => i.FolderId == folderId && i.Id == dataTypeId)
                                                     .FirstOrDefaultAsync();
             foreach (var field in instanceType.Fields)
             {
@@ -632,20 +632,20 @@ namespace CRM.Server.Controllers
             return Ok(response);
         }
         
-        async private Task<bool> CanManageGroup(string userId, string groupId, bool? requireAdmin = null)
+        async private Task<bool> CanManageFolder(string userId, string folderId, bool? requireAdmin = null)
         {
             if (requireAdmin == null)
             {
-                return await _db.GroupAuthorizedUsers
-                                .AnyAsync(o => o.GroupId == groupId &&
+                return await _db.FolderAuthorizedUsers
+                                .AnyAsync(o => o.FolderId == folderId &&
                                             o.ApplicationUserId == userId);
             }
             else if (requireAdmin != null)
             {
-                return await _db.GroupAuthorizedUsers
-                                .AnyAsync(o => o.GroupId == groupId &&
+                return await _db.FolderAuthorizedUsers
+                                .AnyAsync(o => o.FolderId == folderId &&
                                             o.ApplicationUserId == userId &&
-                                            o.IsGroupAdmin == requireAdmin);
+                                            o.IsFolderAdmin == requireAdmin);
             }
 
             return false;

@@ -22,54 +22,54 @@ namespace depot.Client.Services
             _api = api;
             _localStorage = localStorage;
 
-            DataTypes = new List<GroupTypeNav>();
-            AllowedGroups = new List<AllowedGroup>();
+            DataTypes = new List<FolderTypeNav>();
+            AllowedFolders = new List<AllowedFolder>();
             _authenticationStateProvider = authenticationStateProvider;
         }
 
-        async public Task<bool> UpdateAppState(string selectedGroupId = null)
+        async public Task<bool> UpdateAppState(string selectedFolderId = null)
         {
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
             if (authState.User.Identity.IsAuthenticated)
             {
-                var userGroups = await _api.GetGroupsByAuthorizedUser();
+                var userFolders = await _api.GetFoldersByAuthorizedUser();
 
-                if (userGroups.Count > 0)
+                if (userFolders.Count > 0)
                 {
-                    AllowedGroups = userGroups.Select(o => new AllowedGroup() { Name = o.Name, Id = o.Id, IsAdministrator = o.IsAdministrator }).ToList();
+                    AllowedFolders = userFolders.Select(o => new AllowedFolder() { Name = o.Name, Id = o.Id, IsAdministrator = o.IsAdministrator }).ToList();
 
-                    if (selectedGroupId == null)
+                    if (selectedFolderId == null)
                     {
-                        selectedGroupId = await _localStorage.GetItemAsync<string>("groupId");
-                        if (selectedGroupId == null && AllowedGroups.Any())
+                        selectedFolderId = await _localStorage.GetItemAsync<string>("folderId");
+                        if (selectedFolderId == null && AllowedFolders.Any())
                         {
-                            selectedGroupId = AllowedGroups.FirstOrDefault().Id;
+                            selectedFolderId = AllowedFolders.FirstOrDefault().Id;
                         }
                     }
 
-                    if (selectedGroupId != null)
+                    if (selectedFolderId != null)
                     {
-                        var selectedGroup = userGroups.FirstOrDefault(g => g.Id == selectedGroupId);
-                        if (selectedGroup != null)
+                        var selectedFolder = userFolders.FirstOrDefault(g => g.Id == selectedFolderId);
+                        if (selectedFolder != null)
                         {
-                            CurrentGroupName = selectedGroup.Name;
-                            CurrentGroupId = selectedGroup.Id;
-                            CurrentGroupIsAdministrator = selectedGroup.IsAdministrator;
+                            CurrentFolderName = selectedFolder.Name;
+                            CurrentFolderId = selectedFolder.Id;
+                            CurrentFolderIsAdministrator = selectedFolder.IsAdministrator;
 
-                            var groupTypes = await _api.GetGroupTypeAsMenuOptionList(selectedGroup.Id);
-                            DataTypes = groupTypes.Select(o => new GroupTypeNav() { Text = o.Name, Data = o.Id }).ToList();
+                            var folderTypes = await _api.GetFolderTypeAsMenuOptionList(selectedFolder.Id);
+                            DataTypes = folderTypes.Select(o => new FolderTypeNav() { Text = o.Name, Data = o.Id }).ToList();
 
-                            await _localStorage.SetItemAsync("groupId", selectedGroupId);
+                            await _localStorage.SetItemAsync("folderId", selectedFolderId);
                         }
                     }
                 }
                 else
                 {
-                    AllowedGroups = new List<AllowedGroup>();
-                    CurrentGroupId = default(string);
-                    CurrentGroupName = default(string);
-                    CurrentGroupIsAdministrator = false;
-                    DataTypes = new List<GroupTypeNav>();
+                    AllowedFolders = new List<AllowedFolder>();
+                    CurrentFolderId = default(string);
+                    CurrentFolderName = default(string);
+                    CurrentFolderIsAdministrator = false;
+                    DataTypes = new List<FolderTypeNav>();
                 }
 
                 return true;
@@ -82,52 +82,52 @@ namespace depot.Client.Services
 
 
 
-        private string _currentGroupId;
-        public string CurrentGroupId
+        private string _currentFolderId;
+        public string CurrentFolderId
         {
             get
             {
-                return _currentGroupId;
+                return _currentFolderId;
             }
             set
             {
-                _currentGroupId = value;
+                _currentFolderId = value;
                 NotifyStateChanged();
             }
         }
 
-        private bool _currentGroupIsAdministrator;
-        public bool CurrentGroupIsAdministrator
+        private bool _currentFolderIsAdministrator;
+        public bool CurrentFolderIsAdministrator
         {
             get
             {
-                return _currentGroupIsAdministrator;
+                return _currentFolderIsAdministrator;
             }
             set
             {
-                _currentGroupIsAdministrator = value;
-                NotifyStateChanged();
-            }
-        }
-
-
-        private string _currentGroupName;
-        public string CurrentGroupName
-        {
-            get
-            {
-                return _currentGroupName;
-            }
-            set
-            {
-                _currentGroupName = value;
+                _currentFolderIsAdministrator = value;
                 NotifyStateChanged();
             }
         }
 
 
-        private List<GroupTypeNav> _dataTypes;
-        public List<GroupTypeNav> DataTypes
+        private string _currentFolderName;
+        public string CurrentFolderName
+        {
+            get
+            {
+                return _currentFolderName;
+            }
+            set
+            {
+                _currentFolderName = value;
+                NotifyStateChanged();
+            }
+        }
+
+
+        private List<FolderTypeNav> _dataTypes;
+        public List<FolderTypeNav> DataTypes
         {
             get
             {
@@ -141,16 +141,16 @@ namespace depot.Client.Services
         }
 
 
-        private List<AllowedGroup> _allowedGroups;
-        public List<AllowedGroup> AllowedGroups
+        private List<AllowedFolder> _allowedFolders;
+        public List<AllowedFolder> AllowedFolders
         {
             get
             {
-                return _allowedGroups;
+                return _allowedFolders;
             }
             set
             {
-                _allowedGroups = value;
+                _allowedFolders = value;
                 NotifyStateChanged();
             }
         }
@@ -170,13 +170,13 @@ namespace depot.Client.Services
         }
     }
 
-    public class GroupTypeNav
+    public class FolderTypeNav
     {
         public string Data { get; set; }
         public string Text { get; set; }
     }
 
-    public class AllowedGroup
+    public class AllowedFolder
     {
         public string Id { get; set; }
         public string Name { get; set; }
