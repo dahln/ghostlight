@@ -244,7 +244,7 @@
         else
         {
             await API.DeleteFolderInstance(FolderId, DataTypeId, InstanceId);
-            _navigationManger.NavigateTo($"folder/{FolderId}/type/{DataTypeId}");
+            _navigationManger.NavigateTo($"folder/{FolderId}/type/{DataTypeId}/search");
         }
     }
 }
