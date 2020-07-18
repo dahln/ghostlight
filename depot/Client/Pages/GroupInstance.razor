@@ -1,6 +1,6 @@
 ﻿@attribute [Authorize]
-@page "/Group/{GroupId}/instance/{DataTypeId}"
-@page "/Group/{GroupId}/instance/{DataTypeId}/{InstanceId}"
+@page "/folder/{FolderId}/type/{DataTypeId}"
+@page "/folder/{FolderId}/type/{DataTypeId}/instance/{InstanceId}"
 
 @using Microsoft.AspNetCore.Authorization
 @using depot.Shared.RequestModels
@@ -15,7 +15,7 @@
 @if (Type != null)
 {
     <div class="mb-3">
-        <NavLink href="@($"Group/{GroupId}/type/{Type.Id}")">
+        <NavLink href="@($"folder/{FolderId}/type/{Type.Id}/search")">
             &#171; Back to Search
         </NavLink>
     </div>
@@ -150,7 +150,7 @@
 
 @code {
     [Parameter]
-    public string GroupId { get; set; }
+    public string FolderId { get; set; }
 
     [Parameter]
     public string DataTypeId { get; set; }
@@ -161,28 +161,28 @@
 
 
     //Loaded from API
-    public ResponseGroup Group { get; set; } = new ResponseGroup();
-    public ResponseInstanceType Type { get; set; }
-    public List<ResponseInstanceType> Types { get; set; } = new List<ResponseInstanceType>();
+    public ResponseFolder Folder { get; set; } = new ResponseFolder();
+    public ResponseDataType Type { get; set; }
+    public List<ResponseDataType> Types { get; set; } = new List<ResponseDataType>();
     public Dictionary<string, string> InstanceData { get; set; } = new Dictionary<string, string>();
 
     async protected override Task OnParametersSetAsync()
     {
 
-        await GetGroup();
+        await GetFolder();
         await GetDataTypes();
         await GetSelectedInstance();
     }
 
-    async private Task GetGroup()
+    async private Task GetFolder()
     {
-        Group = await API.GroupGetById(GroupId);
+        Folder = await API.FolderGetById(FolderId);
     }
 
     async private Task GetDataTypes()
     {
-        Types = await API.GetGroupTypeAsList(GroupId);
-        Type = await API.GetGroupTypeById(GroupId, DataTypeId);
+        Types = await API.GetFolderTypeAsList(FolderId);
+        Type = await API.GetFolderTypeById(FolderId, DataTypeId);
 
         foreach (var t in Type.Fields)
         {
@@ -194,7 +194,7 @@
     {
         if (InstanceId != null)
         {
-            var result = await API.GetGroupInstance(GroupId, DataTypeId, InstanceId);
+            var result = await API.GetFolderInstance(FolderId, DataTypeId, InstanceId);
             InstanceData = result.InstanceData;
         }
     }
@@ -220,14 +220,14 @@
 
         if (InstanceId == null)
         {
-            var response = await API.CreateGroupInstance(GroupId, DataTypeId, InstanceData);
+            var response = await API.CreateFolderInstance(FolderId, DataTypeId, InstanceData);
             InstanceId = response.Id;
             await GetSelectedInstance();
-            _navigationManger.NavigateTo($"/Group/{GroupId}/instance/{DataTypeId}/{InstanceId}");
+            _navigationManger.NavigateTo($"/folder/{FolderId}/type/{DataTypeId}/instance/{InstanceId}");
         }
         else if (InstanceId != null)
         {
-            await API.UpdateGroupInstance(GroupId, DataTypeId, InstanceId, InstanceData);
+            await API.UpdateFolderInstance(FolderId, DataTypeId, InstanceId, InstanceData);
             await GetSelectedInstance();
         }
 
@@ -243,8 +243,8 @@
         if (modalResult.Cancelled) { }
         else
         {
-            await API.DeleteGroupInstance(GroupId, DataTypeId, InstanceId);
-            _navigationManger.NavigateTo($"Group/{GroupId}/type/{DataTypeId}");
+            await API.DeleteFolderInstance(FolderId, DataTypeId, InstanceId);
+            _navigationManger.NavigateTo($"folder/{FolderId}/type/{DataTypeId}");
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿@attribute [Authorize]
-@page "/group/{GroupId}/type/{typeId}"
+@page "/folder/{FolderId}/type/{DataTypeId}/search"
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager _navigationManger
@@ -11,23 +11,23 @@
 
 @inject depot.Client.Services.API API
 
-@if (Group != null)
+@if (Folder != null)
 {
     <div class="row">
         <div class="col-md-6">
-            <h3>@Types.FirstOrDefault(t => t.Id == TypeId)?.Name</h3>
+            <h3>@Types.FirstOrDefault(t => t.Id == DataTypeId)?.Name</h3>
         </div>
         <div class="col-md-6">
-            @if (TypeId != null)
+            @if (DataTypeId != null)
             {
-                <NavLink class="btn btn-success btn-lg pointer float-right mb-2" href="@($"Group/{Group.Id}/instance/{TypeId}")">
+                <NavLink class="btn btn-success btn-lg pointer float-right mb-2" href="@($"folder/{Folder.Id}/type/{DataTypeId}")">
                     <i class="fas fa-plus mx-2"></i> Create New
                 </NavLink>
             }
         </div>
     </div>
 
-    @if (TypeId != null)
+    @if (DataTypeId != null)
     {
         <div class="row mt-2">
             <div class="col-md-12">
@@ -57,7 +57,7 @@
             <table class="table table-hover mt-3">
                 <thead>
                     <tr>
-                        @foreach (var column in Types.FirstOrDefault(t => t.Id == TypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
+                        @foreach (var column in Types.FirstOrDefault(t => t.Id == DataTypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
                         {
                             <th scope="col" class="pointer" @onclick="(() => SearchType(null, column.Id, (Search.SortDirection * -1), false))">
                                 <span class="mr-2">@column.Name</span>
@@ -77,7 +77,7 @@
                     @foreach (var instance in Instances)
                     {
                         <tr class="pointer" @onclick="(() => SelectInstance(instance.FirstOrDefault(i => i.Key == InstanceIdLabel).Value))">
-                            @foreach (var column in Types.FirstOrDefault(t => t.Id == TypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
+                            @foreach (var column in Types.FirstOrDefault(t => t.Id == DataTypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
                             {
                                 @if (instance.Where(i => i.Key == column.Id).Count() > 0)
                                 {
@@ -115,16 +115,16 @@
 @code {
 
     [Parameter]
-    public string GroupId { get; set; }
+    public string FolderId { get; set; }
 
     [Parameter]
-    public string TypeId { get; set; }
+    public string DataTypeId { get; set; }
 
     int PageSize { get; set; } = 25;
 
     //Loaded from API
-    ResponseGroup Group { get; set; }
-    List<ResponseInstanceType> Types { get; set; } = new List<ResponseInstanceType>();
+    ResponseFolder Folder { get; set; }
+    List<ResponseDataType> Types { get; set; } = new List<ResponseDataType>();
     List<Dictionary<string, string>> Instances = new List<Dictionary<string, string>>();
     int? TotalFound { get; set; }
 
@@ -134,27 +134,27 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await LoadGroupData();
+        await LoadFolderData();
     }
 
-    private async Task LoadGroupData()
+    private async Task LoadFolderData()
     {
-        Group = await API.GroupGetById(GroupId);
+        Folder = await API.FolderGetById(FolderId);
         await GetDataTypes();
     }
 
     async private Task GetDataTypes()
     {
-        if (GroupId != null)
+        if (FolderId != null)
         {
-            Types = await API.GetGroupTypeAsList(GroupId);
+            Types = await API.GetFolderTypeAsList(FolderId);
 
-            string cachedTypeId = await localStorage.GetItemAsync<string>("TypeId");
-            if (Types.Any(t => t.Id == cachedTypeId))
+            string cachedDataTypeId = await localStorage.GetItemAsync<string>("DataTypeId");
+            if (Types.Any(t => t.Id == cachedDataTypeId))
             {
-                if (TypeId != null)
+                if (DataTypeId != null)
                 {
-                    if (TypeId == cachedTypeId)
+                    if (DataTypeId == cachedDataTypeId)
                     {
                         Search = await localStorage.GetItemAsync<Search>("Search");
                     }
@@ -170,7 +170,7 @@
 
     async private Task TypeClick(ChangeEventArgs e)
     {
-        TypeId = e.Value.ToString();
+        DataTypeId = e.Value.ToString();
         await SearchType(null, null, null, true);
     }
 
@@ -195,7 +195,7 @@
 
         if (Search?.SortBy == null && sortBy == null)
         {
-            sortBy = Types.FirstOrDefault(t => t.Id == TypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder).FirstOrDefault()?.Id;
+            sortBy = Types.FirstOrDefault(t => t.Id == DataTypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder).FirstOrDefault()?.Id;
         }
 
         Search = new Search()
@@ -208,15 +208,15 @@
         };
 
         await localStorage.SetItemAsync("Search", Search);
-        await localStorage.SetItemAsync("TypeId", TypeId);
+        await localStorage.SetItemAsync("DataTypeId", DataTypeId);
 
-        var response = await API.SearchGroupInstance(GroupId, TypeId, Search);
+        var response = await API.SearchFolderInstance(FolderId, DataTypeId, Search);
         Instances = response.Data;
         TotalFound = response.Total;
     }
 
     private void SelectInstance(string instanceId)
     {
-        _navigationManger.NavigateTo($"Group/{GroupId}/instance/{TypeId}/{instanceId}");
+        _navigationManger.NavigateTo($"folder/{FolderId}/type/{DataTypeId}/instance/{instanceId}");
     }
 }

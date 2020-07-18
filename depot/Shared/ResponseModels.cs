@@ -10,7 +10,7 @@ namespace depot.Shared.ResponseModels
         public string Id { get; set; }
     }
 
-    public class ResponseGroupShort
+    public class ResponseFolderShort
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; }
@@ -20,18 +20,18 @@ namespace depot.Shared.ResponseModels
 
 
 
-    public class ResponseGroup
+    public class ResponseFolder
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; }
-        public List<ResponseInstanceType> InstanceTypes { get; set; } = new List<ResponseInstanceType>();
-        public List<ResponseGroupAuthorizedUser> AuthorizedUsers { get; set; } = new List<ResponseGroupAuthorizedUser>();
+        public List<ResponseDataType> DataeTypes { get; set; } = new List<ResponseDataType>();
+        public List<ResponseFolderAuthorizedUser> AuthorizedUsers { get; set; } = new List<ResponseFolderAuthorizedUser>();
     }
 
-    public class ResponseGroupAuthorizedUser
+    public class ResponseFolderAuthorizedUser
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public bool IsGroupAdmin { get; set; } = false;
+        public bool IsFolderAdmin { get; set; } = false;
 
         public string ApplicationUserId { get; set; }
         public string ApplicationUserEmail { get; set; }
@@ -40,7 +40,7 @@ namespace depot.Shared.ResponseModels
 
 
 
-    public class ResponseInstanceType
+    public class ResponseDataType
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; }

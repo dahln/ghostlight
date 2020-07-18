@@ -7,34 +7,34 @@ using System.Threading.Tasks;
 
 namespace depot.Server.Entities
 {
-    public class Group
+    public class Folder
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; }
-        public List<InstanceType> InstanceTypes { get; set; } = new List<InstanceType>();
-        public List<GroupAuthorizedUser> AuthorizedUsers { get; set; } = new List<GroupAuthorizedUser>();
+        public List<DataType> DataTypes { get; set; } = new List<DataType>();
+        public List<FolderAuthorizedUser> AuthorizedUsers { get; set; } = new List<FolderAuthorizedUser>();
     }
 
-    public class GroupAuthorizedUser
+    public class FolderAuthorizedUser
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public bool IsGroupAdmin { get; set; } = false;
+        public bool IsFolderAdmin { get; set; } = false;
 
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
 
-        public string GroupId { get; set; }
-        public Group Group { get; set; }
+        public string FolderId { get; set; }
+        public Folder Folder { get; set; }
     }
 
-    public class InstanceType
+    public class DataType
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; }
         public List<Field> Fields { get; set; } = new List<Field>();
 
-        public string GroupId { get; set; }
-        public Group Group { get; set; }
+        public string FolderId { get; set; }
+        public Folder Folder { get; set; }
     }
     
     public class Field
@@ -49,8 +49,8 @@ namespace depot.Server.Entities
         public bool Optional { get; set; } = true;
         public bool SearchShow { get; set; } = false;
         public int SearchOrder { get; set; } = 1;
-
-        public string InstanceTypeId { get; set; }
-        public InstanceType InstanceType { get; set; }
+        
+        public string DataTypeId { get; set; }
+        public DataType DataType { get; set; }
     }
 }

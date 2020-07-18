@@ -39,12 +39,12 @@ namespace depot.Server.Data
             Instances = Database.GetCollection<Dictionary<string, string>>("instances");
 
             //Use this on the cmd console tools:
-            //db.instances.createIndex( { GroupId: 1, TypeId: 1, "$**": "text" } )
+            //db.instances.createIndex( { FolderId: 1, TypeId: 1, "$**": "text" } )
 
             /*
                 Use this at the atlas create index page
                 {
-                  "GroupId":"1",
+                  "FolderId":"1",
                   "TypeId":"1",
                   "$**":"text"
                 }
@@ -69,7 +69,7 @@ namespace depot.Server.Data
 
             if (indexExists == false)
             {
-                IndexKeysDefinition<Dictionary<string, string>> keys = "{ GroupId:1, TypeId:1, '$**':'text' }";
+                IndexKeysDefinition<Dictionary<string, string>> keys = "{ FolderId:1, TypeId:1, '$**':'text' }";
                 var indexModel = new CreateIndexModel<Dictionary<string, string>>(keys, new CreateIndexOptions() { Name = indexName });
                 this.Instances.Indexes.CreateOne(indexModel);
             }

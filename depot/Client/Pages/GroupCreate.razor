@@ -1,5 +1,5 @@
 ﻿@attribute [Authorize]
-@page "/group"
+@page "/folder"
 
 @using Microsoft.AspNetCore.Authorization
 @using depot.Shared.RequestModels
@@ -9,28 +9,40 @@
 @inject IToastService _toastService
 @inject NavigationManager _navigationManager
 
-<h3>Creating a Group? Lets take care of that.</h3>
-<p>Create a group. All data must be part of a group. This group name can be changed at any time.</p>
-<div class="mt-1">
-    <input type="text" placeholder="Group Name" class="form-control" @bind="GroupName" />
+<div class="row">
+    <div class="col-md-12">
+        <h3>Create a new folder</h3>
+        <p>All data must be in a folder. This folder name can be changed at any time.</p>
+    </div>
 </div>
-<div class="mt-1">
-    <input type="button" class="btn btn-info" value="Create Group" @onclick="CreateGroup" />
+<div class="row">
+    <div class="col-md-6">
+        <div class="mt-1">
+            <input type="text" placeholder="Folder Name" class="form-control" @bind="FolderName" />
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="mt-1">
+            <input type="button" class="btn btn-info" value="Create Folder" @onclick="CreateFolder" />
+        </div>
+    </div>
 </div>
 
 @code {
 
-    public string GroupName { get; set; }
+    public string FolderName { get; set; }
 
-    public async Task CreateGroup()
+    public async Task CreateFolder()
     {
-        var content = new GroupCreateEditRequestModel() { Name = GroupName };
+        var content = new FolderCreateEditRequestModel() { Name = FolderName };
 
-        var response = await API.GroupCreate(content);
-        _toastService.ShowSuccess("Group Created. Switching to Group...");
+        var response = await API.FolderCreate(content);
+        _toastService.ShowSuccess("Folder Created. Switching to Folder...");
 
         await Task.Delay(1000);
         await _appState.UpdateAppState();
-        _navigationManager.NavigateTo($"/group/{response.Id}");
+        _navigationManager.NavigateTo($"/folder/{response.Id}");
     }
 }

@@ -1,5 +1,5 @@
 ﻿@page "/"
-@page "/group/{GroupId}"
+@page "/folder/{FolderId}"
 
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Authorization
@@ -9,10 +9,10 @@
 
 <AuthorizeView>
     <Authorized>
-        @if (_appState.Ready == true && _appState.CurrentGroupName != null)
+        @if (_appState.Ready == true && _appState.CurrentFolderName != null)
         {
             <div class="row mt-5 pt-5">
-                <h4 class="mx-auto">@_appState.CurrentGroupName</h4>
+                <h4 class="mx-auto">@_appState.CurrentFolderName</h4>
             </div>
             @if (_appState.DataTypes.Count == 0)
             {
@@ -25,14 +25,14 @@
                     <div class="list-group w-100">
                         @foreach (var type in _appState.DataTypes)
                         {
-                            <NavLink class="list-group-item list-group-item-action" href="@($"group/{_appState.CurrentGroupId}/type/{type.Data}")">
+                            <NavLink class="list-group-item list-group-item-action" href="@($"folder/{_appState.CurrentFolderId}/type/{type.Data}/search")">
                                 <span class="oi oi-plus" aria-hidden="true"></span> @type.Text
                             </NavLink>
                         }
-                        @if (_appState.DataTypes.Count == 0 && _appState.CurrentGroupIsAdministrator)
+                        @if (_appState.DataTypes.Count == 0 && _appState.CurrentFolderIsAdministrator)
                         {
 
-                            <NavLink class="list-group-item list-group-item-action list-group-item-info" href="@($"group/{_appState.CurrentGroupId}/design")">
+                            <NavLink class="list-group-item list-group-item-action list-group-item-info" href="@($"folder/{_appState.CurrentFolderId}/design")">
                                 <span class="oi oi-list-rich" aria-hidden="true"></span> Manage Data Types
                             </NavLink>
                         }
@@ -44,15 +44,15 @@
         else if (_appState.Ready == true)
         {
             <div class="row mt-5 pt-5">
-                <h4 class="mx-auto">Create a new Group</h4>
+                <h4 class="mx-auto">Create a new Folder</h4>
             </div>
-            @if (_appState.AllowedGroups.Count > 0)
+            @if (_appState.AllowedFolders.Count > 0)
             {
                 <div class="row mt-5 pt-5">
                     <h4 class="mx-auto">or</h4>
                 </div>
                 <div class="row mt-5 pt-5">
-                    <h4 class="mx-auto">Select an existing Group</h4>
+                    <h4 class="mx-auto">Select an existing Folder</h4>
                 </div>
             }
         }
@@ -74,7 +74,7 @@
 @code {
 
     [Parameter]
-    public string GroupId { get; set; }
+    public string FolderId { get; set; }
 
     protected override void OnInitialized()
     {
@@ -87,10 +87,10 @@
     {
         await base.SetParametersAsync(parameters);
 
-        var result = await _appState.UpdateAppState(GroupId);
-        if (GroupId != null && result == true && _appState.CurrentGroupName != null)
+        var result = await _appState.UpdateAppState(FolderId);
+        if (FolderId != null && result == true && _appState.CurrentFolderName != null)
         {
-            _toastService.ShowInfo($"Switched to {_appState.CurrentGroupName}");
+            _toastService.ShowInfo($"Switched to {_appState.CurrentFolderName}");
         }
     }
 }

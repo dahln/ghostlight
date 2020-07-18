@@ -19,27 +19,27 @@ namespace depot.Server.Data
         {
         }
 
-        public DbSet<Group> Groups { get; set; }
-        public DbSet<GroupAuthorizedUser> GroupAuthorizedUsers { get; set; }
-        public DbSet<InstanceType> InstanceTypes { get; set; }
+        public DbSet<Folder> Folders { get; set; }
+        public DbSet<FolderAuthorizedUser> FolderAuthorizedUsers { get; set; }
+        public DbSet<DataType> DataTypes { get; set; }
         public DbSet<Field> Fields { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<GroupAuthorizedUser>()
-                .HasOne(c => c.Group)
+            modelBuilder.Entity<FolderAuthorizedUser>()
+                .HasOne(c => c.Folder)
                 .WithMany(c => c.AuthorizedUsers)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<InstanceType>()
-                .HasOne(c => c.Group)
-                .WithMany(c => c.InstanceTypes)
+            modelBuilder.Entity<DataType>()
+                .HasOne(c => c.Folder)
+                .WithMany(c => c.DataTypes)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Field>()
-                .HasOne(c => c.InstanceType)
+                .HasOne(c => c.DataType)
                 .WithMany(c => c.Fields)
                 .OnDelete(DeleteBehavior.Cascade);
         }

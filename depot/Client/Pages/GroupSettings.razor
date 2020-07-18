@@ -1,5 +1,5 @@
 ﻿@attribute [Authorize]
-@page "/Group/{GroupId}/settings"
+@page "/folder/{FolderId}/settings"
 
 @using Microsoft.AspNetCore.Authorization
 @using depot.Shared.RequestModels
@@ -11,15 +11,15 @@
 @inject IToastService _toastService 
 @inject IModalService _modalService
 
-@if (Group != null)
+@if (Folder != null)
 {
-    <h3 class="mb-2 text-muted mt-3">Group Name</h3>
+    <h3 class="mb-2 text-muted mt-3">Folder Name</h3>
     <div class="col-md-6">
         <div class="row">
             <div class="input-group input-group-lg">
-                <input type="text" class="form-control" @bind="Group.Name" placeholder="Group Name" aria-label="Group Name" aria-describedby="button-addon2" />
+                <input type="text" class="form-control" @bind="Folder.Name" placeholder="Folder Name" aria-label="Folder Name" aria-describedby="button-addon2" />
                 <div class="input-group-append">
-                    <button class="btn btn-outline-dark" type="button" id="button-addon2" @onclick="UpdateGroupName">Change Group Name</button>
+                    <button class="btn btn-outline-dark" type="button" id="button-addon2" @onclick="UpdateFolderName">Change Folder Name</button>
                 </div>
             </div>
         </div>
@@ -27,7 +27,7 @@
 
     <h3 class="mb-2 text-muted mt-5">Manage Authorized Users/Owners</h3>
     <p>
-        Add or remove users who should have access to this Group data. Add the email address of the user - be sure to spell it correctly.
+        Add or remove users who should have access to this Folder data. Add the email address of the user - be sure to spell it correctly.
     </p>
     <div class="col-md-6">
         <div class="row">
@@ -50,13 +50,13 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var user in Group.AuthorizedUsers)
+                @foreach (var user in Folder.AuthorizedUsers)
                 {
                     <tr>
                         <th scope="row">@user.ApplicationUserEmail</th>
                         <td>
                             <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" id="@($"authorized_{@user.ApplicationUserEmail}")" checked="@(user.IsGroupAdmin ? "checked" : null )" @onchange="(() => ToggleAuthorizedRole(user))" />
+                                <input type="checkbox" class="custom-control-input" id="@($"authorized_{@user.ApplicationUserEmail}")" checked="@(user.IsFolderAdmin ? "checked" : null )" @onchange="(() => ToggleAuthorizedRole(user))" />
                                 <label class="custom-control-label" for="@($"authorized_{@user.ApplicationUserEmail}")">Administrator</label>
                             </div>
                         </td>
@@ -68,41 +68,41 @@
             </tbody>
         </table>
     </div>
-    <h3 class="mb-2 text-muted mt-5">Delete Group</h3>
+    <h3 class="mb-2 text-muted mt-5">Delete Folder</h3>
     <p>
-        Click the button below to delete your Group. This will delete all Group data, customers, owners and authorized users. This action cannot be undone! Your account will remain active, but your Group will be deleted.
+        Click the button below to delete your folder. This will delete all folder data, customers, owners and authorized users. This action cannot be undone! Your account will remain active, but your folder will be deleted.
     </p>
     <div class="mt-1">
-        <input type="button" class="btn btn-danger" value="Delete Group" @onclick="DeleteGroup" />
+        <input type="button" class="btn btn-danger" value="Delete Folder" @onclick="DeleteFolder" />
     </div>
 }
 
 @code {
 
     [Parameter]
-    public string GroupId { get; set; }
+    public string FolderId { get; set; }
 
-    public ResponseGroup Group { get; set; }
+    public ResponseFolder Folder { get; set; }
 
     public string NewAuthorizedUserEmail { get; set; }
 
     async protected override Task OnInitializedAsync()
     {
-        Group = await API.GroupGetById(GroupId);
+        Folder = await API.FolderGetById(FolderId);
     }
 
     public async Task AddAuthorizedUser()
     {
-        GroupAddAuthorizedEmailModel model = new GroupAddAuthorizedEmailModel()
+        FolderAddAuthorizedEmailModel model = new FolderAddAuthorizedEmailModel()
         {
             Email = NewAuthorizedUserEmail
         };
-        await API.UpdateGroupSetUserAuthorized(Group.Id, model);
+        await API.UpdateFolderSetUserAuthorized(Folder.Id, model);
 
-        Group = await API.GroupGetById(GroupId);
+        Folder = await API.FolderGetById(FolderId);
     }
 
-    public async Task RemoveAuthorizedUser(ResponseGroupAuthorizedUser user)
+    public async Task RemoveAuthorizedUser(ResponseFolderAuthorizedUser user)
     {
         var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this?");
         var modalResult = await modal.Result;
@@ -110,21 +110,21 @@
         if (modalResult.Cancelled) { }
         else
         {
-            await API.UpdateGroupRemoveUserAuthorized(GroupId, user.ApplicationUserId);
-            Group = await API.GroupGetById(GroupId);
+            await API.UpdateFolderRemoveUserAuthorized(FolderId, user.ApplicationUserId);
+            Folder = await API.FolderGetById(FolderId);
         }
     }
 
-    public async Task ToggleAuthorizedRole(ResponseGroupAuthorizedUser user)
+    public async Task ToggleAuthorizedRole(ResponseFolderAuthorizedUser user)
     {
-        GroupToggleAuthorizedModel model = new GroupToggleAuthorizedModel()
+        FolderToggleAuthorizedModel model = new FolderToggleAuthorizedModel()
         {
-            Administrator = user.IsGroupAdmin ? false : true
+            Administrator = user.IsFolderAdmin ? false : true
         };
-        await API.UpdateGroupToggleUserAdministrator(Group.Id, user.ApplicationUserId, model);
+        await API.UpdateFolderToggleUserAdministrator(Folder.Id, user.ApplicationUserId, model);
     }
 
-    public async Task DeleteGroup()
+    public async Task DeleteFolder()
     {
         var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this?");
         var modalResult = await modal.Result;
@@ -133,28 +133,28 @@
         else
         {
 
-            await API.DeleteGroup(GroupId);
-            _appState.CurrentGroupId = null;
-            _appState.CurrentGroupName = null;
+            await API.DeleteFolder(FolderId);
+            _appState.CurrentFolderId = null;
+            _appState.CurrentFolderName = null;
 
             await _appState.UpdateAppState();
-            _toastService.ShowSuccess($"Group \"{Group.Name}\" Deleted. Redirecting...");
+            _toastService.ShowSuccess($"Folder \"{Folder.Name}\" Deleted. Redirecting...");
 
             await Task.Delay(1000);
             _navigationManager.NavigateTo("/");
         }
     }
 
-    public async Task UpdateGroupName()
+    public async Task UpdateFolderName()
     {
-        GroupCreateEditRequestModel model = new GroupCreateEditRequestModel()
+        FolderCreateEditRequestModel model = new FolderCreateEditRequestModel()
         {
-            Name = Group.Name
+            Name = Folder.Name
         };
 
-        await API.GroupEditName(Group.Id, model);
+        await API.FolderEditName(Folder.Id, model);
 
-        _toastService.ShowSuccess("Group Updated");
+        _toastService.ShowSuccess("Folder Updated");
 
         await _appState.UpdateAppState();
     }
