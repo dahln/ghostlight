@@ -22,18 +22,26 @@
                                 <strong><i class="fas fa-search mr-1"></i>Search</strong>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-
+                                <div class="dropdown-header">
+                                    @_appState.CurrentGroupName
+                                </div>
                                 @foreach (var type in _appState.DataTypes)
                                 {
                                     <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/type/{type.Data}")">
                                         <i class="fas fa-list-ol mr-1"></i> @type.Text
                                     </NavLink>
                                 }
-                                @if (_appState.AllowedGroups.Count > 0 && _appState.DataTypes.Count > 0)
+                                @if(_appState.DataTypes.Count == 0)
+                                {
+                                    <div class="dropdown-header">
+                                        No data types. Create some!
+                                    </div>
+                                }
+                                @if (_appState.CurrentGroupId != null ? _appState.AllowedGroups.Where(g => g.Id != _appState.CurrentGroupId).Count() > 0 : _appState.AllowedGroups.Count > 0)
                                 {
                                     <div class="dropdown-divider"></div>
                                 }
-                                @foreach (var group in _appState.AllowedGroups)
+                                @foreach (var group in _appState.CurrentGroupId != null ? _appState.AllowedGroups.Where(g => g.Id != _appState.CurrentGroupId) : _appState.AllowedGroups)
                                 {
                                     <NavLink class="dropdown-item pointer" href="@($"group/{group.Id}")">
                                         <i class="fas fa-sync mr-1"></i> @group.Name
@@ -48,16 +56,19 @@
                             <i class="fas fa-cogs mr-1"></i> Settings
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <div class="dropdown-header">
+                                @_appState.CurrentGroupName
+                            </div>
                             @if (_appState.CurrentGroupIsAdministrator)
                             {
                                 <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/design")">
-                                    <i class="fas fa-tools mr-1"></i> Group Data Manager
+                                    <i class="fas fa-tools mr-1"></i> Data Designer
                                 </NavLink>
                             }
                             @if (_appState.CurrentGroupId != null && _appState.CurrentGroupIsAdministrator)
                             {
                                 <NavLink class="dropdown-item" href="@($"group/{_appState.CurrentGroupId}/settings")">
-                                    <i class="fas fa-cog mr-1"></i> Current Group Settings
+                                    <i class="fas fa-cog mr-1"></i> Settings
                                 </NavLink>
                             }
                             <a class="dropdown-item" href="group">
