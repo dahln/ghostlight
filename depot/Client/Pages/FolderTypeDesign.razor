@@ -86,12 +86,11 @@
                             <td>
                                 <select class="form-control" @bind="NewField.Type">
                                     <option value="@FieldType.Text">Text</option>
-                                    <option value="@FieldType.TextArea">TextArea</option>
+                                    <option value="@FieldType.TextArea">Text Area</option>
                                     <option value="@FieldType.Number">Number</option>
                                     <option value="@FieldType.Date">Date</option>
                                     <option value="@FieldType.Time">Time</option>
-                                    <option value="@FieldType.Enum">Enum</option>
-                                    @*<option value="@FieldType.Linked">Linked</option>*@
+                                    <option value="@FieldType.List">List</option>
                                 </select>
                             </td>
                             <td>
@@ -106,13 +105,16 @@
                             <td>
                             </td>
                         </tr>
-                        <tr>
-                            <td>Options:</td>
-                            <td colspan="4">
-                                <input type="text" class="form-control" @bind="NewField.Options" />
-                            </td>
-                            <td></td>
-                        </tr>
+                        @if (NewField.Type == FieldType.List || NewField.Type == FieldType.TextArea)
+                        {
+                            <tr>
+                                <td>Options:</td>
+                                <td colspan="4">
+                                    <input type="text" class="form-control" placeholder="@(NewField.Type == FieldType.List ? "Comma separated list: option 1, option 2, option 3" : NewField.Type == FieldType.TextArea ? "Number of rows: 42" : string.Empty)" @bind="NewField.Options" />
+                                </td>
+                                <td></td>
+                            </tr>
+                        }
                         <tr>
                             <td>Optional:</td>
                             <td colspan="4">
@@ -145,7 +147,7 @@
                     </tbody>
                     @if (SelectedType != null)
                     {
-                        @foreach (var field in Types.Where(t => t.Id == SelectedType).FirstOrDefault().Fields)
+                        @foreach (var field in Types.Where(t => t.Id == SelectedType).FirstOrDefault().Fields.OrderBy(f => f.Row).ThenBy(f => f.Column))
                         {
                             <thead class="thead-dark">
                                 <tr>
@@ -180,13 +182,16 @@
                                         </button>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>Options:</td>
-                                    <td colspan="4">
-                                        <input type="text" class="form-control" @bind="field.Options" @onblur="(() => UpdateField(field))" />
-                                    </td>
-                                    <td></td>
-                                </tr>
+                                @if (field.Type == FieldType.List || field.Type == FieldType.TextArea)
+                                {
+                                    <tr>
+                                        <td>Options:</td>
+                                        <td colspan="4">
+                                            <input type="text" class="form-control" placeholder="@(field.Type == FieldType.List ? "Comma separated list: option 1, option 2, option 3" : field.Type == FieldType.TextArea ? "Number of rows: 42" : string.Empty)" @bind="field.Options" @onblur="(() => UpdateField(field))" />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                }
                                 <tr>
                                     <td>Optional:</td>
                                     <td colspan="4">

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace depot.Shared.Enumerations
@@ -11,8 +12,6 @@ namespace depot.Shared.Enumerations
         Number = 3,
         Date = 4,
         Time = 5,
-        Enum = 7,
-        Linked = 8,
-        File = 9
+        List = 7
     }
 }
