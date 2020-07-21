@@ -1,8 +1,10 @@
-**Application is essentially "feature complete". More features might be added in the future, but for now the focus will be on enhancing and cleaning up current features.**
+This is simple CRM/XRM application. A simple designer is used to create a form. This form is composed of standard HTML input fields (text, textarea, number, select, date and time). Using the designer, the user selects a field type, specifies a name for the field and selects a row, column, and column width for the field. As many fields as the user wants can be added to the form. This form represents a dynamic/user-defined data type. Each dynamic/user-defined data type must belong to a Folder. A "Folder" can contain zero-many dynamic/user-defined types.
 
-This is simple CRM/XRM application. Dynamic data types can be defined, managed, and searched by the users. 
+Each folder has its own permissions. Users can be added to a folder as a regular user, or granted a "administrator" role. Administrators of a folder can manage the dynamic data types for the folder, and add/remove users from that folder.
 
-A user creates a group. Each groups has its own data types and user permissions. A user can belong to multiple groups (or no groups) and switch between them. All the data types created and managed fall under the management of an organization profile.
+When a new user signs into the system, they should first create a folder, then any dynamic/user-defined types they want in that folder.
+
+All users can create/manage their own folders and types. A user can own/manage zero-many folders. A user can be added to zero-many folders by other users.  Any folder that a user has access to is accessible via the "Search" drop down on the main navigation.
 
 This application is open source. Please review the license for use and distribution. If you are interested in deploying this application within your organization, please feel free to contact me at admin@dahln.io.
 
@@ -14,11 +16,11 @@ Sensative configuration data, such as the DB connection strings, and Send Grid c
 * git update-index --assume-unchanged appsettings.Development.json
 * git update-index --assume-unchanged appsettings.Productions.json
 
-The other option to updating the appSettings files is to set the values as variables in your server config.
+Alternatively, sensative configuration values can be set as variables in your server config.
 
 The SQL Database use Entity Framework, code first.  Automatic migrations are not enabled. When starting up the application for the first time, run "Update-Database" from the nuget console in Visual Studio.
 
-The MongoBD database requires a $text index to support text searching across the dynmaic data types. Connect to the database, and run this monogo command to create the appropiate index:
+The MongoBD database requires a $text index to support text searching the dynmaic data types. On startup the system will check this index exists in the specified Mongo DB. If it does not exist, it will created it. The index can be manually created, but be sure to remove the automatic index check/creation code.
 
-db.instances.createIndex( { GroupId: 1, TypeId: 1, "$**": "text" } )
+db.instances.createIndex( { FolderId: 1, TypeId: 1, "$**": "text" } )
 Tip: if you are using the MongoDB Atlas service, you can create the index by visiting the portal.
