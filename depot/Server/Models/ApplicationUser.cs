@@ -9,6 +9,6 @@ namespace depot.Server.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        public List<FolderAuthorizedUser> GroupAuthorizedUsers { get; set; } = new List<FolderAuthorizedUser>();
+        public List<FolderAuthorizedUser> FolderAuthorizedUsers { get; set; } = new List<FolderAuthorizedUser>();
     }
 }

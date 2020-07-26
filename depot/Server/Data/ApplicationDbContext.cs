@@ -29,6 +29,11 @@ namespace depot.Server.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<FolderAuthorizedUser>()
+                .HasOne(c => c.ApplicationUser)
+                .WithMany(c => c.FolderAuthorizedUsers)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<FolderAuthorizedUser>()
                 .HasOne(c => c.Folder)
                 .WithMany(c => c.AuthorizedUsers)
                 .OnDelete(DeleteBehavior.Cascade);
