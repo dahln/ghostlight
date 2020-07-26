@@ -172,6 +172,9 @@ namespace CRM.Server.Controllers
             if (await CanManageFolder(userId, folderId, true) == false)
                 return BadRequest("Cannot Manage Folder");
 
+            if(userId == applicationUserId)
+                return BadRequest("Cannot remove yourself from a 'folder'");
+
             var removeThese = _db.FolderAuthorizedUsers.Where(o => o.FolderId == folderId && o.ApplicationUserId == applicationUserId);
             _db.FolderAuthorizedUsers.RemoveRange(removeThese);
 
@@ -188,6 +191,9 @@ namespace CRM.Server.Controllers
             string userId = User.GetUserId();
             if (await CanManageFolder(userId, folderId, true) == false)
                 return BadRequest("Cannot Manage Folder");
+
+            if (userId == applicationUserId)
+                return BadRequest("Cannot toggle your own permissions for a 'folder'");
 
             var updateThis = await _db.FolderAuthorizedUsers.Where(o => o.FolderId == folderId && o.ApplicationUserId == applicationUserId).FirstOrDefaultAsync();
             updateThis.IsFolderAdmin = model.Administrator;
