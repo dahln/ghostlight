@@ -31,7 +31,7 @@
                         }
                         @if (_appState.DataTypes.Count == 0 && _appState.CurrentFolderIsAdministrator)
                         {
-                            <NavLink class="btn btn-outline-dark btn-lg mx-auto" href="@($"folder/{_appState.CurrentFolderId}/design")">
+                            <NavLink class="btn btn-outline-dark btn-lg mx-auto w-100" href="@($"folder/{_appState.CurrentFolderId}/design")">
                                 <span class="oi oi-list-rich" aria-hidden="true"></span> Go to Data Designer <i class="fas fa-arrow-right float-right ml-1 mt-1"></i>
                             </NavLink>
                         }
@@ -47,7 +47,7 @@
             {
                 <div class="row mt-5 pt-5">
                     <div class="col-md-4 offset-md-4">
-                        <NavLink class="btn btn-outline-dark btn-lg mx-auto" href="@($"folder")">
+                        <NavLink class="btn btn-outline-dark btn-lg mx-auto w-100" href="@($"folder")">
                             <span class="oi oi-list-rich" aria-hidden="true"></span> Nothing here, create a 'folder' to get started <i class="fas fa-arrow-right float-right mt-1"></i>
                         </NavLink>
                     </div>
