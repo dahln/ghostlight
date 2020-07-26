@@ -31,9 +31,8 @@
                         }
                         @if (_appState.DataTypes.Count == 0 && _appState.CurrentFolderIsAdministrator)
                         {
-
-                            <NavLink class="list-group-item list-group-item-action list-group-item-info" href="@($"folder/{_appState.CurrentFolderId}/design")">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Manage Data Types
+                            <NavLink class="btn btn-outline-dark btn-lg mx-auto" href="@($"folder/{_appState.CurrentFolderId}/design")">
+                                <span class="oi oi-list-rich" aria-hidden="true"></span> Go to Data Designer <i class="fas fa-arrow-right float-right ml-1 mt-1"></i>
                             </NavLink>
                         }
                     </div>
@@ -43,9 +42,23 @@
         }
         else if (_appState.Ready == true)
         {
-            <div class="row mt-5 pt-5">
-                <h4 class="mx-auto">Create a new Folder</h4>
-            </div>
+
+            @if (_appState.AllowedFolders.Count == 0)
+            {
+                <div class="row mt-5 pt-5">
+                    <div class="col-md-4 offset-md-4">
+                        <NavLink class="btn btn-outline-dark btn-lg mx-auto" href="@($"folder")">
+                            <span class="oi oi-list-rich" aria-hidden="true"></span> Nothing here, create a 'folder' to get started <i class="fas fa-arrow-right float-right mt-1"></i>
+                        </NavLink>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row mt-5 pt-5">
+                    <h4 class="mx-auto">Create a new Folder</h4>
+                </div>
+            }
             @if (_appState.AllowedFolders.Count > 0)
             {
                 <div class="row mt-5 pt-5">
