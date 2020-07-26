@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/dahln/depot/_apis/build/status/depot%20CI%20pipleline?branchName=release)](https://dev.azure.com/dahln/depot/_build/latest?definitionId=13&branchName=release)
+
 # depot
 
 This is a simple CRM/XRM application. A simple designer is used to create a form. This form is composed of standard HTML input fields (text, textarea, number, select, date and time). Using the designer, the user selects a field type, specifies a name for the field and selects a row, column, and column width for the field. As many fields as the user wants can be added to the form. This form represents a dynamic/user-defined data type. Each dynamic/user-defined data type must belong to a Folder. A "Folder" can contain zero-many dynamic/user-defined types.
