@@ -29,7 +29,7 @@ namespace depot.Server.Helpers
             var client = new SendGridClient(apiKey);
             var msg = new SendGridMessage()
             {
-                From = new EmailAddress("account@depot.ninja", Options.SendGridUser),
+                From = new EmailAddress("account@dahln.io", Options.SendGridUser),
                 Subject = subject,
                 PlainTextContent = message,
                 HtmlContent = message
