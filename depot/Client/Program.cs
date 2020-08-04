@@ -24,6 +24,7 @@ namespace depot.Client
             builder.Services.AddScoped<API>();
             builder.Services.AddScoped<AppState>();
             builder.Services.AddScoped<SpinnerService>();
+            builder.Services.AddBlazoredModal();
 
             builder.RootComponents.Add<App>("app");
 
