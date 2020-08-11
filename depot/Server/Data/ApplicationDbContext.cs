@@ -23,6 +23,7 @@ namespace depot.Server.Data
         public DbSet<FolderAuthorizedUser> FolderAuthorizedUsers { get; set; }
         public DbSet<DataType> DataTypes { get; set; }
         public DbSet<Field> Fields { get; set; }
+        public DbSet<Instance> Instances { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,6 +42,11 @@ namespace depot.Server.Data
             modelBuilder.Entity<Field>()
                 .HasOne(c => c.DataType)
                 .WithMany(c => c.Fields)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Instance>()
+                .HasOne(c => c.DataType)
+                .WithMany(c => c.Instances)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
