@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 
 namespace depot.Server.Areas.Identity.Pages.Account.Manage
 {
@@ -19,20 +18,17 @@ namespace depot.Server.Areas.Identity.Pages.Account.Manage
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
         private readonly ApplicationDbContext _applicationDbContext;
-        private readonly MongoDBContext _mongoDBContext;
 
         public DeletePersonalDataModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ILogger<DeletePersonalDataModel> logger,
-            ApplicationDbContext applicationDbContext,
-            MongoDBContext mongoDBContext)
+            ApplicationDbContext applicationDbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _applicationDbContext = applicationDbContext;
-            _mongoDBContext = mongoDBContext;
         }
 
         [BindProperty]
@@ -84,14 +80,6 @@ namespace depot.Server.Areas.Identity.Pages.Account.Manage
                 var count = _applicationDbContext.FolderAuthorizedUsers.Count(f => f.FolderId == folderAuthorizedUser.FolderId);
                 if(count == 1)
                 {
-                    var query = new BsonDocument("$and",
-                    new BsonArray
-                    {
-                        new BsonDocument("FolderId", folderAuthorizedUser.FolderId)
-                    });
-
-                    await _mongoDBContext.Instances.DeleteManyAsync(query);
-
                     var folder = await _applicationDbContext.Folders.FirstOrDefaultAsync(f => f.Id == folderAuthorizedUser.FolderId);
                     _applicationDbContext.Folders.Remove(folder);
                 }

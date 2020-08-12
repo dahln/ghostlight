@@ -45,3 +45,7 @@ label {
 .app-desc {
     font-family: "SF Pro Text","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif;
 }
+
+.tiny-text {
+    font-size: 10px;
+}

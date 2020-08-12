@@ -24,6 +24,9 @@ namespace depot.Client
             builder.Services.AddScoped<API>();
             builder.Services.AddScoped<AppState>();
             builder.Services.AddScoped<SpinnerService>();
+
+            builder.Services.AddBlazoredLocalStorage();
+            builder.Services.AddBlazoredToast();
             builder.Services.AddBlazoredModal();
 
             builder.RootComponents.Add<App>("app");
@@ -31,12 +34,7 @@ namespace depot.Client
             builder.Services.AddApiAuthorization(options => {
                 options.AuthenticationPaths.LogOutCallbackPath = "/";
             });
-
-
-            builder.Services.AddBlazoredLocalStorage();
-            builder.Services.AddBlazoredToast();
-            builder.Services.AddBlazoredModal();
-
+            
             await builder.Build().RunAsync();
         }
     }

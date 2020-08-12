@@ -35,6 +35,8 @@ namespace depot.Server.Entities
 
         public string FolderId { get; set; }
         public Folder Folder { get; set; }
+
+        public List<Instance> Instances { get; set; }
     }
     
     public class Field
@@ -52,5 +54,22 @@ namespace depot.Server.Entities
         
         public string DataTypeId { get; set; }
         public DataType DataType { get; set; }
+    }
+
+    public class Instance
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Data { get; set; }
+
+        public string DataTypeId { get; set; }
+        public DataType DataType { get; set; }
+
+        public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
+        public string CreatedById{ get; set; }
+        public ApplicationUser CreatedBy { get; set; }
+
+        public DateTimeOffset UpdatedOn { get; set; } = DateTimeOffset.UtcNow;
+        public string UpdatedById { get; set; }
+        public ApplicationUser UpdatedBy { get; set; }
     }
 }
