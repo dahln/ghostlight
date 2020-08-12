@@ -5,6 +5,10 @@
     cursor: pointer;
 }
 
+.navbar-brand {
+    color: limegreen !important;
+}
+
 .blazored-toast-container {
     z-index: 10000;
 }
