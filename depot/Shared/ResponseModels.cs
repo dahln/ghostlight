@@ -66,13 +66,19 @@ namespace depot.Shared.ResponseModels
     public class ResponseInstance
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string LocalDateTime { get; set; }
-        public Dictionary<string, string> InstanceData { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Data { get; set; } = new Dictionary<string, string>();
+
+        public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
+        public string CreatedByEmail { get; set; }
+
+        public DateTimeOffset UpdatedOn { get; set; }
+        public string UpdatedByEmail { get; set; }
     }
+
 
     public class InstanceSearchResponse
     {
-        public List<Dictionary<string, string>> Data { get; set; } = new List<Dictionary<string, string>>();
+        public List<ResponseInstance> Data { get; set; } = new List<ResponseInstance>();
         public int Total { get; set; }
     }
 

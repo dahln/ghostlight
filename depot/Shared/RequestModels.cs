@@ -22,8 +22,6 @@ namespace depot.Shared.RequestModels
     public class Search
     {
         public string FilterText { get; set; }
-        public string SortBy { get; set; }
-        public int SortDirection { get; set; } = 1;
         public int Page { get; set; } = 0;
         public int PageSize { get; set; } = 25;
     }

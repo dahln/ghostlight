@@ -31,7 +31,7 @@
     {
         <div class="row mt-2">
             <div class="col-md-12">
-                <form @onsubmit="(() => SearchType(0, null, null, false))" class="input-group float-right">
+                <form @onsubmit="(() => SearchType(0, false))" class="input-group float-right">
                     <input type="text" class="form-control" aria-label="Text input with dropdown button" @bind="Search.FilterText" />
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search mr-2"></i>Search</button>
@@ -41,7 +41,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <div class="btn btn-link float-right pointer" @onclick="(() => SearchType(null, null, null, true))">Reset Search</div>
+                <div class="btn btn-link float-right pointer" @onclick="(() => SearchType(null, true))">Reset Search</div>
             </div>
         </div>
     }
@@ -54,21 +54,14 @@
     @if (Instances.Count > 0)
     {
         <div class="table-responsive">
-            <table class="table table-hover mt-3">
-                <thead>
+            <small class="tiny-text mt-3">Sorting by most recent first</small>
+            <table class="table table-hover">
+                <thead class="thead-dark">
                     <tr>
                         @foreach (var column in Types.FirstOrDefault(t => t.Id == DataTypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
                         {
-                            <th scope="col" class="pointer" @onclick="(() => SearchType(null, column.Id, (Search.SortDirection * -1), false))">
+                            <th scope="col">
                                 <span class="mr-2">@column.Name</span>
-                                @if (Search.SortBy == column.Id && Search.SortDirection == -1)
-                                {
-                                    <i class="fas fa-caret-up"></i>
-                                }
-                                else if (Search.SortBy == column.Id && Search.SortDirection == 1)
-                                {
-                                    <i class="fas fa-caret-down"></i>
-                                }
                             </th>
                         }
                     </tr>
@@ -76,12 +69,12 @@
                 <tbody>
                     @foreach (var instance in Instances)
                     {
-                        <tr class="pointer" @onclick="(() => SelectInstance(instance.FirstOrDefault(i => i.Key == InstanceIdLabel).Value))">
+                        <tr class="pointer" @onclick="(() => SelectInstance(instance.Id))">
                             @foreach (var column in Types.FirstOrDefault(t => t.Id == DataTypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
                             {
-                                @if (instance.Where(i => i.Key == column.Id).Count() > 0)
+                                @if (instance.Data.Where(i => i.Key == column.Id).Count() > 0)
                                 {
-                                    <td>@instance.Where(i => i.Key == column.Id).FirstOrDefault().Value</td>
+                                    <td>@instance.Data.Where(i => i.Key == column.Id).FirstOrDefault().Value</td>
                                 }
                                 else
                                 {
@@ -98,12 +91,12 @@
                     {
                         @if ((Search.Page + 1) > 1)
                         {
-                            <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchType(Search.Page - 1, null, null, false))">Previous</div></li>
+                            <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchType(Search.Page - 1, false))">Previous</div></li>
                         }
                         <li class="page-item"><div class="page-link">Page @(Search.Page + 1) of @(Math.Ceiling((double)TotalFound / PageSize))</div></li>
                         @if ((Search.Page + 1) < (Math.Ceiling((double)TotalFound / PageSize)))
                         {
-                            <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchType(Search.Page + 1, null, null, false))">Next</div></li>
+                            <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchType(Search.Page + 1, false))">Next</div></li>
                         }
                     }
                 </ul>
@@ -125,7 +118,7 @@
     //Loaded from API
     ResponseFolder Folder { get; set; }
     List<ResponseDataType> Types { get; set; } = new List<ResponseDataType>();
-    List<Dictionary<string, string>> Instances = new List<Dictionary<string, string>>();
+    List<ResponseInstance> Instances = new List<ResponseInstance>();
     int? TotalFound { get; set; }
 
     private Search Search { get; set; } = new Search();
@@ -158,12 +151,12 @@
                     {
                         Search = await localStorage.GetItemAsync<Search>("Search");
                     }
-                    await SearchType(null, null, null, false);
+                    await SearchType(null, false);
                 }
             }
             else
             {
-                await SearchType(null, null, null, true);
+                await SearchType(null, true);
             }
         }
     }
@@ -171,7 +164,7 @@
     async private Task TypeClick(ChangeEventArgs e)
     {
         DataTypeId = e.Value.ToString();
-        await SearchType(null, null, null, true);
+        await SearchType(null, true);
     }
 
 
@@ -183,28 +176,19 @@
     /// <param name="sortDirection"></param>
     /// <param name="reset"></param>
     /// <returns></returns>
-    async private Task SearchType(int? page, string sortBy, int? sortDirection, bool reset)
+    async private Task SearchType(int? page, bool reset)
     {
         if (reset == true)
         {
             Search = new Search();
             page = null;
-            sortBy = null;
-            sortDirection = null;
-        }
-
-        if (Search?.SortBy == null && sortBy == null)
-        {
-            sortBy = Types.FirstOrDefault(t => t.Id == DataTypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder).FirstOrDefault()?.Id;
         }
 
         Search = new Search()
         {
             FilterText = string.IsNullOrEmpty(Search?.FilterText) ? null : Search?.FilterText,
             Page = page == null ? Search.Page : (int)page,
-            PageSize = PageSize,
-            SortDirection = sortDirection == null ? Search.SortDirection : (int)sortDirection,
-            SortBy = sortBy == null ? Search.SortBy : sortBy
+            PageSize = PageSize
         };
 
         await localStorage.SetItemAsync("Search", Search);

@@ -14,8 +14,6 @@ using depot.Server.Models;
 using depot.Server.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace CRM.Server.Controllers
 {
@@ -23,13 +21,12 @@ namespace CRM.Server.Controllers
     public class DataController : ControllerBase
     {
         private ApplicationDbContext _db;
-        private MongoDBContext _mongoDBContext;
+        //private MongoDBContext _mongoDBContext;
         private readonly UserManager<ApplicationUser> _userManager;
-        public DataController(ApplicationDbContext dbContext, MongoDBContext mongoDBContext, UserManager<ApplicationUser> userManager)
+        public DataController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             _db = dbContext;
             _userManager = userManager;
-            _mongoDBContext = mongoDBContext;
         }
 
         [Authorize]
@@ -220,15 +217,6 @@ namespace CRM.Server.Controllers
 
             await _db.SaveChangesAsync();
 
-            var query = new BsonDocument("$and",
-                        new BsonArray
-                        {
-                            new BsonDocument("FolderId", folderId)
-                        });
-
-            await _mongoDBContext.Instances.DeleteManyAsync(query);
-
-
             return Ok();
         }
 
@@ -288,14 +276,6 @@ namespace CRM.Server.Controllers
             _db.DataTypes.RemoveRange(deleteThis);
 
             await _db.SaveChangesAsync();
-
-            var query = new BsonDocument("$and",
-                            new BsonArray
-                            {
-                                new BsonDocument("FolderId", folderId),
-                                new BsonDocument("TypeId", dataTypeId)
-                            });
-            await _mongoDBContext.Instances.DeleteManyAsync(query);
 
             return Ok();
         }
@@ -461,52 +441,35 @@ namespace CRM.Server.Controllers
             if (await CanManageFolder(userId, folderId) == false)
                 return BadRequest("Cannot Manage Folder");
 
-            if (folderId == null || dataTypeId == null || model.SortBy == null)
+            if (folderId == null || dataTypeId == null)
                 return Ok(new InstanceSearchResponse());
 
-            BsonDocument sort = default(BsonDocument);
-            sort = new BsonDocument
-            {
-                { model.SortBy, model.SortDirection },
-            };
 
-            //Query used in data results and count results. Separate the query from the rest of the pipeline so it can be reused.
-            var query = new BsonDocument("$and",
-                        new BsonArray
-                        {
-                            new BsonDocument("FolderId", folderId),
-                            new BsonDocument("TypeId", dataTypeId),
-                            model.FilterText != null
-                                ? new BsonDocument("$text", new BsonDocument {{ "$search", model.FilterText }, { "$caseSensitive", false } })
-                                : new BsonDocument("_id", new BsonDocument("$ne", BsonNull.Value)),
-                        });
+            var query = _db.Instances.Where(i => i.DataTypeId == dataTypeId
+                                                && i.DataType.FolderId == folderId);
+
+            query = query.Include(i => i.UpdatedBy).Include(i => i.CreatedBy);
+
+            if (!string.IsNullOrEmpty(model.FilterText))
+                query = query.Where(i => i.Data.Contains(model.FilterText));
 
             InstanceSearchResponse response = new InstanceSearchResponse();
+            response.Total = await query.CountAsync();
 
-            PipelineDefinition<Dictionary<string, string>, Dictionary<string, string>> pipelineData = new BsonDocument[]
+            var dataResponse = await query.Skip(model.Page * model.PageSize)
+                                        .Take(model.PageSize)
+                                        .OrderByDescending(i => i.UpdatedOn)
+                                        .ToListAsync();
+
+            response.Data = dataResponse.Select(i => new ResponseInstance()
             {
-                new BsonDocument("$match", query),
-                new BsonDocument("$sort", sort),
-                new BsonDocument("$skip", model.Page * model.PageSize),
-                new BsonDocument("$limit", model.PageSize),
-                new BsonDocument("$project",
-                new BsonDocument
-                    {
-                        { "_id", 0 },
-                    })
-            };
-            //Search
-            response.Data = await _mongoDBContext.Instances.Aggregate(pipelineData).ToListAsync();
-
-
-            PipelineDefinition<Dictionary<string, string>, AggregationTotal> pipelineCountTotal = new BsonDocument[]
-            {
-                new BsonDocument("$match", query),
-                new BsonDocument("$count", "Total")
-            };
-            AggregationTotal countResponse = await _mongoDBContext.Instances.Aggregate(pipelineCountTotal).FirstOrDefaultAsync();
-            if (countResponse != null)
-                response.Total = countResponse.Total;
+                Id = i.Id,
+                CreatedByEmail = i.CreatedBy?.Email,
+                UpdatedByEmail = i.UpdatedBy?.Email,
+                CreatedOn = i.CreatedOn,
+                UpdatedOn = i.UpdatedOn,
+                Data = JsonConvert.DeserializeObject<Dictionary<string,string>>(i.Data)
+            }).ToList();
 
             return Ok(response);
         }
@@ -522,16 +485,18 @@ namespace CRM.Server.Controllers
 
             var user = await _userManager.FindByIdAsync(userId);
 
-            model.InstanceData.Add("InstanceId", Guid.NewGuid().ToString());
-            model.InstanceData.Add("FolderId", folderId);
-            model.InstanceData.Add("TypeId", dataTypeId);
-            model.InstanceData.Add("CreatedOn", model.LocalDateTime);
-            model.InstanceData.Add("CreatedBy", user.Email);
-            model.InstanceData.Add("UpdatedOn", null);
-            model.InstanceData.Add("UpdatedBy", null);
-            await _mongoDBContext.Instances.InsertOneAsync(model.InstanceData);
+            Instance instance = new Instance()
+            {
+                DataTypeId = dataTypeId,
+                CreatedById = userId,
+                Data = JsonConvert.SerializeObject(model.Data)
+            };
+            instance.UpdatedOn = instance.CreatedOn;
 
-            return Ok(new ResponseId() { Id = model.InstanceData["InstanceId"] });
+            _db.Instances.Add(instance);
+            await _db.SaveChangesAsync();
+
+            return Ok(new ResponseId() { Id = instance.Id });
         }
 
 
@@ -546,18 +511,18 @@ namespace CRM.Server.Controllers
 
             var user = await _userManager.FindByIdAsync(userId);
 
-            var query = new BsonDocument("$and",
-                       new BsonArray
-                       {
-                            new BsonDocument("FolderId", folderId),
-                            new BsonDocument("TypeId", dataTypeId),
-                            new BsonDocument("InstanceId", instanceId)
-                       });
+            var instance = await _db.Instances.FirstOrDefaultAsync(i => i.DataTypeId == dataTypeId
+                                                                && i.DataType.FolderId == folderId
+                                                                && i.Id == instanceId);
 
-            model.InstanceData["UpdatedOn"] = model.LocalDateTime;
-            model.InstanceData["UpdatedBy"] = user.Email;
+            if (instance == null)
+                return BadRequest();
 
-            await _mongoDBContext.Instances.ReplaceOneAsync(query, model.InstanceData);
+            instance.UpdatedOn = DateTimeOffset.UtcNow;
+            instance.UpdatedById = userId;
+            instance.Data = JsonConvert.SerializeObject(model.Data);
+
+            await _db.SaveChangesAsync();
 
             return Ok();
         }
@@ -571,15 +536,13 @@ namespace CRM.Server.Controllers
             if (await CanManageFolder(userId, folderId) == false)
                 return BadRequest("Cannot Manage Folder");
 
-            var query = new BsonDocument("$and",
-                        new BsonArray
-                        {
-                            new BsonDocument("FolderId", folderId),
-                            new BsonDocument("TypeId", dataTypeId),
-                            new BsonDocument("InstanceId", instanceId)
-                        });
+            var instance = _db.Instances.Where(i => i.DataTypeId == dataTypeId
+                                                    && i.DataType.FolderId == folderId
+                                                    && i.Id == instanceId);
 
-            await _mongoDBContext.Instances.DeleteOneAsync(query);
+            _db.Instances.RemoveRange(instance);
+
+            await _db.SaveChangesAsync();
 
             return Ok();
         }
@@ -594,27 +557,17 @@ namespace CRM.Server.Controllers
             if (await CanManageFolder(userId, folderId) == false)
                 return BadRequest("Cannot Manage Folder");
 
-            //Query used in data results and count results. Separate the query from the rest of the pipeline so it can be reused.
-            var query = new BsonDocument("$and",
-                        new BsonArray
-                        {
-                            new BsonDocument("FolderId", folderId),
-                            new BsonDocument("TypeId", dataTypeId),
-                            new BsonDocument("InstanceId", instanceId)
-                        });
+            var instance = await _db.Instances
+                                    .Include(i => i.UpdatedBy)
+                                    .Include(i => i.CreatedBy)
+                                    .FirstOrDefaultAsync(i => i.DataTypeId == dataTypeId
+                                                                && i.DataType.FolderId == folderId
+                                                                && i.Id == instanceId);
 
-            PipelineDefinition<Dictionary<string, string>, Dictionary<string, string>> pipelineData = new BsonDocument[]
-            {
-                new BsonDocument("$match", query),
-                new BsonDocument("$project",
-                new BsonDocument
-                    {
-                        { "_id", 0 },
-                    })
-            };
+            if (instance == null)
+                return BadRequest();
 
-            //Search
-            var data = await _mongoDBContext.Instances.Aggregate(pipelineData).FirstOrDefaultAsync();
+            var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(instance.Data);
 
             //Make sure the response object has all the fields defined
             DataType instanceType = await _db.DataTypes
@@ -632,7 +585,11 @@ namespace CRM.Server.Controllers
             ResponseInstance response = new ResponseInstance()
             {
                 Id = instanceId,
-                InstanceData = data
+                CreatedByEmail = instance.CreatedBy?.Email,
+                UpdatedByEmail = instance.UpdatedBy?.Email,
+                CreatedOn = instance.CreatedOn,
+                UpdatedOn = instance.UpdatedOn,
+                Data = data
             };
 
             return Ok(response);

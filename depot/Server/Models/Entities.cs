@@ -64,11 +64,11 @@ namespace depot.Server.Entities
         public string DataTypeId { get; set; }
         public DataType DataType { get; set; }
 
-        public DateTime CreatedOn { get; set; }
+        public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
         public string CreatedById{ get; set; }
         public ApplicationUser CreatedBy { get; set; }
 
-        public DateTime UpdatedOn { get; set; }
+        public DateTimeOffset UpdatedOn { get; set; } = DateTimeOffset.UtcNow;
         public string UpdatedById { get; set; }
         public ApplicationUser UpdatedBy { get; set; }
     }

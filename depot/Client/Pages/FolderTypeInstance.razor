@@ -39,7 +39,7 @@
                                                     @field.Name @if (!field.Optional)
                                                     {<span class="required-astrisk">*</span>}
                                                 </label>
-                                                <input id="@field.Id" type="text" class="form-control" @bind="InstanceData[field.Id]" />
+                                                <input id="@field.Id" type="text" class="form-control" @bind="Instance.Data[field.Id]" />
                                             </div>
                                         }
                                         else if (field.Type == FieldType.TextArea)
@@ -49,7 +49,7 @@
                                                     @field.Name @if (!field.Optional)
                                                     {<span class="required-astrisk">*</span>}
                                                 </label>
-                                                <textarea rows="@(!string.IsNullOrEmpty(field.Options) ? field.Options : (5).ToString())" id="@field.Id" class="form-control" @bind="InstanceData[field.Id]"></textarea>
+                                                <textarea rows="@(!string.IsNullOrEmpty(field.Options) ? field.Options : (5).ToString())" id="@field.Id" class="form-control" @bind="Instance.Data[field.Id]"></textarea>
                                             </div>
                                         }
                                         else if (field.Type == FieldType.Number)
@@ -59,7 +59,7 @@
                                                     @field.Name @if (!field.Optional)
                                                     {<span class="required-astrisk">*</span>}
                                                 </label>
-                                                <input id="@field.Id" type="number" class="form-control" @bind="InstanceData[field.Id]" />
+                                                <input id="@field.Id" type="number" class="form-control" @bind="Instance.Data[field.Id]" />
                                             </div>
                                         }
                                         else if (field.Type == FieldType.Date)
@@ -70,7 +70,7 @@
                                                     {<span class="required-astrisk">*</span>}
                                                 </label>
                                                 <div id="@field.Id">
-                                                    <DateAsString @bind-Value="InstanceData[field.Id]"></DateAsString>
+                                                    <DateAsString @bind-Value="Instance.Data[field.Id]"></DateAsString>
                                                 </div>
                                             </div>
                                         }
@@ -82,7 +82,7 @@
                                                     {<span class="required-astrisk">*</span>}
                                                 </label>
                                                 <div id="@field.Id">
-                                                    <TimeAsString Id="@field.Id" @bind-Value="InstanceData[field.Id]"></TimeAsString>
+                                                    <TimeAsString Id="@field.Id" @bind-Value="Instance.Data[field.Id]"></TimeAsString>
                                                 </div>
                                             </div>
                                         }
@@ -93,7 +93,7 @@
                                                     @field.Name @if (!field.Optional)
                                                     {<span class="required-astrisk">*</span>}
                                                 </label>
-                                                <select class="form-control" @bind="InstanceData[field.Id]">
+                                                <select class="form-control" @bind="Instance.Data[field.Id]">
                                                     <option value=""></option>
                                                     @foreach (var option in field.Options.Split(','))
                                                     {
@@ -123,24 +123,27 @@
             </div>
             @if(InstanceId != null)
             {
+                @if (Instance.CreatedOn != Instance.UpdatedOn)
+                {
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <strong>Update On: </strong>@Instance.UpdatedOn.ToLocalTime().ToString("g")
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-md-12">
+                            <strong>Update By: </strong>@Instance.UpdatedByEmail
+                        </div>
+                    </div>
+                }
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <strong>Update On: </strong>@InstanceData.GetValueOrDefault("UpdatedOn")
+                        <strong>Created On: </strong>@Instance.CreatedOn.ToLocalTime().ToString("g")
                     </div>
                 </div>
                 <div class="row mt-1">
                     <div class="col-md-12">
-                        <strong>Update By: </strong>@InstanceData.GetValueOrDefault("UpdatedBy")
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <strong>Created On: </strong>@InstanceData.GetValueOrDefault("CreatedOn")
-                    </div>
-                </div>
-                <div class="row mt-1">
-                    <div class="col-md-12">
-                        <strong>Created By: </strong>@InstanceData.GetValueOrDefault("CreatedBy")
+                        <strong>Created By: </strong>@Instance.CreatedByEmail
                     </div>
                 </div>
             }
@@ -164,7 +167,7 @@
     public ResponseFolder Folder { get; set; } = new ResponseFolder();
     public ResponseDataType Type { get; set; }
     public List<ResponseDataType> Types { get; set; } = new List<ResponseDataType>();
-    public Dictionary<string, string> InstanceData { get; set; } = new Dictionary<string, string>();
+    public ResponseInstance Instance { get; set; } = new ResponseInstance();
 
     async protected override Task OnParametersSetAsync()
     {
@@ -186,7 +189,7 @@
 
         foreach (var t in Type.Fields)
         {
-            InstanceData.Add(t.Id, string.Empty);
+            Instance.Data.Add(t.Id, string.Empty);
         }
     }
 
@@ -195,7 +198,7 @@
         if (InstanceId != null)
         {
             var result = await API.GetFolderInstance(FolderId, DataTypeId, InstanceId);
-            InstanceData = result.InstanceData;
+            Instance = result;
         }
     }
 
@@ -206,7 +209,7 @@
         {
             if (!field.Optional)
             {
-                string fieldValue = InstanceData[field.Id];
+                string fieldValue = Instance.Data[field.Id];
                 if (string.IsNullOrEmpty(fieldValue))
                 {
                     _toastService.ShowError($"{field.Name} is required");
@@ -220,14 +223,14 @@
 
         if (InstanceId == null)
         {
-            var response = await API.CreateFolderInstance(FolderId, DataTypeId, InstanceData);
+            var response = await API.CreateFolderInstance(FolderId, DataTypeId, Instance.Data);
             InstanceId = response.Id;
             await GetSelectedInstance();
             _navigationManger.NavigateTo($"/folder/{FolderId}/type/{DataTypeId}/instance/{InstanceId}");
         }
         else if (InstanceId != null)
         {
-            await API.UpdateFolderInstance(FolderId, DataTypeId, InstanceId, InstanceData);
+            await API.UpdateFolderInstance(FolderId, DataTypeId, InstanceId, Instance.Data);
             await GetSelectedInstance();
         }
 

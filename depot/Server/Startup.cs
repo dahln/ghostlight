@@ -50,15 +50,11 @@ namespace depot.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
-
-            services.AddSingleton<MongoDBContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MongoDBContext mongoDBContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            mongoDBContext.EnsureIndexExists();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
