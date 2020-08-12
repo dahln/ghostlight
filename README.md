@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/dahln/depot/_apis/build/status/depot%20CI%20pipleline?branchName=release)](https://dev.azure.com/dahln/depot/_build/latest?definitionId=13&branchName=release)
+[![Build Status](https://dev.azure.com/dahln/depot/_apis/build/status/depot%20CI%20build?branchName=master)](https://dev.azure.com/dahln/depot/_build/latest?definitionId=14&branchName=master)
 
 # depot
 
@@ -16,21 +16,15 @@ This application is open source. Please review the license for use and distribut
 
 # Configuration/Setup
 
-This application uses SQL for all persistant storage - except for the storage of "instances" of the dynamic data types. The storage of those instances is stored in MongoDB.
+This application uses Entity Framework, Code-First. Run 'Update-Database' to create the initial DB schema. Automatic migrations are not enabled. Be sure to first update your appsettings file with the appropriate connection string.
 
-Sensative configuration data, such as the DB connection strings, and Send Grid config can be added to the appsettings.json files. Do not check in these values to the repo. Use the following commands to ignore changes to the appsettings.json files:
+Sensative configuration data, such as the DB connection strings, and Send Grid config are added to the appsettings.json files. Do not check in these values to the repo. Use the following commands to ignore changes to the appsettings.json files:
 
 * git update-index --assume-unchanged appsettings.json
 * git update-index --assume-unchanged appsettings.Development.json
 * git update-index --assume-unchanged appsettings.Productions.json
 
 Alternatively, sensative configuration values can be set as variables in your server config.
-
-The SQL Database uses Entity Framework, code first.  Automatic migrations are not enabled. When starting up the application for the first time, run "Update-Database" from the nuget console in Visual Studio.
-
-The MongoBD database requires a $text index to support text searching the dynmaic data types. On startup the system will check this index exists in the specified Mongo DB. If it does not exist, it will created it. The index can be manually created, but be sure to remove the automatic index check/creation code:
-
-db.instances.createIndex( { FolderId: 1, TypeId: 1, "$**": "text" } )
 
 # Issues/Contributions
 
