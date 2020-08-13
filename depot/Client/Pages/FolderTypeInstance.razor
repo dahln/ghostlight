@@ -177,7 +177,8 @@
 
         foreach (var t in Type.Fields)
         {
-            Instance.Data.Add(t.Id, string.Empty);
+            if(!Instance.Data.ContainsKey(t.Id))
+                Instance.Data.Add(t.Id, string.Empty);
         }
     }
 
