@@ -27,85 +27,73 @@
                     <div class="card-body">
                         @for (int row = 1; row <= Type.Fields.Select(f => f.Row).Max(); row++)
                         {
-                            <div class="row">
-                                @for (int col = 1; col <= 12; col++)
+                        <div class="row">
+                            @for (int col = 1; col <= 12; col++)
+                            {
+                                foreach (var field in Type.Fields.Where(f => f.Row == row && f.Column == col))
                                 {
-                                    foreach (var field in Type.Fields.Where(f => f.Row == row && f.Column == col))
+                                    @if (field.Type == FieldType.Text)
                                     {
-                                        @if (field.Type == FieldType.Text)
-                                        {
-                                            <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                                <label for="@field.Id">
-                                                    @field.Name @if (!field.Optional)
-                                                    {<span class="required-astrisk">*</span>}
-                                                </label>
-                                                <input id="@field.Id" type="text" class="form-control" @bind="Instance.Data[field.Id]" />
-                                            </div>
-                                        }
-                                        else if (field.Type == FieldType.TextArea)
-                                        {
-                                            <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                                <label for="@field.Id">
-                                                    @field.Name @if (!field.Optional)
-                                                    {<span class="required-astrisk">*</span>}
-                                                </label>
-                                                <textarea rows="@(!string.IsNullOrEmpty(field.Options) ? field.Options : (5).ToString())" id="@field.Id" class="form-control" @bind="Instance.Data[field.Id]"></textarea>
-                                            </div>
-                                        }
-                                        else if (field.Type == FieldType.Number)
-                                        {
-                                            <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                                <label for="@field.Id">
-                                                    @field.Name @if (!field.Optional)
-                                                    {<span class="required-astrisk">*</span>}
-                                                </label>
-                                                <input id="@field.Id" type="number" class="form-control" @bind="Instance.Data[field.Id]" />
-                                            </div>
-                                        }
-                                        else if (field.Type == FieldType.Date)
-                                        {
-                                            <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                                <label for="@field.Id">
-                                                    @field.Name @if (!field.Optional)
-                                                    {<span class="required-astrisk">*</span>}
-                                                </label>
-                                                <div id="@field.Id">
-                                                    <DateAsString @bind-Value="Instance.Data[field.Id]"></DateAsString>
-                                                </div>
-                                            </div>
-                                        }
-                                        else if (field.Type == FieldType.Time)
-                                        {
-                                            <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                                <label for="@field.Id">
-                                                    @field.Name @if (!field.Optional)
-                                                    {<span class="required-astrisk">*</span>}
-                                                </label>
-                                                <div id="@field.Id">
-                                                    <TimeAsString Id="@field.Id" @bind-Value="Instance.Data[field.Id]"></TimeAsString>
-                                                </div>
-                                            </div>
-                                        }
-                                        else if (field.Type == FieldType.List)
-                                        {
-                                            <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
-                                                <label for="@field.Id">
-                                                    @field.Name @if (!field.Optional)
-                                                    {<span class="required-astrisk">*</span>}
-                                                </label>
-                                                <select class="form-control" @bind="Instance.Data[field.Id]">
-                                                    <option value=""></option>
-                                                    @foreach (var option in field.Options.Split(','))
-                                                    {
-                                                        <option value="@option">@option</option>
-                                                    }
-                                                </select>
-                                            </div>
-                                        }
-
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">
+                                                @field.Name @if (!field.Optional)
+                                                {<span class="required-astrisk">*</span>}
+                                            </label>
+                                            <input id="@field.Id" type="text" class="form-control" @bind="Instance.Data[field.Id]" />
+                                        </div>
                                     }
+                                    else if (field.Type == FieldType.TextArea)
+                                    {
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">
+                                                @field.Name @if (!field.Optional)
+                                                {<span class="required-astrisk">*</span>}
+                                            </label>
+                                            <textarea rows="@(!string.IsNullOrEmpty(field.Options) ? field.Options : (5).ToString())" id="@field.Id" class="form-control" @bind="Instance.Data[field.Id]"></textarea>
+                                        </div>
+                                    }
+                                    else if (field.Type == FieldType.Number)
+                                    {
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">
+                                                @field.Name @if (!field.Optional)
+                                                {<span class="required-astrisk">*</span>}
+                                            </label>
+                                            <input id="@field.Id" type="number" class="form-control" @bind="Instance.Data[field.Id]" />
+                                        </div>
+                                    }
+                                    else if (field.Type == FieldType.Date)
+                                    {
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">
+                                                @field.Name @if (!field.Optional)
+                                                {<span class="required-astrisk">*</span>}
+                                            </label>
+                                            <div id="@field.Id">
+                                                <DateAsString @bind-Value="Instance.Data[field.Id]"></DateAsString>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (field.Type == FieldType.List)
+                                    {
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">
+                                                @field.Name @if (!field.Optional)
+                                                {<span class="required-astrisk">*</span>}
+                                            </label>
+                                            <select class="form-control" @bind="Instance.Data[field.Id]">
+                                                <option value=""></option>
+                                                @foreach (var option in field.Options.Split(','))
+                                                {
+                                                    <option value="@option">@option</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    }
+
                                 }
-                            </div>
+                            }
+                        </div>
                         }
                     </div>
                 </div>

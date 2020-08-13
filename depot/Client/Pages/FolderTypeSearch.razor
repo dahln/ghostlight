@@ -69,19 +69,26 @@
                 <tbody>
                     @foreach (var instance in Instances)
                     {
-                        <tr class="pointer" @onclick="(() => SelectInstance(instance.Id))">
-                            @foreach (var column in Types.FirstOrDefault(t => t.Id == DataTypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
+                    <tr class="pointer" @onclick="(() => SelectInstance(instance.Id))">
+                        @foreach (var column in Types.FirstOrDefault(t => t.Id == DataTypeId)?.Fields.Where(f => f.SearchShow == true).OrderBy(f => f.SearchOrder))
+                        {
+                            @if (instance.Data.Where(i => i.Key == column.Id).Count() > 0)
                             {
-                                @if (instance.Data.Where(i => i.Key == column.Id).Count() > 0)
+                                if (column.Type == FieldType.Date)
                                 {
-                                    <td>@instance.Data.Where(i => i.Key == column.Id).FirstOrDefault().Value</td>
+                                    <td>@DateTimeOffset.Parse(instance.Data.Where(i => i.Key == column.Id).FirstOrDefault().Value).ToString("D")</td>
                                 }
                                 else
                                 {
-                                    <td></td>
+                                    <td>@instance.Data.Where(i => i.Key == column.Id).FirstOrDefault().Value</td>
                                 }
                             }
-                        </tr>
+                            else
+                            {
+                                <td></td>
+                            }
+                        }
+                    </tr>
                     }
                 </tbody>
             </table>

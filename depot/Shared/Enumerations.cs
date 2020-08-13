@@ -11,7 +11,6 @@ namespace depot.Shared.Enumerations
         TextArea = 2,
         Number = 3,
         Date = 4,
-        Time = 5,
         List = 7
     }
 }

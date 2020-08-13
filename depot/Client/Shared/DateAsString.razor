@@ -2,8 +2,8 @@
 
 @code {
 
-    private DateTime? _bindableDate;
-    private DateTime? BindableDate
+    private DateTimeOffset? _bindableDate;
+    private DateTimeOffset? BindableDate
     {
         get
         {
@@ -12,7 +12,7 @@
         set
         {
             _bindableDate = value;
-            Value = BindableDate.Value.ToString("MMMM d, yyyy");
+            Value = BindableDate.Value.ToString();
             ValueChanged.InvokeAsync(Value);
         }
     }
@@ -22,14 +22,14 @@
     {
         get
         {
-            return BindableDate.Value.ToString("MMMM d, yyyy");
+            return BindableDate.Value.ToString();
         }
         set
         {
             if (BindableDate == null)
             {
-                DateTime parsedDate;
-                if (DateTime.TryParse(value, out parsedDate))
+                DateTimeOffset parsedDate;
+                if (DateTimeOffset.TryParse(value, out parsedDate))
                 {
                     BindableDate = parsedDate;
                 }
