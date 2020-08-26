@@ -44,7 +44,7 @@
                                 @foreach (var folder in _appState.CurrentFolderId != null ? _appState.AllowedFolders.Where(g => g.Id != _appState.CurrentFolderId) : _appState.AllowedFolders)
                                 {
                                     <NavLink class="dropdown-item pointer" href="@($"folder/{folder.Id}")">
-                                        <i class="far fa-folder mr-1"></i> @folder.Name
+                                        <i class="far fa-folder mr-1"></i> @($"Switch to {folder.Name} Folder") 
                                     </NavLink>
                                 }
 
@@ -53,7 +53,7 @@
                     }
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle mr-2" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-cog mr-1"></i> Settings
+                            <i class="fas fa-cog mr-1"></i> Folder Settings
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             @if (_appState.CurrentFolderIsAdministrator)
