@@ -16,6 +16,7 @@ using depot.Server.Models;
 using depot.Server.Helpers;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using depot.Server.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace depot.Server
 {
@@ -72,6 +73,11 @@ namespace depot.Server
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             app.UseIdentityServer();
             app.UseAuthentication();
