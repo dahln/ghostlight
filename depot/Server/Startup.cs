@@ -63,7 +63,6 @@ namespace depot.Server
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseForwardedHeaders();
-            app.UseCertificateForwarding();
 
             if (env.IsDevelopment())
             {
