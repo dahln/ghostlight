@@ -15,66 +15,51 @@
 
             <div class="collapse navbar-collapse" id="navToggle">
                 <ul class="navbar-nav ml-md-auto">
-                    @if (_appState.DataTypes.Count > 0 || _appState.AllowedFolders.Count > 0)
+                    @if (_appState.CurrentFolderId != null)
                     {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle mr-2" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <strong><i class="fas fa-search mr-1"></i>Search</strong>
+                                <strong><i class="far fa-folder-open mr-1"></i> @_appState.CurrentFolderName</strong>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <div class="dropdown-header">
-                                    <i class="far fa-folder-open mr-1"></i> @_appState.CurrentFolderName
-                                </div>
                                 @foreach (var type in _appState.DataTypes)
                                 {
                                     <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/type/{type.Data}/search")">
                                         <i class="fas fa-search mr-1"></i> @type.Text
                                     </NavLink>
                                 }
-                                @if(_appState.DataTypes.Count == 0)
+                                @if (_appState.DataTypes.Count == 0)
                                 {
                                     <div class="dropdown-header">
                                         No forms. Create one!
                                     </div>
                                 }
-                                @if (_appState.CurrentFolderId != null ? _appState.AllowedFolders.Where(g => g.Id != _appState.CurrentFolderId).Count() > 0 : _appState.AllowedFolders.Count > 0)
+                                <div class="dropdown-divider"></div>
+                                @if (_appState.CurrentFolderId != null && _appState.CurrentFolderIsAdministrator)
                                 {
-                                    <div class="dropdown-divider"></div>
-                                }
-                                @foreach (var folder in _appState.CurrentFolderId != null ? _appState.AllowedFolders.Where(g => g.Id != _appState.CurrentFolderId) : _appState.AllowedFolders)
-                                {
-                                    <NavLink class="dropdown-item pointer" href="@($"folder/{folder.Id}")">
-                                        <i class="far fa-folder mr-1"></i> @($"Switch to {folder.Name} Folder") 
+                                    <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/design")">
+                                        <i class="fas fa-tools mr-1"></i> Form Designer
+                                    </NavLink>
+                                    <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/settings")">
+                                        <i class="fas fa-cog mr-1"></i> Folder Settings
                                     </NavLink>
                                 }
-
                             </div>
                         </li>
                     }
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle mr-2" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-cog mr-1"></i> Folder Settings
+                            <i class="fas fa-folder mr-1"></i> Folders
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            @if (_appState.CurrentFolderIsAdministrator)
+                            @foreach (var folder in _appState.CurrentFolderId != null ? _appState.AllowedFolders.Where(g => g.Id != _appState.CurrentFolderId) : _appState.AllowedFolders)
                             {
-                                <div class="dropdown-header">
-                                    <i class="far fa-folder-open mr-1"></i> @_appState.CurrentFolderName
-                                </div>
-                            }
-                            @if (_appState.CurrentFolderIsAdministrator)
-                            {
-                                <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/design")">
-                                    <i class="fas fa-tools mr-1"></i> Form Designer
+                                <NavLink class="dropdown-item pointer" href="@($"folder/{folder.Id}")">
+                                    <i class="far fa-folder mr-1"></i> @($"Switch to '{folder.Name}' Folder")
                                 </NavLink>
                             }
-                            @if (_appState.CurrentFolderId != null && _appState.CurrentFolderIsAdministrator)
-                            {
-                                <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/settings")">
-                                    <i class="fas fa-cog mr-1"></i> Folder Settings
-                                </NavLink>
-                            }
-                            @if (_appState.CurrentFolderIsAdministrator)
+
+                            @if (_appState.CurrentFolderIsAdministrator && _appState.AllowedFolders.Count > 1)
                             {
                                 <div class="dropdown-divider"></div>
                             }
