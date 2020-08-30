@@ -13,7 +13,7 @@
 
 <h3 class="mt-3">Forms</h3>
 
-<h6>Create a new type</h6>
+<h6>Create a new form</h6>
 <div class="row">
     <div class="col-md-6">
         <div class="input-group mb-3 float-right">
@@ -42,13 +42,13 @@
 {
     <div class="row mt-5">
         <div class="col-md-12">
-            <h4>Name of Type</h4>
+            <h4>Name of Form</h4>
         </div>
         <div class="col-md-12">
             <div class="input-group input-group-lg">
                 <input type="text" class="form-control" @bind="Types.FirstOrDefault(t => t.Id == SelectedType).Name" placeholder="Form Name" aria-label="Form Name" aria-describedby="button-addon2" />
                 <div class="input-group-append">
-                    <button class="btn btn-outline-dark" type="button" id="button-addon2" @onclick="UpdateDataTypeName">Change Data Type Name</button>
+                    <button class="btn btn-outline-dark" type="button" id="button-addon2" @onclick="UpdateDataTypeName">Change Form Name</button>
                 </div>
             </div>
         </div>
