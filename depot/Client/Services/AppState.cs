@@ -79,11 +79,7 @@ namespace depot.Client.Services
             }
             catch(Exception ex)
             {
-                Console.WriteLine("------------------message----------------------");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("------------------stack----------------------");
-                Console.WriteLine(ex.StackTrace);
-                Console.WriteLine("------------------end----------------------");
+                
             }
             return false;
         }
