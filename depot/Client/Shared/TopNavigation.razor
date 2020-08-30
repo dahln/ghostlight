@@ -34,7 +34,7 @@
                                 @if(_appState.DataTypes.Count == 0)
                                 {
                                     <div class="dropdown-header">
-                                        No data types. Create some!
+                                        No forms. Create one!
                                     </div>
                                 }
                                 @if (_appState.CurrentFolderId != null ? _appState.AllowedFolders.Where(g => g.Id != _appState.CurrentFolderId).Count() > 0 : _appState.AllowedFolders.Count > 0)
@@ -65,13 +65,13 @@
                             @if (_appState.CurrentFolderIsAdministrator)
                             {
                                 <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/design")">
-                                    <i class="fas fa-tools mr-1"></i> Data Designer
+                                    <i class="fas fa-tools mr-1"></i> Form Designer
                                 </NavLink>
                             }
                             @if (_appState.CurrentFolderId != null && _appState.CurrentFolderIsAdministrator)
                             {
                                 <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/settings")">
-                                    <i class="fas fa-cog mr-1"></i> Settings
+                                    <i class="fas fa-cog mr-1"></i> Folder Settings
                                 </NavLink>
                             }
                             @if (_appState.CurrentFolderIsAdministrator)
