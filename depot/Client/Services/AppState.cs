@@ -29,8 +29,6 @@ namespace depot.Client.Services
 
         async public Task<bool> UpdateAppState(string selectedFolderId = null)
         {
-            try
-            {
                 var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
                 if (authState.User.Identity.IsAuthenticated)
                 {
@@ -76,11 +74,6 @@ namespace depot.Client.Services
 
                     return true;
                 }
-            }
-            catch(Exception ex)
-            {
-                
-            }
             return false;
         }
 
