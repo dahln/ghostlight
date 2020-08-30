@@ -97,10 +97,10 @@
                                 <input type="number" class="form-control" @bind="NewField.Row" min="1" />
                             </td>
                             <td>
-                                <input type="number" class="form-control" @bind="NewField.Column" min="1" max="12" />
+                                <input type="number" class="form-control" @bind="NewField.Column" min="1" max="4" />
                             </td>
                             <td>
-                                <input type="number" class="form-control" @bind="NewField.ColumnSpan" min="1" max="12" />
+                                <input type="number" class="form-control" @bind="NewField.ColumnSpan" min="1" max="4" />
                             </td>
                             <td>
                             </td>
@@ -174,10 +174,10 @@
                                         <input type="number" class="form-control" @bind="field.Row" min="1" @onblur="(() => UpdateField(field))" />
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control" @bind="field.Column" min="1" max="12" @onblur="(() => UpdateField(field))" />
+                                        <input type="number" class="form-control" @bind="field.Column" min="1" max="4" @onblur="(() => UpdateField(field))" />
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control" @bind="field.ColumnSpan" min="1" max="12" @onblur="(() => UpdateField(field))" />
+                                        <input type="number" class="form-control" @bind="field.ColumnSpan" min="1" max="4" @onblur="(() => UpdateField(field))" />
                                     </td>
                                     <td>
                                         <button class="form-control btn btn-danger" @onclick="(() => DeleteField(field))">

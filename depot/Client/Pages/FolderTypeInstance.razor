@@ -34,7 +34,7 @@
                                 {
                                     @if (field.Type == FieldType.Text)
                                     {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
                                             <label for="@field.Id">
                                                 @field.Name @if (!field.Optional)
                                                 {<span class="required-astrisk">*</span>}
@@ -44,7 +44,7 @@
                                     }
                                     else if (field.Type == FieldType.TextArea)
                                     {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
                                             <label for="@field.Id">
                                                 @field.Name @if (!field.Optional)
                                                 {<span class="required-astrisk">*</span>}
@@ -54,7 +54,7 @@
                                     }
                                     else if (field.Type == FieldType.Number)
                                     {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
                                             <label for="@field.Id">
                                                 @field.Name @if (!field.Optional)
                                                 {<span class="required-astrisk">*</span>}
@@ -64,7 +64,7 @@
                                     }
                                     else if (field.Type == FieldType.Date)
                                     {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
                                             <label for="@field.Id">
                                                 @field.Name @if (!field.Optional)
                                                 {<span class="required-astrisk">*</span>}
@@ -76,7 +76,7 @@
                                     }
                                     else if (field.Type == FieldType.List)
                                     {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
                                             <label for="@field.Id">
                                                 @field.Name @if (!field.Optional)
                                                 {<span class="required-astrisk">*</span>}
@@ -92,7 +92,7 @@
                                     }
                                     else if (field.Type == FieldType.Label)
                                     {
-                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
                                             <label for="@field.Id">
                                                 @if (!string.IsNullOrEmpty(field.Options))
                                                 {<span>@field.Options</span>}
