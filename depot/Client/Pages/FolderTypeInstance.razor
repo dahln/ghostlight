@@ -90,6 +90,15 @@
                                             </select>
                                         </div>
                                     }
+                                    else if (field.Type == FieldType.Label)
+                                    {
+                                        <div class="form-group col-lg-@(field.Column + (field.ColumnSpan - field.Column))">
+                                            <label for="@field.Id">
+                                                @if (!string.IsNullOrEmpty(field.Options))
+                                                {<span>@field.Options</span>}
+                                            </label>
+                                        </div>
+                                    }
 
                                 }
                             }

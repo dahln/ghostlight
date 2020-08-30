@@ -90,6 +90,7 @@
                                     <option value="@FieldType.Number">Number</option>
                                     <option value="@FieldType.Date">Date</option>
                                     <option value="@FieldType.List">List</option>
+                                    <option value="@FieldType.Label">Label</option>
                                 </select>
                             </td>
                             <td>
@@ -104,31 +105,34 @@
                             <td>
                             </td>
                         </tr>
-                        @if (NewField.Type == FieldType.List || NewField.Type == FieldType.TextArea)
+                        @if (NewField.Type == FieldType.List || NewField.Type == FieldType.TextArea || NewField.Type == FieldType.Label)
                         {
                             <tr>
-                                <td>Options:</td>
+                                <td>Options/Content:</td>
                                 <td colspan="4">
-                                    <input type="text" class="form-control" placeholder="@(NewField.Type == FieldType.List ? "Comma separated list: option 1, option 2, option 3" : NewField.Type == FieldType.TextArea ? "Number of rows: 42" : string.Empty)" @bind="NewField.Options" />
+                                    <input type="text" class="form-control" placeholder="@(NewField.Type == FieldType.List ? "Comma separated list: option 1, option 2, option 3" : NewField.Type == FieldType.TextArea ? "Number of rows: 42" : NewField.Type == FieldType.Label ? "Label/Text Content" : string.Empty)" @bind="NewField.Options" />
                                 </td>
                                 <td></td>
                             </tr>
                         }
-                        <tr>
-                            <td>Optional:</td>
-                            <td colspan="4">
-                                <input type="checkbox" @bind="NewField.Optional" />
-                            </td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Show in Search:</td>
-                            <td colspan="4">
-                                <input type="checkbox" @bind="NewField.SearchShow" min="1" />
-                            </td>
-                            <td></td>
-                        </tr>
-                        @if (NewField.SearchShow == true)
+                        @if (NewField.Type != FieldType.Label)
+                        {
+                            <tr>
+                                <td>Optional:</td>
+                                <td colspan="4">
+                                    <input type="checkbox" @bind="NewField.Optional" />
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Show in Search:</td>
+                                <td colspan="4">
+                                    <input type="checkbox" @bind="NewField.SearchShow" min="1" />
+                                </td>
+                                <td></td>
+                            </tr>
+                        }
+                        @if (NewField.SearchShow == true && NewField.Type != FieldType.Label)
                         {
                             <tr>
                                 <td>Search Column Order:</td>
@@ -181,31 +185,34 @@
                                         </button>
                                     </td>
                                 </tr>
-                                @if (field.Type == FieldType.List || field.Type == FieldType.TextArea)
+                                @if (field.Type == FieldType.List || field.Type == FieldType.TextArea || field.Type == FieldType.Label)
                                 {
                                     <tr>
                                         <td>Options:</td>
                                         <td colspan="4">
-                                            <input type="text" class="form-control" placeholder="@(field.Type == FieldType.List ? "Comma separated list: option 1, option 2, option 3" : field.Type == FieldType.TextArea ? "Number of rows: 42" : string.Empty)" @bind="field.Options" @onblur="(() => UpdateField(field))" />
+                                            <input type="text" class="form-control" placeholder="@(field.Type == FieldType.List ? "Comma separated list: option 1, option 2, option 3" : field.Type == FieldType.TextArea ? "Number of rows: 42" : field.Type == FieldType.Label ? "Label/Text Content" : string.Empty)" @bind="field.Options" @onblur="(() => UpdateField(field))" />
                                         </td>
                                         <td></td>
                                     </tr>
                                 }
-                                <tr>
-                                    <td>Optional:</td>
-                                    <td colspan="4">
-                                        <input type="checkbox" @bind="field.Optional" @onblur="(() => UpdateField(field))" />
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>Show in Search:</td>
-                                    <td colspan="4">
-                                        <input type="checkbox" @bind="field.SearchShow" @onblur="(() => UpdateField(field))" />
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                @if (field.SearchShow == true)
+                                @if (field.Type != FieldType.Label)
+                                {
+                                    <tr>
+                                        <td>Optional:</td>
+                                        <td colspan="4">
+                                            <input type="checkbox" @bind="field.Optional" @onblur="(() => UpdateField(field))" />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Show in Search:</td>
+                                        <td colspan="4">
+                                            <input type="checkbox" @bind="field.SearchShow" @onblur="(() => UpdateField(field))" />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                }
+                                @if (field.SearchShow == true && field.Type != FieldType.Label)
                                 {
                                     <tr>
                                         <td>Search Column Order:</td>
@@ -229,7 +236,7 @@
                 Don't need this type anymore? Delete it. This cannot be undone.
             </strong>
             <div class="row">
-                <input type="button" class="btn btn-danger" value="Delete Data Type" @onclick="DeleteDataType" />
+                <input type="button" class="btn btn-danger" value="Delete Form & All Associated Data" @onclick="DeleteDataType" />
             </div>
         </div>
     </div>
