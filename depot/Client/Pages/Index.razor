@@ -12,7 +12,7 @@
         @if (_appState.Ready == true && _appState.CurrentFolderName != null)
         {
             <div class="row mt-5 pt-5">
-                <h4 class="mx-auto">@_appState.CurrentFolderName</h4>
+                <h4 class="mx-auto"><i class="far fa-folder-open mr-1"></i>@_appState.CurrentFolderName</h4>
             </div>
             @if (_appState.DataTypes.Count == 0)
             {
@@ -26,13 +26,13 @@
                         @foreach (var type in _appState.DataTypes)
                         {
                             <NavLink class="list-group-item list-group-item-action" href="@($"folder/{_appState.CurrentFolderId}/type/{type.Data}/search")">
-                                <span class="oi oi-plus" aria-hidden="true"></span> @type.Text
+                                <i class="fas fa-search mr-1"></i> @type.Text
                             </NavLink>
                         }
                         @if (_appState.DataTypes.Count == 0 && _appState.CurrentFolderIsAdministrator)
                         {
                             <NavLink class="btn btn-outline-dark btn-lg mx-auto w-100" href="@($"folder/{_appState.CurrentFolderId}/design")">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Go to Form Designer <i class="fas fa-arrow-right float-right ml-1 mt-1"></i>
+                                Go to Form Designer <i class="fas fa-arrow-right float-right ml-1 mt-1"></i>
                             </NavLink>
                         }
                     </div>
