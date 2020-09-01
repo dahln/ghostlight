@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/dahln/glubfish/_apis/build/status/glubfish%20CI%20build?branchName=master)](https://dev.azure.com/dahln/glubfish/_build/latest?definitionId=14&branchName=master)
+[![Build Status](https://dev.azure.com/dahln/glubfish/_apis/build/status/glubfish%20CI%20build?repoName=dahln%2Fglubfish&branchName=master)](https://dev.azure.com/dahln/glubfish/_build/latest?definitionId=14&repoName=dahln%2Fglubfish&branchName=master)
 
 # glubfish
 
