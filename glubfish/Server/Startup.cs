@@ -45,9 +45,9 @@ namespace glubfish.Server
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
-
+            
+            services.AddSingleton<EmailConfiguration>(Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>());
             services.AddTransient<IEmailSender, EmailSender>();
-            services.Configure<AuthMessageSenderOptions>(Configuration);
 
             services.AddControllersWithViews();
             services.Configure<ForwardedHeadersOptions>(options =>

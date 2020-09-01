@@ -1,8 +1,9 @@
 ﻿using glubfish.Server.Services;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
-using SendGrid;
-using SendGrid.Helpers.Mail;
+using MimeKit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,35 +13,53 @@ namespace glubfish.Server.Helpers
 {
     public class EmailSender : IEmailSender
     {
-        public EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor)
+        private readonly EmailConfiguration _options;
+
+        public EmailSender(EmailConfiguration options)
         {
-            Options = optionsAccessor.Value;
+            _options = options;
         }
 
-        public AuthMessageSenderOptions Options { get; } //set only via Secret Manager
 
-        public Task SendEmailAsync(string email, string subject, string message)
+        async public Task SendEmailAsync(string email, string subject, string message)
         {
-            return Execute(Options.SendGridKey, subject, message, email);
-        }
+            var mail = new MimeMessage();
+            mail.From.Add(new MailboxAddress(_options.SmtpFromName, _options.SmtpFromEmail));
+            mail.To.Add(new MailboxAddress(email, email));
+            mail.Bcc.Add(new MailboxAddress(_options.SmtpFromEmail, _options.SmtpFromEmail));
+            mail.Subject = subject;
 
-        public Task Execute(string apiKey, string subject, string message, string email)
-        {
-            var client = new SendGridClient(apiKey);
-            var msg = new SendGridMessage()
+            var bodyBuilder = new BodyBuilder();
+            bodyBuilder.HtmlBody = message;
+            bodyBuilder.TextBody = message;
+            mail.Body = bodyBuilder.ToMessageBody();
+
+            try
             {
-                From = new EmailAddress("account@dahln.io", Options.SendGridUser),
-                Subject = subject,
-                PlainTextContent = message,
-                HtmlContent = message
-            };
-            msg.AddTo(new EmailAddress(email));
+                using (var client = new SmtpClient())
+                {
 
-            // Disable click tracking.
-            // See https://sendgrid.com/docs/User_Guide/Settings/tracking.html
-            msg.SetClickTracking(false, false);
+                    if (_options.SmtpStartTLS)
+                    {
+                        client.Connect(_options.SmtpServer, _options.SmtpPort, SecureSocketOptions.StartTls);
+                    }
+                    else
+                    {
+                        client.Connect(_options.SmtpServer, _options.SmtpPort);
+                    }
 
-            return client.SendEmailAsync(msg);
+                    client.Authenticate(_options.SmtpUsername, _options.SmtpPassword);
+
+                    await client.SendAsync(mail);
+                    client.Disconnect(true);
+                }
+            }
+            catch(Exception ex)
+            {
+                int a = 0;
+            }
+
+            return;
         }
     }
 }
