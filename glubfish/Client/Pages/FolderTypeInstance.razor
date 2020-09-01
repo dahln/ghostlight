@@ -1,0 +1,251 @@
+﻿@attribute [Authorize]
+@page "/folder/{FolderId}/type/{DataTypeId}"
+@page "/folder/{FolderId}/type/{DataTypeId}/instance/{InstanceId}"
+
+@using Microsoft.AspNetCore.Authorization
+@using glubfish.Shared.RequestModels
+@using glubfish.Shared.ResponseModels
+@using glubfish.Shared.Enumerations
+
+@inject NavigationManager _navigationManger
+@inject glubfish.Client.Services.API API
+@inject IToastService _toastService
+@inject IModalService _modalService
+
+@if (Type != null)
+{
+    <div class="mb-3">
+        <NavLink href="@($"folder/{FolderId}/type/{Type.Id}/search")">
+            &#171; Back to Search
+        </NavLink>
+    </div>
+    <form class="row" @onsubmit="SaveInstance">
+        <div class="col-md-9">
+            <div class="card">
+                <h5 class="card-header text-white bg-dark">@Type.Name</h5>
+                <div class="card-body">
+                    <div class="card-body">
+                        @for (int row = 1; row <= Type.Fields.Select(f => f.Row).Max(); row++)
+                        {
+                        <div class="row">
+                            @for (int col = 1; col <= 12; col++)
+                            {
+                                foreach (var field in Type.Fields.Where(f => f.Row == row && f.Column == col))
+                                {
+                                    @if (field.Type == FieldType.Text)
+                                    {
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
+                                            <label for="@field.Id">
+                                                @field.Name @if (!field.Optional)
+                                                {<span class="required-astrisk">*</span>}
+                                            </label>
+                                            <input id="@field.Id" type="text" class="form-control" @bind="Instance.Data[field.Id]" />
+                                        </div>
+                                    }
+                                    else if (field.Type == FieldType.TextArea)
+                                    {
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
+                                            <label for="@field.Id">
+                                                @field.Name @if (!field.Optional)
+                                                {<span class="required-astrisk">*</span>}
+                                            </label>
+                                            <textarea rows="@(!string.IsNullOrEmpty(field.Options) ? field.Options : (5).ToString())" id="@field.Id" class="form-control" @bind="Instance.Data[field.Id]"></textarea>
+                                        </div>
+                                    }
+                                    else if (field.Type == FieldType.Number)
+                                    {
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
+                                            <label for="@field.Id">
+                                                @field.Name @if (!field.Optional)
+                                                {<span class="required-astrisk">*</span>}
+                                            </label>
+                                            <input id="@field.Id" type="number" class="form-control" @bind="Instance.Data[field.Id]" />
+                                        </div>
+                                    }
+                                    else if (field.Type == FieldType.Date)
+                                    {
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
+                                            <label for="@field.Id">
+                                                @field.Name @if (!field.Optional)
+                                                {<span class="required-astrisk">*</span>}
+                                            </label>
+                                            <div id="@field.Id">
+                                                <DateAsString @bind-Value="Instance.Data[field.Id]"></DateAsString>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (field.Type == FieldType.List)
+                                    {
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
+                                            <label for="@field.Id">
+                                                @field.Name @if (!field.Optional)
+                                                {<span class="required-astrisk">*</span>}
+                                            </label>
+                                            <select class="form-control" @bind="Instance.Data[field.Id]">
+                                                <option value=""></option>
+                                                @foreach (var option in field.Options.Split(','))
+                                                {
+                                                    <option value="@option">@option</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    }
+                                    else if (field.Type == FieldType.Label)
+                                    {
+                                        <div class="form-group col-lg-@((field.Column * 3) + ((field.ColumnSpan * 3) - (field.Column * 3)))">
+                                            <label for="@field.Id">
+                                                @if (!string.IsNullOrEmpty(field.Options))
+                                                {<span>@field.Options</span>}
+                                            </label>
+                                        </div>
+                                    }
+
+                                }
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-12 btn-group-vertical">
+                    <button class="btn btn-info w-100" type="submit"><i class="fas fa-check mr-2"></i>Save @Type.Name</button>
+                    @if (InstanceId != null)
+                    {
+                        <div class="btn btn-danger w-100" @onclick="DeleteInstance"><i class="fas fa-trash-alt mr-2"></i>Delete</div>
+                    }
+                </div>
+            </div>
+            @if(InstanceId != null)
+            {
+                @if (Instance.CreatedOn != Instance.UpdatedOn)
+                {
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <strong>Update On: </strong>@Instance.UpdatedOn.ToLocalTime().ToString("g")
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-md-12">
+                            <strong>Update By: </strong>@Instance.UpdatedByEmail
+                        </div>
+                    </div>
+                }
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <strong>Created On: </strong>@Instance.CreatedOn.ToLocalTime().ToString("g")
+                    </div>
+                </div>
+                <div class="row mt-1">
+                    <div class="col-md-12">
+                        <strong>Created By: </strong>@Instance.CreatedByEmail
+                    </div>
+                </div>
+            }
+        </div>
+    </form>
+}
+
+@code {
+    [Parameter]
+    public string FolderId { get; set; }
+
+    [Parameter]
+    public string DataTypeId { get; set; }
+
+    [Parameter]
+    public string InstanceId { get; set; }
+
+
+
+    //Loaded from API
+    public ResponseFolder Folder { get; set; } = new ResponseFolder();
+    public ResponseDataType Type { get; set; }
+    public List<ResponseDataType> Types { get; set; } = new List<ResponseDataType>();
+    public ResponseInstance Instance { get; set; } = new ResponseInstance();
+
+    async protected override Task OnParametersSetAsync()
+    {
+
+        await GetFolder();
+        await GetDataTypes();
+        await GetSelectedInstance();
+    }
+
+    async private Task GetFolder()
+    {
+        Folder = await API.FolderGetById(FolderId);
+    }
+
+    async private Task GetDataTypes()
+    {
+        Types = await API.GetFolderTypeAsList(FolderId);
+        Type = await API.GetFolderTypeById(FolderId, DataTypeId);
+
+        foreach (var t in Type.Fields)
+        {
+            if(!Instance.Data.ContainsKey(t.Id))
+                Instance.Data.Add(t.Id, string.Empty);
+        }
+    }
+
+    async private Task GetSelectedInstance()
+    {
+        if (InstanceId != null)
+        {
+            var result = await API.GetFolderInstance(FolderId, DataTypeId, InstanceId);
+            Instance = result;
+        }
+    }
+
+    async private Task SaveInstance()
+    {
+        bool error = false;
+        foreach (var field in Type.Fields)
+        {
+            if (!field.Optional)
+            {
+                string fieldValue = Instance.Data[field.Id];
+                if (string.IsNullOrEmpty(fieldValue))
+                {
+                    _toastService.ShowError($"{field.Name} is required");
+                    error = true;
+                }
+            }
+        }
+
+        if (error)
+            return;
+
+        if (InstanceId == null)
+        {
+            var response = await API.CreateFolderInstance(FolderId, DataTypeId, Instance.Data);
+            InstanceId = response.Id;
+            await GetSelectedInstance();
+            _navigationManger.NavigateTo($"/folder/{FolderId}/type/{DataTypeId}/instance/{InstanceId}");
+        }
+        else if (InstanceId != null)
+        {
+            await API.UpdateFolderInstance(FolderId, DataTypeId, InstanceId, Instance.Data);
+            await GetSelectedInstance();
+        }
+
+        _toastService.ShowSuccess("Saved");
+
+    }
+
+    async private Task DeleteInstance()
+    {
+        var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this?");
+        var modalResult = await modal.Result;
+
+        if (modalResult.Cancelled) { }
+        else
+        {
+            await API.DeleteFolderInstance(FolderId, DataTypeId, InstanceId);
+            _navigationManger.NavigateTo($"folder/{FolderId}/type/{DataTypeId}/search");
+        }
+    }
+}

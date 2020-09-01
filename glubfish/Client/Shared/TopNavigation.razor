@@ -1,0 +1,99 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject NavigationManager Navigation
+@inject SignOutSessionStateManager SignOutManager
+@inject glubfish.Client.Services.AppState _appState
+
+<AuthorizeView>
+    <Authorized>
+        <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="/"><img src="glubfish-small.png" class="glubfish-logo mr-3" />glubfish</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navToggle" aria-controls="navToggle" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navToggle">
+                <ul class="navbar-nav ml-md-auto">
+                    @if (_appState.CurrentFolderId != null)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle mr-2" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <strong><i class="far fa-folder-open folder-open-color mr-1"></i> @_appState.CurrentFolderName</strong>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                @foreach (var type in _appState.DataTypes)
+                                {
+                                    <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/type/{type.Data}/search")">
+                                        <i class="fas fa-search mr-1"></i> @type.Text
+                                    </NavLink>
+                                }
+                                @if (_appState.DataTypes.Count == 0)
+                                {
+                                    <div class="dropdown-header">
+                                        No forms. Create one!
+                                    </div>
+                                }
+                                <div class="dropdown-divider"></div>
+                                @if (_appState.CurrentFolderId != null && _appState.CurrentFolderIsAdministrator)
+                                {
+                                    <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/design")">
+                                        <i class="fas fa-tools mr-1"></i> Form Designer
+                                    </NavLink>
+                                    <NavLink class="dropdown-item" href="@($"folder/{_appState.CurrentFolderId}/settings")">
+                                        <i class="fas fa-cog mr-1"></i> Folder Settings
+                                    </NavLink>
+                                }
+                            </div>
+                        </li>
+                    }
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle mr-2" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="far fa-folder folder-closed-color mr-1"></i> Folders
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            @foreach (var folder in _appState.CurrentFolderId != null ? _appState.AllowedFolders.Where(g => g.Id != _appState.CurrentFolderId) : _appState.AllowedFolders)
+                            {
+                                <NavLink class="dropdown-item pointer" href="@($"folder/{folder.Id}")">
+                                    <i class="far fa-folder mr-1"></i> @($"Switch to '{folder.Name}' Folder")
+                                </NavLink>
+                            }
+
+                            @if (_appState.CurrentFolderIsAdministrator && _appState.AllowedFolders.Count > 1)
+                            {
+                                <div class="dropdown-divider"></div>
+                            }
+                            <a class="dropdown-item" href="folder">
+                                <i class="fas fa-plus mr-1"></i> Create New Folder
+                            </a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link mr-2" href="authentication/profile">@context.User.Identity.Name</a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link btn btn-link" @onclick="BeginSignOut"><i class="fas fa-sign-out-alt mr-1"></i>Log out</button>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </Authorized>
+    <NotAuthorized>
+        <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="/"><img src="glubfish-small.png" class="glubfish-logo mr-3" />glubfish</a>
+        </nav>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{      
+    protected override void OnInitialized()
+    {
+        _appState.OnChange += StateHasChanged;
+    }
+
+    private async Task BeginSignOut(MouseEventArgs args)
+    {
+        await SignOutManager.SetSignOutState();
+        Navigation.NavigateTo("authentication/logout");
+    }
+}

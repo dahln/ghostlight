@@ -1,0 +1,383 @@
+﻿@attribute [Authorize]
+@page "/folder/{FolderId}/design"
+
+@using Microsoft.AspNetCore.Authorization
+@using glubfish.Shared.RequestModels
+@using glubfish.Shared.ResponseModels
+@using glubfish.Shared.Enumerations
+
+@inject glubfish.Client.Services.API API
+@inject IToastService _toastService
+@inject glubfish.Client.Services.AppState _appState
+@inject IModalService _modalService
+
+<h3 class="mt-3">Forms</h3>
+
+<h6>Create a new form</h6>
+<div class="row">
+    <div class="col-md-6">
+        <div class="input-group mb-3 float-right">
+            <input type="text" class="form-control" placeholder="New Form" aria-label="New Form" aria-describedby="button-addon2" @bind="NewDataTypeName" />
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="button-addon2" @onclick="CreateDataType">Create New Form</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h6>Choose form to manage</h6>
+<div class="row">
+    <div class="col-md-4">
+        <select class="form-control float-right" @bind="SelectedType">
+            <option value="">---Select Form---</option>
+            @foreach (var type in Types)
+            {
+                <option value="@type.Id">@type.Name</option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (SelectedType != null)
+{
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h4>Name of Form</h4>
+        </div>
+        <div class="col-md-12">
+            <div class="input-group input-group-lg">
+                <input type="text" class="form-control" @bind="Types.FirstOrDefault(t => t.Id == SelectedType).Name" placeholder="Form Name" aria-label="Form Name" aria-describedby="button-addon2" />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-dark" type="button" id="button-addon2" @onclick="UpdateDataTypeName">Change Form Name</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <h4>Data Fields in Form</h4>
+        </div>
+        <div class="col-md-6">
+            <span class="float-right">Changes are automatically saved</span>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Row</th>
+                            <th scope="col">Col</th>
+                            <th scope="col">ColSpan</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="new-field">
+                        <tr>
+                            <td>
+                                <input type="text" class="form-control" @bind="NewField.Name" />
+                            </td>
+                            <td>
+                                <select class="form-control" @bind="NewField.Type">
+                                    <option value="@FieldType.Text">Text</option>
+                                    <option value="@FieldType.TextArea">Text Area</option>
+                                    <option value="@FieldType.Number">Number</option>
+                                    <option value="@FieldType.Date">Date</option>
+                                    <option value="@FieldType.List">List</option>
+                                    <option value="@FieldType.Label">Label</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" @bind="NewField.Row" min="1" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" @bind="NewField.Column" min="1" max="4" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" @bind="NewField.ColumnSpan" min="1" max="4" />
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        @if (NewField.Type == FieldType.List || NewField.Type == FieldType.TextArea || NewField.Type == FieldType.Label)
+                        {
+                            <tr>
+                                <td>Options/Content:</td>
+                                <td colspan="4">
+                                    <input type="text" class="form-control" placeholder="@(NewField.Type == FieldType.List ? "Comma separated list: option 1, option 2, option 3" : NewField.Type == FieldType.TextArea ? "Number of rows: 42" : NewField.Type == FieldType.Label ? "Label/Text Content" : string.Empty)" @bind="NewField.Options" />
+                                </td>
+                                <td></td>
+                            </tr>
+                        }
+                        @if (NewField.Type != FieldType.Label)
+                        {
+                            <tr>
+                                <td>Optional:</td>
+                                <td colspan="4">
+                                    <input type="checkbox" @bind="NewField.Optional" />
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Show in Search:</td>
+                                <td colspan="4">
+                                    <input type="checkbox" @bind="NewField.SearchShow" min="1" />
+                                </td>
+                                <td></td>
+                            </tr>
+                        }
+                        @if (NewField.SearchShow == true && NewField.Type != FieldType.Label)
+                        {
+                            <tr>
+                                <td>Search Column Order:</td>
+                                <td colspan="1">
+                                    <input type="number" class="form-control" @bind="NewField.SearchOrder" />
+                                </td>
+                                <td colspan="4"></td>
+                            </tr>
+                        }
+                        <tr>
+                            <td colspan="6">
+                                <input type="button" class="btn btn-success float-right" value="Create New Field" @onclick="CreateField" />
+                            </td>
+                        </tr>
+                    </tbody>
+                    @if (SelectedType != null)
+                    {
+                        @foreach (var field in Types.Where(t => t.Id == SelectedType).FirstOrDefault().Fields.OrderBy(f => f.Row).ThenBy(f => f.Column))
+                        {
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Row</th>
+                                    <th scope="col">Col</th>
+                                    <th scope="col">ColSpan</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="fields">
+                                <tr>
+                                    <td>
+                                        <input type="text" class="form-control" @bind="field.Name" @onblur="(() => UpdateField(field))" />
+                                    </td>
+                                    <td>
+                                        <span>@field.Type</span>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control" @bind="field.Row" min="1" @onblur="(() => UpdateField(field))" />
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control" @bind="field.Column" min="1" max="4" @onblur="(() => UpdateField(field))" />
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control" @bind="field.ColumnSpan" min="1" max="4" @onblur="(() => UpdateField(field))" />
+                                    </td>
+                                    <td>
+                                        <button class="form-control btn btn-danger" @onclick="(() => DeleteField(field))">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                @if (field.Type == FieldType.List || field.Type == FieldType.TextArea || field.Type == FieldType.Label)
+                                {
+                                    <tr>
+                                        <td>Options:</td>
+                                        <td colspan="4">
+                                            <input type="text" class="form-control" placeholder="@(field.Type == FieldType.List ? "Comma separated list: option 1, option 2, option 3" : field.Type == FieldType.TextArea ? "Number of rows: 42" : field.Type == FieldType.Label ? "Label/Text Content" : string.Empty)" @bind="field.Options" @onblur="(() => UpdateField(field))" />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                }
+                                @if (field.Type != FieldType.Label)
+                                {
+                                    <tr>
+                                        <td>Optional:</td>
+                                        <td colspan="4">
+                                            <input type="checkbox" @bind="field.Optional" @onblur="(() => UpdateField(field))" />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Show in Search:</td>
+                                        <td colspan="4">
+                                            <input type="checkbox" @bind="field.SearchShow" @onblur="(() => UpdateField(field))" />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                }
+                                @if (field.SearchShow == true && field.Type != FieldType.Label)
+                                {
+                                    <tr>
+                                        <td>Search Column Order:</td>
+                                        <td colspan="1">
+                                            <input type="number" class="form-control" min="1" @bind="field.SearchOrder" @onblur="(() => UpdateField(field))" />
+                                        </td>
+                                        <td colspan="4"></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        }
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-warning mt-5 pb-3" role="alert">
+        <div class="col-md-12">
+            <strong class="row">
+                Don't need this type anymore? Delete it. This cannot be undone.
+            </strong>
+            <div class="row">
+                <input type="button" class="btn btn-danger" value="Delete Form & All Associated Data" @onclick="DeleteDataType" />
+            </div>
+        </div>
+    </div>
+
+}
+
+@code {
+
+    [Parameter]
+    public string FolderId { get; set; }
+
+
+    //Loaded from API
+    public ResponseFolder Folder { get; set; } = new ResponseFolder();
+    public List<ResponseDataType> Types { get; set; } = new List<ResponseDataType>();
+
+    //Creation Fields
+    public ResponseField NewField { get; set; } = new ResponseField();
+    public string NewDataTypeName { get; set; }
+
+    //Selection
+    public string SelectedType { get; set; }
+
+    async protected override Task OnInitializedAsync()
+    {
+        await GetFolder();
+        await GetDataTypes();
+    }
+
+    private void SelectedTypeChanged(string typeId)
+    {
+        SelectedType = typeId;
+    }
+
+
+    async private Task GetFolder()
+    {
+        Folder = await API.FolderGetById(FolderId);
+    }
+
+    async private Task GetDataTypes()
+    {
+        Types = await API.GetFolderTypeAsList(FolderId);
+    }
+
+    async private Task CreateDataType()
+    {
+        ResponseDataType model = new ResponseDataType()
+        {
+            Name = NewDataTypeName
+        };
+        await API.CreateFolderType(FolderId, model);
+        await GetDataTypes();
+        NewField = new ResponseField();
+
+        NewDataTypeName = null;
+
+        _toastService.ShowSuccess("Type Created");
+
+        await _appState.UpdateAppState();
+    }
+
+    async private Task CreateField()
+    {
+        var response = await API.CreateFolderDataTypeField(FolderId, SelectedType, NewField);
+        if (response?.Id != null)
+        {
+            await GetDataTypes();
+            NewField = new ResponseField();
+
+            _toastService.ShowSuccess("Field Created");
+        }
+    }
+
+    async private Task UpdateField(ResponseField field)
+    {
+        var response = await API.UpdateFolderDataTypeField(FolderId, SelectedType, field.Id, field);
+        if(response?.Id == null)
+        {
+            //Error - reload the types
+            await GetDataTypes();
+        }
+        else
+        {
+            //Success
+            _toastService.ShowSuccess("Field Updated");
+        }
+    }
+
+    async private Task DeleteField(ResponseField field)
+    {
+
+        var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this?");
+        var modalResult = await modal.Result;
+
+        if (modalResult.Cancelled) { }
+        else
+        {
+            await API.DeleteFolderDataTypeField(FolderId, SelectedType, field.Id);
+            await GetDataTypes();
+
+            _toastService.ShowSuccess("Field Deleted");
+        }
+    }
+
+    async private Task UpdateDataTypeName()
+    {
+        if (SelectedType != null)
+        {
+            ResponseDataType model = new ResponseDataType()
+            {
+                Name = Types.FirstOrDefault(t => t.Id == SelectedType).Name
+            };
+
+            await API.UpdateFolderTypeName(FolderId, Types.FirstOrDefault(t => t.Id == SelectedType).Id, model);
+            await GetDataTypes();
+
+            _toastService.ShowSuccess("Type Updated");
+
+            await _appState.UpdateAppState();
+        }
+    }
+
+    async private Task DeleteDataType()
+    {
+        if (SelectedType != null)
+        {
+            var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this?");
+            var modelResult = await modal.Result;
+
+            if (modelResult.Cancelled) { }
+            else
+            {
+                await API.DeleteFolderTypeById(FolderId, Types.FirstOrDefault(t => t.Id == SelectedType).Id);
+                SelectedType = null;
+
+                _toastService.ShowSuccess("Type Deleted");
+
+                await GetDataTypes();
+                await _appState.UpdateAppState();
+            }
+        }
+    }
+}

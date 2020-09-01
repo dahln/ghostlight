@@ -9,7 +9,7 @@
             "type": "blazorwasm",
             "request": "launch",
             "name": "Launch and Debug Hosted App",
-            "program": "${workspaceFolder}/Server/bin/Debug/netcoreapp3.1/depot.Server.dll",
+            "program": "${workspaceFolder}/Server/bin/Debug/netcoreapp3.1/glubfish.Server.dll",
             "cwd": "${workspaceFolder}"
         }
     ]
