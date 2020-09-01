@@ -22,7 +22,7 @@ Sensative configuration data, such as the DB connection strings, and Send Grid c
 
 * git update-index --assume-unchanged appsettings.json
 * git update-index --assume-unchanged appsettings.Development.json
-* git update-index --assume-unchanged appsettings.Productions.json
+* git update-index --assume-unchanged appsettings.Production.json
 
 Alternatively, sensative configuration values can be set as variables in your server config.
 
