@@ -24,9 +24,8 @@
             <div class="card">
                 <h5 class="card-header text-white bg-dark">@Type.Name</h5>
                 <div class="card-body">
-                    <div class="card-body">
-                        @for (int row = 1; row <= Type.Fields.Select(f => f.Row).Max(); row++)
-                        {
+                    @for (int row = 1; row <= Type.Fields.Select(f => f.Row).Max(); row++)
+                    {
                         <div class="row">
                             @for (int col = 1; col <= 12; col++)
                             {
@@ -103,8 +102,7 @@
                                 }
                             }
                         </div>
-                        }
-                    </div>
+                    }
                 </div>
             </div>
         </div>

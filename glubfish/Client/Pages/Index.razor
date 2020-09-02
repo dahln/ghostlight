@@ -5,7 +5,6 @@
 @using Microsoft.AspNetCore.Authorization
 
 @inject glubfish.Client.Services.AppState _appState
-@inject IToastService _toastService
 
 <AuthorizeView>
     <Authorized>
@@ -109,10 +108,6 @@
         await base.SetParametersAsync(parameters);
 
         var result = await _appState.UpdateAppState(FolderId);
-        if (FolderId != null && result == true && _appState.CurrentFolderName != null)
-        {
-            _toastService.ShowInfo($"Switched to {_appState.CurrentFolderName}");
-        }
     }
 }
 
