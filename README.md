@@ -16,13 +16,13 @@ This application is open source. Please review the license for use and distribut
 
 # Configuration/Setup
 
-This application uses Entity Framework, Code-First. Run 'Update-Database' to create the initial DB schema. Automatic migrations are not enabled. Be sure to first update your appsettings file with the appropriate connection string.
+This application uses Entity Framework, Code-First. Run 'Update-Database' to create the initial DB schema. Automatic migrations are not enabled. Be sure to first update your appsettings file with the appropriate connection string. The default DB is Sqlite, but the application supports Sqlite. Add the name "glubfish.db" to the appsettings to use Sqlite.
 
 .gitignore has been updated to ignore changes to the appsettings files and the optional Sqlite db file.
 
 Change the environment (and appsettings loaded) with the following commands:
-$Env:ASPNETCORE_ENVIRONMENT = "Development"
-$Env:ASPNETCORE_ENVIRONMENT = "Production"
+* $Env:ASPNETCORE_ENVIRONMENT = "Development"
+* $Env:ASPNETCORE_ENVIRONMENT = "Production"
 
 Alternatively, sensative configuration values can be set as variables in your server config.
 
