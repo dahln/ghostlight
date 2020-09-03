@@ -34,10 +34,10 @@ namespace glubfish.Server
         public void ConfigureServices(IServiceCollection services)
         {
 
-            if (Configuration["DBProvider"] == "sqlite")
+            if (!string.IsNullOrEmpty(Configuration["DBSqliteName"]))
             {
                 services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlite("Data Source=glubfish.db"));
+                    options.UseSqlite($"Data Source={Configuration["DBSqliteName"]}"));
             }
             else
             {
