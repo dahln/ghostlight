@@ -34,19 +34,18 @@ namespace glubfish.Server
         public void ConfigureServices(IServiceCollection services)
         {
 
-            if (!string.IsNullOrEmpty(Configuration["DBSqliteName"]))
-            {
-                services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlite($"Data Source={Configuration["DBSqliteName"]}"));
-            }
-            else
-            {
-                //Default is MSSQL
-                services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlServer(
-                        Configuration.GetConnectionString("DefaultConnection")));
-            }
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite($"Data Source=glubfish.db"));
 
+            /* 
+            Preference is to use MSSQL. SQLite is used for demo purposes.
+            If you deploy this application with
+            If MSSQL replaces SQLite - Migrations will not be compatible, delete migrations and start over from that point.
+            Also, if MSSQL is used, include a connecting string appsettings.
+            */
+            // services.AddDbContext<ApplicationDbContext>(options =>
+            //     options.UseSqlServer(
+            //         Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -71,8 +70,11 @@ namespace glubfish.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
         {
+            //Automatic DB migrations on startup.
+            dbContext.Database.Migrate();
+
             app.UseForwardedHeaders();
 
             if (env.IsDevelopment())
