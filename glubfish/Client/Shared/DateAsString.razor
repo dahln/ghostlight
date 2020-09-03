@@ -2,8 +2,8 @@
 
 @code {
 
-    private DateTimeOffset? _bindableDate;
-    private DateTimeOffset? BindableDate
+    private DateTime? _bindableDate;
+    private DateTime? BindableDate
     {
         get
         {
@@ -28,8 +28,8 @@
         {
             if (BindableDate == null)
             {
-                DateTimeOffset parsedDate;
-                if (DateTimeOffset.TryParse(value, out parsedDate))
+                DateTime parsedDate;
+                if (DateTime.TryParse(value, out parsedDate))
                 {
                     BindableDate = parsedDate;
                 }

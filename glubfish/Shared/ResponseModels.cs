@@ -68,10 +68,10 @@ namespace glubfish.Shared.ResponseModels
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public Dictionary<string, string> Data { get; set; } = new Dictionary<string, string>();
 
-        public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         public string CreatedByEmail { get; set; }
 
-        public DateTimeOffset UpdatedOn { get; set; }
+        public DateTime UpdatedOn { get; set; }
         public string UpdatedByEmail { get; set; }
     }
 

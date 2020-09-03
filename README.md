@@ -18,11 +18,11 @@ This application is open source. Please review the license for use and distribut
 
 This application uses Entity Framework, Code-First. Run 'Update-Database' to create the initial DB schema. Automatic migrations are not enabled. Be sure to first update your appsettings file with the appropriate connection string.
 
-Sensative configuration data, such as the DB connection strings, and Send Grid config are added to the appsettings.json files. Do not check in these values to the repo. Use the following commands to ignore changes to the appsettings.json files:
+.gitignore has been updated to ignore changes to the appsettings files and the optional Sqlite db file.
 
-* git update-index --assume-unchanged appsettings.json
-* git update-index --assume-unchanged appsettings.Development.json
-* git update-index --assume-unchanged appsettings.Production.json
+Change the environment (and appsettings loaded) with the following commands:
+$Env:ASPNETCORE_ENVIRONMENT = "Development"
+$Env:ASPNETCORE_ENVIRONMENT = "Production"
 
 Alternatively, sensative configuration values can be set as variables in your server config.
 

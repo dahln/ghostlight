@@ -518,7 +518,7 @@ namespace CRM.Server.Controllers
             if (instance == null)
                 return BadRequest();
 
-            instance.UpdatedOn = DateTimeOffset.UtcNow;
+            instance.UpdatedOn = DateTime.UtcNow;
             instance.UpdatedById = userId;
             instance.Data = JsonConvert.SerializeObject(model.Data);
 

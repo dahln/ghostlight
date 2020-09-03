@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace glubfish.Server.Data.Migrations
+namespace glubfish.Server.Migrations
 {
-    public partial class CreateIdentitySchema : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -64,6 +64,18 @@ namespace glubfish.Server.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Folders",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Folders", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PersistedGrants",
                 columns: table => new
                 {
@@ -85,7 +97,7 @@ namespace glubfish.Server.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -106,7 +118,7 @@ namespace glubfish.Server.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -186,6 +198,113 @@ namespace glubfish.Server.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "DataTypes",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    FolderId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DataTypes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DataTypes_Folders_FolderId",
+                        column: x => x.FolderId,
+                        principalTable: "Folders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FolderAuthorizedUsers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    IsFolderAdmin = table.Column<bool>(nullable: false),
+                    ApplicationUserId = table.Column<string>(nullable: true),
+                    FolderId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FolderAuthorizedUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FolderAuthorizedUsers_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FolderAuthorizedUsers_Folders_FolderId",
+                        column: x => x.FolderId,
+                        principalTable: "Folders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Fields",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Type = table.Column<int>(nullable: false),
+                    Row = table.Column<int>(nullable: false),
+                    Column = table.Column<int>(nullable: false),
+                    ColumnSpan = table.Column<int>(nullable: false),
+                    Options = table.Column<string>(nullable: true),
+                    Optional = table.Column<bool>(nullable: false),
+                    SearchShow = table.Column<bool>(nullable: false),
+                    SearchOrder = table.Column<int>(nullable: false),
+                    DataTypeId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Fields", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Fields_DataTypes_DataTypeId",
+                        column: x => x.DataTypeId,
+                        principalTable: "DataTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Instances",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Data = table.Column<string>(nullable: true),
+                    DataTypeId = table.Column<string>(nullable: true),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    CreatedById = table.Column<string>(nullable: true),
+                    UpdatedOn = table.Column<DateTime>(nullable: false),
+                    UpdatedById = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Instances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Instances_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Instances_DataTypes_DataTypeId",
+                        column: x => x.DataTypeId,
+                        principalTable: "DataTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Instances_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -195,8 +314,7 @@ namespace glubfish.Server.Data.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -222,8 +340,12 @@ namespace glubfish.Server.Data.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DataTypes_FolderId",
+                table: "DataTypes",
+                column: "FolderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeviceCodes_DeviceCode",
@@ -235,6 +357,36 @@ namespace glubfish.Server.Data.Migrations
                 name: "IX_DeviceCodes_Expiration",
                 table: "DeviceCodes",
                 column: "Expiration");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Fields_DataTypeId",
+                table: "Fields",
+                column: "DataTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FolderAuthorizedUsers_ApplicationUserId",
+                table: "FolderAuthorizedUsers",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FolderAuthorizedUsers_FolderId",
+                table: "FolderAuthorizedUsers",
+                column: "FolderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Instances_CreatedById",
+                table: "Instances",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Instances_DataTypeId",
+                table: "Instances",
+                column: "DataTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Instances_UpdatedById",
+                table: "Instances",
+                column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PersistedGrants_Expiration",
@@ -268,6 +420,15 @@ namespace glubfish.Server.Data.Migrations
                 name: "DeviceCodes");
 
             migrationBuilder.DropTable(
+                name: "Fields");
+
+            migrationBuilder.DropTable(
+                name: "FolderAuthorizedUsers");
+
+            migrationBuilder.DropTable(
+                name: "Instances");
+
+            migrationBuilder.DropTable(
                 name: "PersistedGrants");
 
             migrationBuilder.DropTable(
@@ -275,6 +436,12 @@ namespace glubfish.Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "DataTypes");
+
+            migrationBuilder.DropTable(
+                name: "Folders");
         }
     }
 }

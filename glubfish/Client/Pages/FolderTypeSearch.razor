@@ -76,7 +76,7 @@
                             {
                                 if (column.Type == FieldType.Date)
                                 {
-                                    <td>@DateTimeOffset.Parse(instance.Data.Where(i => i.Key == column.Id).FirstOrDefault().Value).ToString("D")</td>
+                                    <td>@DateTime.Parse(instance.Data.Where(i => i.Key == column.Id).FirstOrDefault().Value).ToString("D")</td>
                                 }
                                 else
                                 {

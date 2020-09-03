@@ -64,11 +64,11 @@ namespace glubfish.Server.Entities
         public string DataTypeId { get; set; }
         public DataType DataType { get; set; }
 
-        public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         public string CreatedById{ get; set; }
         public ApplicationUser CreatedBy { get; set; }
 
-        public DateTimeOffset UpdatedOn { get; set; } = DateTimeOffset.UtcNow;
+        public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;
         public string UpdatedById { get; set; }
         public ApplicationUser UpdatedBy { get; set; }
     }
