@@ -23,7 +23,6 @@ Sensative configuration data, such as the DB connection strings, and Send Grid c
 * git update-index --assume-unchanged appsettings.json
 * git update-index --assume-unchanged appsettings.Development.json	
 * git update-index --assume-unchanged appsettings.Production.json
-* git update-index --assume-unchanged glubfish.db
 
 Change the environment (and appsettings loaded) with the following commands:
 * $Env:ASPNETCORE_ENVIRONMENT = "Development"
