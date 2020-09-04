@@ -13,28 +13,26 @@
 
 <h3 class="mt-3">Forms</h3>
 
-<h6>Create a new form</h6>
+
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
+        <h6>Choose form to manage</h6>
+        <select class="form-control float-right" @bind="SelectedType">
+            <option value="">--- Select Form ---</option>
+            @foreach (var type in Types)
+            {
+                <option value="@type.Id">@type.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <h6>Create a new form</h6>
         <div class="input-group mb-3 float-right">
             <input type="text" class="form-control" placeholder="New Form" aria-label="New Form" aria-describedby="button-addon2" @bind="NewDataTypeName" />
             <div class="input-group-append">
                 <button class="btn btn-outline-secondary" type="button" id="button-addon2" @onclick="CreateDataType">Create New Form</button>
             </div>
         </div>
-    </div>
-</div>
-
-<h6>Choose form to manage</h6>
-<div class="row">
-    <div class="col-md-4">
-        <select class="form-control float-right" @bind="SelectedType">
-            <option value="">---Select Form---</option>
-            @foreach (var type in Types)
-            {
-                <option value="@type.Id">@type.Name</option>
-            }
-        </select>
     </div>
 </div>
 
@@ -70,11 +68,11 @@
                 <table class="table">
                     <thead class="thead-dark">
                         <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Type</th>
-                            <th scope="col">Row</th>
-                            <th scope="col">Col</th>
-                            <th scope="col">ColSpan</th>
+                            <th scope="col" style="min-width:200px">Name</th>
+                            <th scope="col" style="min-width:200px">Type</th>
+                            <th scope="col" style="min-width:100px">Row</th>
+                            <th scope="col" style="min-width:100px">Col</th>
+                            <th scope="col" style="min-width:100px">ColSpan</th>
                             <th scope="col"></th>
                         </tr>
                     </thead>

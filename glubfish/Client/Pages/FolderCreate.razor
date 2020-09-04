@@ -10,22 +10,22 @@
 @inject NavigationManager _navigationManager
 
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-12 text-center">
         <h3>Create a new folder</h3>
         <p>All data must be in a folder. This folder name can be changed at any time.</p>
     </div>
 </div>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4 offset-md-4">
         <div class="mt-1">
             <input type="text" placeholder="Folder Name" class="form-control" @bind="FolderName" />
         </div>
     </div>
 </div>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4 offset-md-4">
         <div class="mt-1">
-            <input type="button" class="btn btn-info" value="Create Folder" @onclick="CreateFolder" />
+            <input type="button" class="btn btn-info float-right" value="Create Folder" @onclick="CreateFolder" />
         </div>
     </div>
 </div>
