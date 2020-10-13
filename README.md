@@ -1,6 +1,6 @@
-[![Build Status](https://dev.azure.com/dahln/glubfish/_apis/build/status/glubfish%20CI%20build?repoName=dahln%2Fglubfish&branchName=master)](https://dev.azure.com/dahln/glubfish/_build/latest?definitionId=14&repoName=dahln%2Fglubfish&branchName=master)
+[![Build Status](https://dev.azure.com/dahln/template/_apis/build/status/template%20CI%20build?repoName=dahln%2Ftemplate&branchName=master)](https://dev.azure.com/dahln/template/_build/latest?definitionId=14&repoName=dahln%2Ftemplate&branchName=master)
 
-# glubfish
+# template
 
 This is a simple CRM/XRM application. A simple designer is used to create a form. This form is composed of standard HTML input fields (text, textarea, number, select, date and time). Using the designer, the user selects a field type, specifies a name for the field and selects a row, column, and column width for the field. As many fields as the user wants can be added to the form. This form represents a dynamic/user-defined data type. Each dynamic/user-defined data type must belong to a Folder. A "Folder" can contain zero-many dynamic/user-defined types.
 
@@ -16,7 +16,7 @@ This application is open source. Please review the license for use and distribut
 
 # Configuration/Setup
 
-This application uses Entity Framework, Code-First. Run 'Update-Database' to create the initial DB schema. Automatic migrations are not enabled. Be sure to first update your appsettings file with the appropriate connection string. The default DB is Sqlite, but the application supports Sqlite. Add the name "glubfish.db" to the appsettings to use Sqlite.
+This application uses Entity Framework, Code-First. Run 'Update-Database' to create the initial DB schema. Automatic migrations are not enabled. Be sure to first update your appsettings file with the appropriate connection string. The default DB is Sqlite, but the application supports Sqlite. Add the name "template.db" to the appsettings to use Sqlite.
 
 Sensative configuration data, such as the DB connection strings, and Send Grid config are added to the appsettings.json files. Do not check in these values to the repo. Use the following commands to ignore changes to the appsettings.json files:
 
