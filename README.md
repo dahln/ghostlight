@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/dahln/template/_apis/build/status/template%20CI%20build?repoName=dahln%2Ftemplate&branchName=master)](https://dev.azure.com/dahln/template/_build/latest?definitionId=14&repoName=dahln%2Ftemplate&branchName=master)
+[![Build Status](https://dev.azure.com/dahln/template/_apis/build/status/template%20CI%20build?branchName=master)](https://dev.azure.com/dahln/template/_build/latest?definitionId=18&branchName=master)
 
 # template
 
