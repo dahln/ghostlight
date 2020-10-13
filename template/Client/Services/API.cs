@@ -7,8 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components;
-using template.Shared.RequestModels;
-using template.Shared.ResponseModels;
+using template.Shared;
 using Blazored.Toast.Services;
 using BlazorSpinner;
 
@@ -34,123 +33,21 @@ namespace template.Client.Services
 
 
 
-        async public Task<ResponseId> FolderCreate(FolderCreateEditRequestModel content)
+        async public Task<CustomerResponse> AccountCreate(CustomerRequest content)
         {
-            return await PostAsync<ResponseId>("api/v1/folder", content);
+            return await PostAsync<CustomerResponse>("api/v1/customer", content);
         }
-
-        async public Task FolderEditName(string folderId, FolderCreateEditRequestModel content)
+        async public Task<CustomerResponse> CustomerGetById(string id)
         {
-            await PutAsync($"api/v1/folder/{folderId}", content);
+            return await GetAsync<CustomerResponse>("api/v1/customer/{id}");
         }
-
-        async public Task<ResponseFolder> FolderGetById(string folderId)
+        async public Task<CustomerResponse> CustomerUpdateById(CustomerRequest content)
         {
-            return await GetAsync<ResponseFolder>($"api/v1/folder/{folderId}");
+            return await PutAsync<CustomerResponse>("api/v1/customer/{id}", content);
         }
-
-        async public Task<List<ResponseFolderShort>> GetFoldersByAuthorizedUser()
+        async public Task<CustomerSearchResponse> CustomerSearch(Search content)
         {
-            return await GetAsync<List<ResponseFolderShort>>("api/v1/folder/user/authorized");
-        }
-
-        async public Task UpdateFolderSetUserAuthorized(string folderId, FolderAddAuthorizedEmailModel model)
-        {
-            await PutAsync($"api/v1/folder/{folderId}/user/authorized", model);
-        }
-
-        async public Task UpdateFolderToggleUserAdministrator(string folderId, string applicationUserId, FolderToggleAuthorizedModel model)
-        {
-            await PutAsync($"api/v1/folder/{folderId}/user/{applicationUserId}/authorized/toggle", model);
-        }
-
-        async public Task UpdateFolderRemoveUserAuthorized(string folderId, string applicationUserId)
-        {
-            await DeleteAsync($"api/v1/folder/{folderId}/user/{applicationUserId}/authorized");
-        }
-
-        async public Task DeleteFolder(string folderId)
-        {
-            await DeleteAsync($"api/v1/folder/{folderId}");
-        }
-
-        async public Task<ResponseId> CreateFolderType(string folderId, ResponseDataType content )
-        {
-            return await PostAsync<ResponseId>($"api/v1/folder/{folderId}/type", content);
-        }
-
-        async public Task<ResponseId> UpdateFolderTypeName(string folderId, string dataTypeId, ResponseDataType content)
-        {
-            return await PostAsync<ResponseId>($"api/v1/folder/{folderId}/type/{dataTypeId}", content);
-        }
-
-        async public Task<ResponseDataType> GetFolderTypeById(string folderId, string dataTypeId)
-        {
-            return await GetAsync<ResponseDataType>($"api/v1/folder/{folderId}/type/{dataTypeId}");
-        }
-        async public Task DeleteFolderTypeById(string folderId, string dataTypeId)
-        {
-            await DeleteAsync($"api/v1/folder/{folderId}/type/{dataTypeId}");
-        }
-
-
-        async public Task<List<ResponseDataType>> GetFolderTypeAsList(string folderId)
-        {
-            return await GetAsync<List<ResponseDataType>>($"api/v1/folder/{folderId}/type");
-        }
-
-        async public Task<List<ResponseDataType>> GetFolderTypeAsMenuOptionList(string folderId)
-        {
-            return await GetAsync<List<ResponseDataType>>($"api/v1/folder/{folderId}/type/menu");
-        }
-
-        async public Task<ResponseId> CreateFolderDataTypeField(string folderId, string dataTypeId, ResponseField content)
-        {
-            return await PostAsync<ResponseId>($"api/v1/folder/{folderId}/type/{dataTypeId}/field", content);
-        }
-
-        async public Task<ResponseId> UpdateFolderDataTypeField(string folderId, string dataTypeId, string fieldId, ResponseField content)
-        {
-            return await PutAsync<ResponseId>($"api/v1/folder/{folderId}/type/{dataTypeId}/field/{fieldId}", content);
-        }
-
-        async public Task DeleteFolderDataTypeField(string folderId, string dataTypeId, string fieldId)
-        {
-            await DeleteAsync($"api/v1/folder/{folderId}/type/{dataTypeId}/field/{fieldId}");
-        }
-
-        async public Task<ResponseId> CreateFolderInstance(string folderId, string dataTypeId, Dictionary<string,string> model)
-        {
-            ResponseInstance content = new ResponseInstance()
-            {
-                Data = model
-            };
-            return await PostAsync<ResponseId>($"api/v1/folder/{folderId}/type/{dataTypeId}/instance", content);
-        }
-
-        async public Task UpdateFolderInstance(string folderId, string dataTypeId, string instanceId, Dictionary<string, string> model)
-        {
-            ResponseInstance content = new ResponseInstance()
-            {
-                Id = instanceId,
-                Data = model
-            };
-            await PutAsync($"api/v1/folder/{folderId}/type/{dataTypeId}/instance/{instanceId}", content);
-        }
-
-        async public Task<ResponseInstance> GetFolderInstance(string folderId, string dataTypeId, string instanceId)
-        {
-            return await GetAsync<ResponseInstance>($"api/v1/folder/{folderId}/type/{dataTypeId}/instance/{instanceId}");
-        }
-
-        async public Task DeleteFolderInstance(string folderId, string dataTypeId, string instanceId)
-        {
-            await DeleteAsync($"api/v1/folder/{folderId}/type/{dataTypeId}/instance/{instanceId}");
-        }
-
-        async public Task<InstanceSearchResponse> SearchFolderInstance(string folderId, string dataTypeId, Search content)
-        {
-            return await PostAsync<InstanceSearchResponse>($"api/v1/folder/{folderId}/type/{dataTypeId}/search", content);
+            return await PostAsync<CustomerSearchResponse>("api/v1/customers", content);
         }
 
 

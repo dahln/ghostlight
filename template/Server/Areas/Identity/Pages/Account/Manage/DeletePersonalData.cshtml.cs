@@ -74,21 +74,21 @@ namespace template.Server.Areas.Identity.Pages.Account.Manage
             }
 
             //Cleanup
-            var folderAuthorizedUsers = _applicationDbContext.FolderAuthorizedUsers.Where(u => u.ApplicationUserId == user.Id);
-            foreach(var folderAuthorizedUser in folderAuthorizedUsers)
-            {
-                var count = _applicationDbContext.FolderAuthorizedUsers.Count(f => f.FolderId == folderAuthorizedUser.FolderId);
-                if(count == 1)
-                {
-                    var folder = await _applicationDbContext.Folders.FirstOrDefaultAsync(f => f.Id == folderAuthorizedUser.FolderId);
-                    _applicationDbContext.Folders.Remove(folder);
-                }
-                else
-                {
-                    _applicationDbContext.FolderAuthorizedUsers.Remove(folderAuthorizedUser);
-                }
-            }
-            await _applicationDbContext.SaveChangesAsync();
+            //var folderAuthorizedUsers = _applicationDbContext.FolderAuthorizedUsers.Where(u => u.ApplicationUserId == user.Id);
+            //foreach(var folderAuthorizedUser in folderAuthorizedUsers)
+            //{
+            //    var count = _applicationDbContext.FolderAuthorizedUsers.Count(f => f.FolderId == folderAuthorizedUser.FolderId);
+            //    if(count == 1)
+            //    {
+            //        var folder = await _applicationDbContext.Folders.FirstOrDefaultAsync(f => f.Id == folderAuthorizedUser.FolderId);
+            //        _applicationDbContext.Folders.Remove(folder);
+            //    }
+            //    else
+            //    {
+            //        _applicationDbContext.FolderAuthorizedUsers.Remove(folderAuthorizedUser);
+            //    }
+            //}
+            //await _applicationDbContext.SaveChangesAsync();
 
             var result = await _userManager.DeleteAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);

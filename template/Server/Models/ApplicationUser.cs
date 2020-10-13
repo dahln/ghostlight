@@ -9,6 +9,5 @@ namespace template.Server.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        public List<FolderAuthorizedUser> FolderAuthorizedUsers { get; set; } = new List<FolderAuthorizedUser>();
     }
 }

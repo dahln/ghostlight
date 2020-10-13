@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace template.Server.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class NewDB : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -61,18 +61,6 @@ namespace template.Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DeviceCodes", x => x.UserCode);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Folders",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Folders", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -199,107 +187,29 @@ namespace template.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DataTypes",
+                name: "Customers",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: true),
-                    FolderId = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DataTypes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DataTypes_Folders_FolderId",
-                        column: x => x.FolderId,
-                        principalTable: "Folders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FolderAuthorizedUsers",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    IsFolderAdmin = table.Column<bool>(nullable: false),
-                    ApplicationUserId = table.Column<string>(nullable: true),
-                    FolderId = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FolderAuthorizedUsers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_FolderAuthorizedUsers_AspNetUsers_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_FolderAuthorizedUsers_Folders_FolderId",
-                        column: x => x.FolderId,
-                        principalTable: "Folders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Fields",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: true),
-                    Type = table.Column<int>(nullable: false),
-                    Row = table.Column<int>(nullable: false),
-                    Column = table.Column<int>(nullable: false),
-                    ColumnSpan = table.Column<int>(nullable: false),
-                    Options = table.Column<string>(nullable: true),
-                    Optional = table.Column<bool>(nullable: false),
-                    SearchShow = table.Column<bool>(nullable: false),
-                    SearchOrder = table.Column<int>(nullable: false),
-                    DataTypeId = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Fields", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Fields_DataTypes_DataTypeId",
-                        column: x => x.DataTypeId,
-                        principalTable: "DataTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Instances",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    Data = table.Column<string>(nullable: true),
-                    DataTypeId = table.Column<string>(nullable: true),
+                    Email = table.Column<string>(nullable: true),
+                    Phone = table.Column<string>(nullable: true),
+                    Address = table.Column<string>(nullable: true),
+                    City = table.Column<string>(nullable: true),
+                    State = table.Column<string>(nullable: true),
+                    Postal = table.Column<string>(nullable: true),
+                    BirthDate = table.Column<DateTime>(nullable: false),
+                    Notes = table.Column<string>(nullable: true),
                     CreatedOn = table.Column<DateTime>(nullable: false),
-                    CreatedById = table.Column<string>(nullable: true),
-                    UpdatedOn = table.Column<DateTime>(nullable: false),
-                    UpdatedById = table.Column<string>(nullable: true)
+                    UpdateOn = table.Column<DateTime>(nullable: true),
+                    OwnerId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Instances", x => x.Id);
+                    table.PrimaryKey("PK_Customers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Instances_AspNetUsers_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Instances_DataTypes_DataTypeId",
-                        column: x => x.DataTypeId,
-                        principalTable: "DataTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Instances_AspNetUsers_UpdatedById",
-                        column: x => x.UpdatedById,
+                        name: "FK_Customers_AspNetUsers_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -343,9 +253,9 @@ namespace template.Server.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_DataTypes_FolderId",
-                table: "DataTypes",
-                column: "FolderId");
+                name: "IX_Customers_OwnerId",
+                table: "Customers",
+                column: "OwnerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeviceCodes_DeviceCode",
@@ -357,36 +267,6 @@ namespace template.Server.Migrations
                 name: "IX_DeviceCodes_Expiration",
                 table: "DeviceCodes",
                 column: "Expiration");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Fields_DataTypeId",
-                table: "Fields",
-                column: "DataTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FolderAuthorizedUsers_ApplicationUserId",
-                table: "FolderAuthorizedUsers",
-                column: "ApplicationUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FolderAuthorizedUsers_FolderId",
-                table: "FolderAuthorizedUsers",
-                column: "FolderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Instances_CreatedById",
-                table: "Instances",
-                column: "CreatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Instances_DataTypeId",
-                table: "Instances",
-                column: "DataTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Instances_UpdatedById",
-                table: "Instances",
-                column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PersistedGrants_Expiration",
@@ -417,16 +297,10 @@ namespace template.Server.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Customers");
+
+            migrationBuilder.DropTable(
                 name: "DeviceCodes");
-
-            migrationBuilder.DropTable(
-                name: "Fields");
-
-            migrationBuilder.DropTable(
-                name: "FolderAuthorizedUsers");
-
-            migrationBuilder.DropTable(
-                name: "Instances");
 
             migrationBuilder.DropTable(
                 name: "PersistedGrants");
@@ -436,12 +310,6 @@ namespace template.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "DataTypes");
-
-            migrationBuilder.DropTable(
-                name: "Folders");
         }
     }
 }

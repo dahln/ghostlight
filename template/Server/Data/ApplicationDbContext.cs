@@ -19,35 +19,16 @@ namespace template.Server.Data
         {
         }
 
-        public DbSet<Folder> Folders { get; set; }
-        public DbSet<FolderAuthorizedUser> FolderAuthorizedUsers { get; set; }
-        public DbSet<DataType> DataTypes { get; set; }
-        public DbSet<Field> Fields { get; set; }
-        public DbSet<Instance> Instances { get; set; }
+        public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             
-            modelBuilder.Entity<FolderAuthorizedUser>()
-                .HasOne(c => c.Folder)
-                .WithMany(c => c.AuthorizedUsers)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<DataType>()
-                .HasOne(c => c.Folder)
-                .WithMany(c => c.DataTypes)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Field>()
-                .HasOne(c => c.DataType)
-                .WithMany(c => c.Fields)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Instance>()
-                .HasOne(c => c.DataType)
-                .WithMany(c => c.Instances)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<FolderAuthorizedUser>()
+            //    .HasOne(c => c.Folder)
+            //    .WithMany(c => c.AuthorizedUsers)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

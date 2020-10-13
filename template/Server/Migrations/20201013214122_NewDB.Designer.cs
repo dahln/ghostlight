@@ -9,8 +9,8 @@ using template.Server.Data;
 namespace template.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200904010616_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20201013214122_NewDB")]
+    partial class NewDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -232,134 +232,52 @@ namespace template.Server.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("template.Server.Entities.DataType", b =>
+            modelBuilder.Entity("template.Server.Entities.Customer", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("FolderId")
+                    b.Property<string>("Address")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Name")
+                    b.Property<DateTime>("BirthDate")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("FolderId");
-
-                    b.ToTable("DataTypes");
-                });
-
-            modelBuilder.Entity("template.Server.Entities.Field", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Column")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ColumnSpan")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("DataTypeId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("Optional")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Options")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Row")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SearchOrder")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("SearchShow")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DataTypeId");
-
-                    b.ToTable("Fields");
-                });
-
-            modelBuilder.Entity("template.Server.Entities.Folder", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Folders");
-                });
-
-            modelBuilder.Entity("template.Server.Entities.FolderAuthorizedUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FolderId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsFolderAdmin")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("FolderId");
-
-                    b.ToTable("FolderAuthorizedUsers");
-                });
-
-            modelBuilder.Entity("template.Server.Entities.Instance", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedById")
+                    b.Property<string>("City")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Data")
+                    b.Property<string>("Email")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("DataTypeId")
+                    b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UpdatedById")
+                    b.Property<string>("Notes")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("UpdatedOn")
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Postal")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("State")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdateOn")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
+                    b.HasIndex("OwnerId");
 
-                    b.HasIndex("DataTypeId");
-
-                    b.HasIndex("UpdatedById");
-
-                    b.ToTable("Instances");
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("template.Server.Models.ApplicationUser", b =>
@@ -477,48 +395,11 @@ namespace template.Server.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("template.Server.Entities.DataType", b =>
+            modelBuilder.Entity("template.Server.Entities.Customer", b =>
                 {
-                    b.HasOne("template.Server.Entities.Folder", "Folder")
-                        .WithMany("DataTypes")
-                        .HasForeignKey("FolderId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("template.Server.Entities.Field", b =>
-                {
-                    b.HasOne("template.Server.Entities.DataType", "DataType")
-                        .WithMany("Fields")
-                        .HasForeignKey("DataTypeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("template.Server.Entities.FolderAuthorizedUser", b =>
-                {
-                    b.HasOne("template.Server.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany("FolderAuthorizedUsers")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("template.Server.Entities.Folder", "Folder")
-                        .WithMany("AuthorizedUsers")
-                        .HasForeignKey("FolderId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("template.Server.Entities.Instance", b =>
-                {
-                    b.HasOne("template.Server.Models.ApplicationUser", "CreatedBy")
+                    b.HasOne("template.Server.Models.ApplicationUser", "Owner")
                         .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("template.Server.Entities.DataType", "DataType")
-                        .WithMany("Instances")
-                        .HasForeignKey("DataTypeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("template.Server.Models.ApplicationUser", "UpdatedBy")
-                        .WithMany()
-                        .HasForeignKey("UpdatedById");
+                        .HasForeignKey("OwnerId");
                 });
 #pragma warning restore 612, 618
         }

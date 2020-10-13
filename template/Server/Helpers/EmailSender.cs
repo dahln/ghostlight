@@ -19,8 +19,7 @@ namespace template.Server.Helpers
         {
             _options = options;
         }
-
-
+        
         async public Task SendEmailAsync(string email, string subject, string message)
         {
             var mail = new MimeMessage();
