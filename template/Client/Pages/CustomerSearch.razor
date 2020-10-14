@@ -6,13 +6,13 @@
 @inject template.Client.Services.API API
 @inject template.Client.Services.AppState _appState
 
-<div class="row mt-3 mx-3">
+<div class="row mt-3">
     <div class="col-md-12">
         <a href="customer" class="btn btn-success float-right"><i class="fas fa-plus mr-2"></i>Add Customer</a>
     </div>
 </div>
 
-<div class="row mt-3 mx-3">
+<div class="row mt-3">
     <div class="col-md-12">
         <form class="input-group float-right" @onsubmit="(() => SearchCustomers(0, false))">
             <input type="text" class="form-control" aria-label="Text input with dropdown button" @bind="Search.FilterText" />
@@ -22,13 +22,13 @@
         </form>
     </div>
 </div>
-<div class="row mt-3 mx-3">
+<div class="row mt-3">
     <div class="col-md-12">
         <div class="btn btn-link float-right pointer" @onclick="(() => SearchCustomers(0, true))">Reset Search</div>
     </div>
 </div>
 
-<div class="row mt-3 mx-3">
+<div class="row mt-3">
     <div class="col-md-12">
         <table class="table table-hover">
             <thead>
