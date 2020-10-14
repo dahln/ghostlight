@@ -4,15 +4,9 @@ using System.Text;
 
 namespace template.Shared
 {
-    public class Search
+    public class Customer
     {
-        public string FilterText { get; set; }
-        public int Page { get; set; } = 0;
-        public int PageSize { get; set; } = 25;
-    }
-
-    public class CustomerRequest
-    {
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
@@ -22,5 +16,13 @@ namespace template.Shared
         public string Postal { get; set; }
         public DateTime BirthDate { get; set; }
         public string Notes { get; set; }
+    }
+
+    public class CustomerSlim
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
     }
 }

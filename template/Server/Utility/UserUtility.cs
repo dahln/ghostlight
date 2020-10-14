@@ -5,9 +5,9 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
-namespace template.Server.Helpers
+namespace template.Server.Utility
 {
-    public static class UserHelper
+    public static class UserUtility
     {
         public static string GetUserId(this IPrincipal principal)
         {

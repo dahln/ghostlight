@@ -57,7 +57,7 @@
     private Search Search { get; set; } = new Search();
     int PageSize { get; set; } = 25;
 
-    List<CustomerSlimResponse> Items = new List<CustomerSlimResponse>();
+    List<CustomerSlim> Items = new List<CustomerSlim>();
     int? TotalFound { get; set; }
 
     protected override async Task OnParametersSetAsync()
@@ -88,24 +88,8 @@
         TotalFound = response.Total;
     }
 
-    async private Task SelectCustomer(string accountId)
+    private void SelectCustomer(string customerId)
     {
-        //await _appState.UpdateAppState(accountId);
-        //if (AccountType == AccountType.RegionalManager)
-        //{
-        //    _navigationManger.NavigateTo($"regionalmanager/{accountId}");
-        //}
-        //else if (AccountType == AccountType.Manager)
-        //{
-        //    _navigationManger.NavigateTo($"manager/{accountId}");
-        //}
-        //else if (AccountType == AccountType.Affiliate)
-        //{
-        //    _navigationManger.NavigateTo($"affiliate/{accountId}");
-        //}
-        //else if (AccountType == AccountType.Business)
-        //{
-        //    _navigationManger.NavigateTo($"business/{accountId}");
-        //}
+        _navigationManger.NavigateTo($"customer/{customerId}");
     }
 }

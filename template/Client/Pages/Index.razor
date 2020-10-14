@@ -5,12 +5,14 @@
 @using Microsoft.AspNetCore.Authorization
 
 @inject template.Client.Services.AppState _appState
+@inject template.Client.Services.API API
 
 <AuthorizeView>
     <Authorized>
         <a class="btn btn-outline-dark btn-lg mx-auto w-100" href="customers")">
             Go to Customer Search <i class="fas fa-arrow-right float-right ml-1 mt-1"></i>
         </a>
+        <input type="button" class="btn btn-primary" value="Seed DB" @onclick="SeedDB" />
     </Authorized>
     <NotAuthorized>
         <div class="row">
@@ -51,6 +53,11 @@
         await base.SetParametersAsync(parameters);
 
         var result = await _appState.UpdateAppState(FolderId);
+    }
+
+    private async Task SeedDB()
+    {
+        await API.SeedDB(1000);
     }
 }
 

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace template.Server.Helpers
+namespace template.Server.Utility
 {
     public class EmailSender : IEmailSender
     {

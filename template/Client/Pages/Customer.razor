@@ -1,9 +1,12 @@
 ﻿@page "/customer"
 @page "/customer/{id}"
 
+@inject NavigationManager _navigationManager
+@inject template.Client.Services.API API
+
 <div class="row">
     <div class="col-md-12">
-        <h3>Customer</h3>
+        <h3>Customer @if (Locked == true) {<span class="btn btn-link" @onclick="ToggleEditing">Edit</span>}</h3>
     </div>
 </div>
 
@@ -12,39 +15,39 @@
         <div class="row">
             <div class="col-md-12">
                 <label>Name</label>
-                <input type="text" class="form-control" />
+                <input type="text" class="form-control" @bind="customer.Name" />
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <label>Email</label>
-                <input type="text" class="form-control" />
+                <input type="text" class="form-control" @bind="customer.Email" />
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <label>Phone</label>
-                <input type="text" class="form-control" />
+                <input type="text" class="form-control" @bind="customer.Phone" />
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <label>Address</label>
-                <input type="text" class="form-control" />
+                <input type="text" class="form-control" @bind="customer.Address" />
             </div>
         </div>
         <div class="row">
             <div class="col-md-4">
                 <label>City</label>
-                <input type="text" class="form-control" />
+                <input type="text" class="form-control" @bind="customer.City" />
             </div>
             <div class="col-md-4">
                 <label>State</label>
-                <input type="text" class="form-control" />
+                <input type="text" class="form-control" @bind="customer.State" />
             </div>
             <div class="col-md-4">
                 <label>Postal</label>
-                <input type="text" class="form-control" />
+                <input type="text" class="form-control" @bind="customer.Postal" />
             </div>
         </div>
     </div>
@@ -52,13 +55,13 @@
         <div class="row">
             <div class="col-md-12">
                 <label>Birth Date</label>
-                <input type="date" class="form-control" />
+                <input type="date" class="form-control" @bind="customer.BirthDate" />
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <label>Notes</label>
-                <textarea class="form-control" rows="10"></textarea>
+                <textarea class="form-control" rows="10" @bind="customer.Notes"></textarea>
             </div>
         </div>
     </div>
@@ -66,8 +69,11 @@
 
 <div class="row mt-3">
     <div class="col-md-12">
-        <button class="btn btn-primary float-right"><i class="far fa-save mr-1"></i>Save</button>
-        <button class="btn btn-warning float-right mr-2"><i class="far fa-trash-alt mr-1"></i>Delete</button>
+        <button class="btn btn-primary float-right" @onclick="Save"><i class="far fa-save mr-1"></i>Save</button>
+        @if (!string.IsNullOrEmpty(Id))
+        {
+            <button class="btn btn-warning float-right mr-2" @onclick="Delete"><i class="far fa-trash-alt mr-1"></i>Delete</button>
+        }
     </div>
 </div>
 
@@ -76,4 +82,42 @@
     [Parameter]
     public string Id { get; set; }
 
+    private template.Shared.Customer customer = new template.Shared.Customer();
+    private bool Locked { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Locked = true;
+
+        if (Id != null)
+        {
+            customer = await API.CustomerGetById(Id);
+        }
+    }
+
+    private void ToggleEditing()
+    {
+        Locked = false;
+    }
+
+    async private Task Save()
+    {
+        if (string.IsNullOrEmpty(Id))
+        {
+            customer = await API.CustomerCreate(customer);
+        }
+        else if (!string.IsNullOrEmpty(Id))
+        {
+            customer = await API.CustomerUpdateById(customer, Id);
+        }
+    }
+
+    async private Task Delete()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            await API.CustomerDeleteById(Id);
+            _navigationManager.NavigateTo("customers");
+        }
+    }
 }

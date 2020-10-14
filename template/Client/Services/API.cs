@@ -31,27 +31,36 @@ namespace template.Client.Services
             _client.BaseAddress = new Uri(_navigationManger.BaseUri);
         }
 
-
-
-        async public Task<CustomerResponse> AccountCreate(CustomerRequest content)
+        #region Customer CRUD/Search
+        async public Task<Customer> CustomerCreate(Customer content)
         {
-            return await PostAsync<CustomerResponse>("api/v1/customer", content);
+            return await PostAsync<Customer>("api/v1/customer", content);
         }
-        async public Task<CustomerResponse> CustomerGetById(string id)
+        async public Task<Customer> CustomerGetById(string id)
         {
-            return await GetAsync<CustomerResponse>("api/v1/customer/{id}");
+            return await GetAsync<Customer>($"api/v1/customer/{id}");
         }
-        async public Task<CustomerResponse> CustomerUpdateById(CustomerRequest content)
+        async public Task<Customer> CustomerUpdateById(Customer content, string id)
         {
-            return await PutAsync<CustomerResponse>("api/v1/customer/{id}", content);
+            return await PutAsync<Customer>($"api/v1/customer/{id}", content);
         }
-        async public Task<CustomerSearchResponse> CustomerSearch(Search content)
+        async public Task CustomerDeleteById(string id)
         {
-            return await PostAsync<CustomerSearchResponse>("api/v1/customers", content);
+            await DeleteAsync($"api/v1/customer/{id}");
+        }
+        async public Task<SearchResponse<CustomerSlim>> CustomerSearch(Search content)
+        {
+            return await PostAsync<SearchResponse<CustomerSlim>>("api/v1/customers", content);
+        }
+        #endregion
+
+        async public Task SeedDB(int number)
+        {
+            await GetAsync($"api/v1/seed/{number}");
         }
 
 
-
+        #region HTTP Methods
         private async Task GetAsync(string path)
         {
             await Send(HttpMethod.Get, path);
@@ -62,7 +71,6 @@ namespace template.Client.Services
             T result = await ParseResponseObject<T>(response);
             return result;
         }
-
         private async Task PostAsync(string path, object content)
         {
             await Send(HttpMethod.Post, path, content);
@@ -72,7 +80,6 @@ namespace template.Client.Services
             var response = await Send(HttpMethod.Post, path, content);
             return await ParseResponseObject<T>(response);
         }
-
         private async Task PutAsync(string path, object content)
         {
             await Send(HttpMethod.Put, path, content);
@@ -86,7 +93,6 @@ namespace template.Client.Services
         {
             await Send(HttpMethod.Put, path);
         }
-
         private async Task DeleteAsync(string path)
         {
             await Send(HttpMethod.Delete, path);
@@ -95,7 +101,6 @@ namespace template.Client.Services
         {
             await Send(HttpMethod.Delete, path, content);
         }
-
         private async Task<HttpResponseMessage> Send(HttpMethod method, string path, object content = null)
         {
             string guid = Guid.NewGuid().ToString();
@@ -145,5 +150,6 @@ namespace template.Client.Services
                 return default(T);
             }
         }
+        #endregion
     }
 }

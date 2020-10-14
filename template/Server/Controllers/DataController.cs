@@ -10,34 +10,32 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using template.Server.Models;
-using template.Server.Helpers;
+using template.Server.Utility;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace CRM.Server.Controllers
+namespace template.Server.Controllers
 {
     [ApiController]
     public class DataController : ControllerBase
     {
         private ApplicationDbContext _db;
-        //private MongoDBContext _mongoDBContext;
         private readonly UserManager<ApplicationUser> _userManager;
+
         public DataController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             _db = dbContext;
             _userManager = userManager;
         }
 
-
-
         [HttpPost]
         [Route("api/v1/customer")]
         [Authorize]
-        async public Task<IActionResult> AccountCreate([FromBody] CustomerRequest model)
+        async public Task<IActionResult> CustomerCreate([FromBody] Shared.Customer model)
         {
             string userId = User.GetUserId();
 
-            Customer customer = new Customer()
+            template.Server.Entities.Customer customer = new template.Server.Entities.Customer()
             {
                 Name = model.Name,
                 Email = model.Email,
@@ -54,7 +52,9 @@ namespace CRM.Server.Controllers
             _db.Customers.Add(customer);
             await _db.SaveChangesAsync();
 
-            return Ok(customer);
+            Shared.Customer response = customer.ToSharedCustomer();
+
+            return Ok(response);
         }
 
         [HttpGet]
@@ -64,23 +64,25 @@ namespace CRM.Server.Controllers
         {
             string userId = User.GetUserId();
 
-            var customer = await _db.Customers.Where(c => c.OwnerId == id && c.Id == id).FirstOrDefaultAsync();
+            var customer = await _db.Customers.Where(c => c.OwnerId == userId && c.Id == id).FirstOrDefaultAsync();
             if (customer == null)
                 return BadRequest("Customer not found");
 
-            return Ok(customer);
+            Shared.Customer response = customer.ToSharedCustomer();
+
+            return Ok(response);
         }
 
         [HttpPut]
         [Route("api/v1/customer/{id}")]
         [Authorize]
-        async public Task<IActionResult> CustomerUpdateById([FromBody] CustomerRequest model, string id)
+        async public Task<IActionResult> CustomerUpdateById([FromBody] Shared.Customer model, string id)
         {
             string userId = User.GetUserId();
 
-            var customer = await _db.Customers.Where(c => c.OwnerId == id && c.Id == id).FirstOrDefaultAsync();
+            var customer = await _db.Customers.Where(c => c.OwnerId == userId && c.Id == id).FirstOrDefaultAsync();
             if (customer == null)
-                return BadRequest();
+                return BadRequest("Customer not found");
 
             customer.Name = model.Name;
             customer.Email = model.Email;
@@ -93,7 +95,26 @@ namespace CRM.Server.Controllers
 
             await _db.SaveChangesAsync();
 
-            return Ok(customer);
+            Shared.Customer response = customer.ToSharedCustomer();
+
+            return Ok(response);
+        }
+
+        [HttpDelete]
+        [Route("api/v1/customer/{id}")]
+        [Authorize]
+        async public Task<IActionResult> CustomerDeleteById(string id)
+        {
+            string userId = User.GetUserId();
+
+            var customer = await _db.Customers.Where(c => c.OwnerId == userId && c.Id == id).FirstOrDefaultAsync();
+            if (customer == null)
+                return BadRequest("Customer not found");
+
+            _db.Customers.Remove(customer);
+            await _db.SaveChangesAsync();
+
+            return Ok();
         }
 
 
@@ -117,14 +138,14 @@ namespace CRM.Server.Controllers
                                         i.Notes.Contains(model.FilterText));
             }
 
-            CustomerSearchResponse response = new CustomerSearchResponse();
+            SearchResponse<Shared.CustomerSlim> response = new SearchResponse<Shared.CustomerSlim>();
             response.Total = await query.CountAsync();
 
             var dataResponse = await query.Skip(model.Page * model.PageSize)
                                         .Take(model.PageSize)
                                         .ToListAsync();
 
-            response.Data = dataResponse.Select(i => new CustomerSlimResponse()
+            response.Data = dataResponse.Select(i => new Shared.CustomerSlim()
             {
                 Id = i.Id,
                 Name = i.Name,
@@ -136,6 +157,36 @@ namespace CRM.Server.Controllers
         }
 
 
+        [HttpGet]
+        [Authorize]
+        [Route("api/v1/seed/{number}")]
+        async public Task<IActionResult> SeedCustomers(int number)
+        {
+            string userId = User.GetUserId();
 
+            for (int a = 0; a < number; a++)
+            {
+                var customer = new Entities.Customer()
+                {
+                    Name = LoremNET.Lorem.Words(2),
+                    Email = LoremNET.Lorem.Email(),
+                    Phone = LoremNET.Lorem.Number(1111111111, 9999999999).ToString(),
+                    Address = $"{LoremNET.Lorem.Number(100, 10000).ToString()} {LoremNET.Lorem.Words(1)}",
+                    City = LoremNET.Lorem.Words(1),
+                    State = LoremNET.Lorem.Words(1),
+                    Postal = LoremNET.Lorem.Number(11111,99999).ToString(),
+                    BirthDate = LoremNET.Lorem.DateTime(1923,1,1),
+                    Notes = LoremNET.Lorem.Paragraph(200, 15),
+                    CreatedOn = LoremNET.Lorem.DateTime(2020,1,1),
+                    OwnerId = userId,
+                };
+
+                _db.Customers.Add(customer);
+            }
+
+            await _db.SaveChangesAsync();
+
+            return Ok();
+        }
     }//End Controller
 }//End Namespace
