@@ -2,23 +2,17 @@
 
 # template
 
-This is a simple CRM/XRM application. A simple designer is used to create a form. This form is composed of standard HTML input fields (text, textarea, number, select, date and time). Using the designer, the user selects a field type, specifies a name for the field and selects a row, column, and column width for the field. As many fields as the user wants can be added to the form. This form represents a dynamic/user-defined data type. Each dynamic/user-defined data type must belong to a Folder. A "Folder" can contain zero-many dynamic/user-defined types.
-
-Each folder has its own permissions. Users can be added to a folder as a regular user, or granted an "administrator" role. Administrators of a folder can manage the dynamic data types for the folder, and add/remove users from that folder.
-
-When a new user signs into the system, they should first create a folder, then any dynamic/user-defined types they want in that folder.
-
-All users can create/manage their own folders and types. A user can own/manage zero-many folders. A user can be added to zero-many folders by other users.  Any folder that a user has access to is accessible via the "Search" drop down on the main navigation.
+'template' is my Blazor app template. Microsoft provides several versions of templates for Blazor apps - they work great. My personal preference for a template is to have more functionality. This template provides simple pages and components that show CRUD ops, API calls, Authentication/Authorization with Identity. The Microsoft template shows how to do this, but I don't feel like the solutions there are designed for larger applications - my experiences with several frontend frameworks have lead to the creatinon this template.
 
 # License
 
-This application is open source. Please review the license for use and distribution. If you are interested in deploying this application within your organization, please feel free to contact me at admin@dahln.io.
+This application is open source. Please review the license before use. To summarize - this project can be used, closed, and distributed freely, without warrenty or liability. Questions or concerns can be send to admin@dahln.io.
 
 # Configuration/Setup
 
-This application uses Entity Framework, Code-First. Run 'Update-Database' to create the initial DB schema. Automatic migrations are not enabled. Be sure to first update your appsettings file with the appropriate connection string. The default DB is Sqlite, but the application supports Sqlite. Add the name "template.db" to the appsettings to use Sqlite.
+Out of the box this project uses Sqlite - this is for ease of startup. You will find in the startup.cs a snippet of commented code that will switch to MSSQL when uncommented. DB migrations for Sqlite are included and should work the first time the application starts up. If you switch to MSSQL, delete the migrations folder and create a new 'Initial Migration' by running 'Add-Migration InitialCreate', the 'Update-Database'. Also, besure to add the connecting string to the appropriate property in the appsettings.json file.
 
-Sensative configuration data, such as the DB connection strings, and Send Grid config are added to the appsettings.json files. Do not check in these values to the repo. Use the following commands to ignore changes to the appsettings.json files:
+Sensative configuration data, such as the DB connection strings, and email config are added to the appsettings.json files. Do not check in these values to the repo. Use the following commands to ignore changes to the appsettings.json files:
 
 * git update-index --assume-unchanged appsettings.json
 * git update-index --assume-unchanged appsettings.Development.json	
