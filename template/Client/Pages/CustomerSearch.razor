@@ -51,6 +51,26 @@
         </table>
     </div>
 </div>
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination float-right">
+                @if (TotalFound != null)
+                {
+                    @if ((Search.Page + 1) > 1)
+                    {
+                        <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchCustomers(Search.Page - 1, false))">Previous</div></li>
+                    }
+                    <li class="page-item"><div class="page-link">Page @(Search.Page + 1) of @(Math.Ceiling((double)TotalFound / PageSize))</div></li>
+                    @if ((Search.Page + 1) < (Math.Ceiling((double)TotalFound / PageSize)))
+                    {
+                        <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchCustomers(Search.Page + 1, false))">Next</div></li>
+                    }
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
 
 @code {
 

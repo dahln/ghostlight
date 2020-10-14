@@ -176,7 +176,7 @@ namespace template.Server.Controllers
                     State = LoremNET.Lorem.Words(1),
                     Postal = LoremNET.Lorem.Number(11111,99999).ToString(),
                     BirthDate = LoremNET.Lorem.DateTime(1923,1,1),
-                    Notes = LoremNET.Lorem.Paragraph(200, 15),
+                    Notes = LoremNET.Lorem.Paragraph(5,10,10),
                     CreatedOn = LoremNET.Lorem.DateTime(2020,1,1),
                     OwnerId = userId,
                 };
