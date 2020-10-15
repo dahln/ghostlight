@@ -129,13 +129,13 @@ namespace template.Server.Controllers
 
             if (!string.IsNullOrEmpty(model.FilterText))
             {
-                query = query.Where(i => i.Name.Contains(model.FilterText) ||
-                                        i.Email.Contains(model.FilterText) ||
-                                        i.Phone.Contains(model.FilterText) ||
-                                        i.Address.Contains(model.FilterText) ||
-                                        i.State.Contains(model.FilterText) ||
-                                        i.Postal.Contains(model.FilterText) ||
-                                        i.Notes.Contains(model.FilterText));
+                query = query.Where(i => i.Name.ToLower().Contains(model.FilterText.ToLower()) ||
+                                        i.Email.ToLower().ToLower().Contains(model.FilterText.ToLower()) ||
+                                        i.Phone.ToLower().Contains(model.FilterText.ToLower()) ||
+                                        i.Address.ToLower().Contains(model.FilterText.ToLower()) ||
+                                        i.State.ToLower().Contains(model.FilterText.ToLower()) ||
+                                        i.Postal.ToLower().Contains(model.FilterText.ToLower()) ||
+                                        i.Notes.ToLower().Contains(model.FilterText.ToLower()));
             }
 
             SearchResponse<Shared.CustomerSlim> response = new SearchResponse<Shared.CustomerSlim>();

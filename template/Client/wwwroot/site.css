@@ -48,3 +48,7 @@ label {
 .search-icon {
     color: orangered;
 }
+
+.search-found {
+    font-weight: 100;
+}
