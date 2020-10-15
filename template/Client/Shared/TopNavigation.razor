@@ -8,7 +8,7 @@
 <AuthorizeView>
     <Authorized>
         <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="/"><i class="fas fa-ghost mr-3"></i>template</a>
+            <a class="navbar-brand" href="/"><i class="fas fa-ghost template-logo mr-3"></i>template</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navToggle" aria-controls="navToggle" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -16,13 +16,13 @@
             <div class="collapse navbar-collapse" id="navToggle">
                 <ul class="navbar-nav ml-md-auto">
                     <li class="nav-item">
-                        <a class="nav-link mr-2" href="customers"><i class="fas fa-search mr-2"></i>Search</a>
+                        <a class="nav-link mr-2" href="customers"><i class="fas fa-search search-icon mr-2"></i>Search</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link mr-2" href="authentication/profile"><i class="fas fa-user-cog mr-2"></i>@context.User.Identity.Name</a>
+                        <a class="nav-link mr-2" href="authentication/profile"><i class="fas fa-user-cog user-icon mr-2"></i>@context.User.Identity.Name</a>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link btn btn-link" @onclick="BeginSignOut"><i class="fas fa-sign-out-alt mr-1"></i>Log out</button>
+                        <button class="nav-link btn btn-link" @onclick="BeginSignOut"><i class="fas fa-sign-out-alt signout-icon mr-1"></i>Log out</button>
                     </li>
                 </ul>
             </div>
@@ -30,7 +30,7 @@
     </Authorized>
     <NotAuthorized>
         <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="/"><i class="fas fa-ghost mr-3"></i>template</a>
+            <a class="navbar-brand" href="/"><i class="fas fa-ghost template-logo mr-3"></i>template</a>
         </nav>
     </NotAuthorized>
 </AuthorizeView>

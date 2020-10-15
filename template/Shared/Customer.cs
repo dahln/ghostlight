@@ -14,7 +14,7 @@ namespace template.Shared
         public string City { get; set; }
         public string State { get; set; }
         public string Postal { get; set; }
-        public DateTime BirthDate { get; set; }
+        public DateTime BirthDate { get; set; } = DateTime.UtcNow;
         public string Notes { get; set; }
     }
 

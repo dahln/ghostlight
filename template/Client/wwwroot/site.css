@@ -21,10 +21,6 @@
     font-weight: bold;
 }
 
-.header-separator{
-    color: orangered;
-}
-
 .dialog-btn {
     width: 110px;
 }
@@ -33,20 +29,8 @@
     width: 150px;
 }
 
-.new-field {
-    background-color: cadetblue;
-}
-
-.CreateNewLink {
-   
-}
-
 label {
     font-weight: 500;
-}
-
-.link {
-    background-color: #eeeeee;
 }
 
 .app-desc {
@@ -56,12 +40,11 @@ label {
 .tiny-text {
     font-size: 10px;
 }
+
 .template-logo {
-    max-height: 40px;
+    color: mediumpurple;
 }
-.folder-open-color {
-    color: dodgerblue;
-}
-.folder-closed-color {
-    color: orange;
+
+.search-icon {
+    color: orangered;
 }

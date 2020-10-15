@@ -145,13 +145,7 @@ namespace template.Server.Controllers
                                         .Take(model.PageSize)
                                         .ToListAsync();
 
-            response.Data = dataResponse.Select(i => new Shared.CustomerSlim()
-            {
-                Id = i.Id,
-                Name = i.Name,
-                Email = i.Email,
-                Phone = i.Phone
-            }).ToList();
+            response.Data = dataResponse.Select(i => i.ToSharedCustomerSlim()).ToList();
 
             return Ok(response);
         }
