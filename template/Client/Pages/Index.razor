@@ -42,11 +42,11 @@
     [Parameter]
     public string FolderId { get; set; }
 
-    protected override void OnInitialized()
+    async protected override Task OnInitializedAsync()
     {
         _appState.OnChange += StateHasChanged;
 
-        base.OnInitialized();
+        await _appState.UpdateAppState();
     }
 
     public async override Task SetParametersAsync(ParameterView parameters)
@@ -60,5 +60,7 @@
     {
         await API.SeedDB(1000);
     }
+
+
 }
 
