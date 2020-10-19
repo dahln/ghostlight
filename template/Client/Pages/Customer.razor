@@ -6,76 +6,88 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h3>Customer @if (Locked == true) {<span class="btn btn-link" @onclick="ToggleEditing">Edit</span>}</h3>
+        <h3>Customer @if (Locked == true)
+        {<span class="btn btn-link" @onclick="ToggleEditing">Edit</span>}</h3>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="row">
-            <div class="col-md-12">
-                <label>Name</label>
-                <input type="text" class="form-control" @bind="customer.Name" />
+<fieldset disabled="@Locked">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Name</label>
+                    <input type="text" class="form-control" @bind="customer.Name" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Email</label>
+                    <input type="text" class="form-control" @bind="customer.Email" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Phone</label>
+                    <input type="text" class="form-control" @bind="customer.Phone" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Address</label>
+                    <input type="text" class="form-control" @bind="customer.Address" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <label>City</label>
+                    <input type="text" class="form-control" @bind="customer.City" />
+                </div>
+                <div class="col-md-4">
+                    <label>State</label>
+                    <input type="text" class="form-control" @bind="customer.State" />
+                </div>
+                <div class="col-md-4">
+                    <label>Postal</label>
+                    <input type="text" class="form-control" @bind="customer.Postal" />
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <label>Email</label>
-                <input type="text" class="form-control" @bind="customer.Email" />
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Birth Date</label>
+                    <input type="date" class="form-control" @bind="customer.BirthDate" />
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <label>Phone</label>
-                <input type="text" class="form-control" @bind="customer.Phone" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <label>Address</label>
-                <input type="text" class="form-control" @bind="customer.Address" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4">
-                <label>City</label>
-                <input type="text" class="form-control" @bind="customer.City" />
-            </div>
-            <div class="col-md-4">
-                <label>State</label>
-                <input type="text" class="form-control" @bind="customer.State" />
-            </div>
-            <div class="col-md-4">
-                <label>Postal</label>
-                <input type="text" class="form-control" @bind="customer.Postal" />
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Notes</label>
+                    <textarea class="form-control" rows="10" @bind="customer.Notes"></textarea>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="row">
-            <div class="col-md-12">
-                <label>Birth Date</label>
-                <input type="date" class="form-control" @bind="customer.BirthDate" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <label>Notes</label>
-                <textarea class="form-control" rows="10" @bind="customer.Notes"></textarea>
-            </div>
-        </div>
-    </div>
-</div>
+</fieldset>
 
+@if (Locked == false)
+{
 <div class="row mt-3">
-    <div class="col-md-12">
-        <button class="btn btn-primary float-right" @onclick="Save"><i class="far fa-save mr-1"></i>Save</button>
+    <div class="col-md-6">
         @if (!string.IsNullOrEmpty(Id))
         {
-            <button class="btn btn-warning float-right mr-2" @onclick="Delete"><i class="far fa-trash-alt mr-1"></i>Delete</button>
+            <button class="btn btn-warning btn-customer" @onclick="Delete"><i class="far fa-trash-alt mr-1"></i>Delete</button>
+        }
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary btn-customer float-right" @onclick="Save"><i class="far fa-save mr-1"></i>Save</button>
+        @if (!string.IsNullOrEmpty(Id))
+        {
+            <button class="btn btn-outline-dark btn-customer float-right mr-lg-2 mr-md-2" @onclick="CancelChanges"><i class="fas fa-times mr-1"></i>Cancel Changes</button>
         }
     </div>
 </div>
+}
 
 @code {
 
@@ -87,11 +99,14 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        Locked = true;
-
         if (Id != null)
         {
+            Locked = true;
             customer = await API.CustomerGetById(Id);
+        }
+        else
+        {
+            Locked = false;
         }
     }
 
@@ -105,11 +120,14 @@
         if (string.IsNullOrEmpty(Id))
         {
             customer = await API.CustomerCreate(customer);
+            _navigationManager.NavigateTo($"customer/{customer.Id}");
         }
         else if (!string.IsNullOrEmpty(Id))
         {
             customer = await API.CustomerUpdateById(customer, Id);
         }
+
+        Locked = true;
     }
 
     async private Task Delete()
@@ -119,5 +137,11 @@
             await API.CustomerDeleteById(Id);
             _navigationManager.NavigateTo("customers");
         }
+    }
+
+    async private Task CancelChanges()
+    {
+        Locked = true;
+        customer = await API.CustomerGetById(Id);
     }
 }

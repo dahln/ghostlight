@@ -52,3 +52,9 @@ label {
 .search-found {
     font-weight: 100;
 }
+
+@media (max-width: 767.98px) {
+    .btn-customer {
+        width: 100%;
+    }
+}
