@@ -4,6 +4,12 @@
 @inject NavigationManager _navigationManager
 @inject template.Client.Services.API API
 
+<div class="mb-3">
+    <NavLink href="@($"customers")">
+        &#171; Back to Search
+    </NavLink>
+</div>
+
 <div class="row">
     <div class="col-md-12">
         <h3>Customer @if (Locked == true)
