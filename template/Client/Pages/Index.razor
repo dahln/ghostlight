@@ -9,16 +9,22 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="row">
-            <div class="mx-auto">
-                <input type="button" class="btn btn-primary mt-5" value="Seed Customers" @onclick="SeedDB" />
+            <div class="row">
+                <div class="mx-auto">
+
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Demo/Dev Tools</h5>
+                            <p class="card-text">Quickly populate or clear your customer data, for demo or debugging.</p>
+                            <div class="card-body">
+                                <input type="button" class="btn btn-primary w-100" value="Seed Customers" @onclick="SeedDB" />
+                                <input type="button" class="btn btn-warning w-100" value="Clear Your Records" @onclick="SeedDBClear" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="mx-auto">
-                <input type="button" class="btn btn-primary mt-5" value="Clear Your Records" @onclick="SeedDBClear" />
-            </div>
-        </div>
     </Authorized>
     <NotAuthorized>
         <div class="row">

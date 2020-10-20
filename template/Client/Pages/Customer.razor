@@ -150,15 +150,20 @@
     {
         if (string.IsNullOrEmpty(Id))
         {
-            customer = await API.CustomerCreate(customer);
-            _navigationManager.NavigateTo($"customer/{customer.Id}");
+            var response = await API.CustomerCreate(customer);
+            if(response != null)
+                _navigationManager.NavigateTo($"customer/{response.Id}");
         }
         else if (!string.IsNullOrEmpty(Id))
         {
-            customer = await API.CustomerUpdateById(customer, Id);
+            var response = await API.CustomerUpdateById(customer, Id);
+            if (response != null)
+            {
+                customer = response;
+                Locked = true;
+            }
         }
 
-        Locked = true;
     }
 
     async private Task Delete()
