@@ -33,13 +33,52 @@
     </div>
 </div>
 <div class="row mt-3">
-    <div class="col-md-12">
+    <div class="col-md-12 table-responsive">
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Phone</th>
+                    <th width="33%" scope="col" @onclick="(() => Sort(nameof(template.Shared.Customer.Name)))" class="pointer">
+                        Name
+                        @if (Search.SortBy == nameof(template.Shared.Customer.Name))
+                        {
+                            @if (Search.SortDirection == SortDirection.Ascending)
+                            {
+                                <i class="fas fa-angle-down"></i>
+                            }
+                            else if (Search.SortDirection == SortDirection.Descending)
+                            {
+                                <i class="fas fa-angle-up"></i>
+                            }
+                        }
+                    </th>
+                    <th width="33%" scope="col" @onclick="(() => Sort(nameof(template.Shared.Customer.Email)))" class="pointer">
+                        Email
+                        @if (Search.SortBy == nameof(template.Shared.Customer.Email))
+                        {
+                            @if (Search.SortDirection == SortDirection.Ascending)
+                            {
+                                <i class="fas fa-angle-down"></i>
+                            }
+                            else if (Search.SortDirection == SortDirection.Descending)
+                            {
+                                <i class="fas fa-angle-up"></i>
+                            }
+                        }
+                    </th>
+                    <th width="33%" scope="col" @onclick="(() => Sort(nameof(template.Shared.Customer.Phone)))" class="pointer">
+                        Phone
+                        @if (Search.SortBy == nameof(template.Shared.Customer.Phone))
+                        {
+                            @if (Search.SortDirection == SortDirection.Ascending)
+                            {
+                                <i class="fas fa-angle-down"></i>
+                            }
+                            else if (Search.SortDirection == SortDirection.Descending)
+                            {
+                                <i class="fas fa-angle-up"></i>
+                            }
+                        }
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -59,17 +98,14 @@
     <div class="col-md-12">
         <nav aria-label="Page navigation example">
             <ul class="pagination float-right">
-                @if (TotalFound != null)
+                @if ((Search.Page + 1) > 1)
                 {
-                    @if ((Search.Page + 1) > 1)
-                    {
-                        <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchCustomers(Search.Page - 1, false))">Previous</div></li>
-                    }
-                    <li class="page-item"><div class="page-link">Page @(Search.Page + 1) of @(Math.Ceiling((double)TotalFound / PageSize))</div></li>
-                    @if ((Search.Page + 1) < (Math.Ceiling((double)TotalFound / PageSize)))
-                    {
-                        <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchCustomers(Search.Page + 1, false))">Next</div></li>
-                    }
+                    <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchCustomers(Search.Page - 1, false))">Previous</div></li>
+                }
+                <li class="page-item"><div class="page-link">Page @(Search.Page + 1) of @(Math.Ceiling((double)TotalFound / PageSize))</div></li>
+                @if ((Search.Page + 1) < (Math.Ceiling((double)TotalFound / PageSize)))
+                {
+                    <li class="page-item pointer"><div class="page-link" @onclick="(() => SearchCustomers(Search.Page + 1, false))">Next</div></li>
                 }
             </ul>
         </nav>
@@ -94,6 +130,7 @@
         if (reset == true)
         {
             Search = new Search();
+            Search.SortBy = nameof(template.Shared.Customer.Name);
             page = null;
         }
 
@@ -101,7 +138,9 @@
         {
             FilterText = string.IsNullOrEmpty(Search?.FilterText) ? null : Search?.FilterText,
             Page = page == null ? Search.Page : (int)page,
-            PageSize = PageSize
+            PageSize = PageSize,
+            SortBy = Search.SortBy,
+            SortDirection = Search.SortDirection
         };
 
         //await localStorage.SetItemAsync("Search", Search);
@@ -110,6 +149,16 @@
         var response = await API.CustomerSearch(Search);
         Items = response.Data;
         TotalFound = response.Total;
+    }
+
+    async private Task Sort(string column)
+    {
+        Console.WriteLine(column);
+
+        Search.SortBy = column;
+        Search.SortDirection = Search.SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+
+        await SearchCustomers(Search.Page, false);
     }
 
     private void SelectCustomer(string customerId)

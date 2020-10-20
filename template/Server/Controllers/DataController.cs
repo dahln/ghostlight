@@ -138,6 +138,32 @@ namespace template.Server.Controllers
                                         i.Notes.ToLower().Contains(model.FilterText.ToLower()));
             }
 
+            if(model.SortBy == nameof(Entities.Customer.Name))
+            {
+                query = model.SortDirection == SortDirection.Ascending
+                            ? query.OrderBy(c => c.Name)
+                            : query.OrderByDescending(c => c.Name);
+            }
+            else if (model.SortBy == nameof(Entities.Customer.Phone))
+            {
+                query = model.SortDirection == SortDirection.Ascending
+                            ? query.OrderBy(c => c.Phone)
+                            : query.OrderByDescending(c => c.Phone);
+            }
+            else if (model.SortBy == nameof(Entities.Customer.Email))
+            {
+                query = model.SortDirection == SortDirection.Ascending
+                            ? query.OrderBy(c => c.Email)
+                            : query.OrderByDescending(c => c.Email);
+            }
+            else
+            {
+                query = model.SortDirection == SortDirection.Ascending
+                            ? query.OrderBy(c => c.Name)
+                            : query.OrderByDescending(c => c.Name);
+            }
+
+
             SearchResponse<Shared.CustomerSlim> response = new SearchResponse<Shared.CustomerSlim>();
             response.Total = await query.CountAsync();
 
