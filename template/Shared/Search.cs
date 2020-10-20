@@ -8,7 +8,7 @@ namespace template.Shared
     {
         public string FilterText { get; set; }
         public int Page { get; set; } = 0;
-        public int PageSize { get; set; } = 25;
+        public int PageSize { get; set; } = 15;
         public string SortBy { get; set; }
         public SortDirection SortDirection { get; set; } = SortDirection.Ascending;
 
