@@ -232,7 +232,9 @@ namespace template.Server.Controllers
         [Route("api/v1/seed/clear")]
         async public Task<IActionResult> SeedClear()
         {
-            var clear = _db.Customers.Where(c => c.Id != null);
+            string userId = User.GetUserId();
+
+            var clear = _db.Customers.Where(c => c.Id != null && c.OwnerId == userId);
             _db.Customers.RemoveRange(clear);
 
             await _db.SaveChangesAsync();

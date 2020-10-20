@@ -11,12 +11,12 @@
     <Authorized>
         <div class="row">
             <div class="mx-auto">
-                <input type="button" class="btn btn-primary mt-5" value="Seed DB" @onclick="SeedDB" />
+                <input type="button" class="btn btn-primary mt-5" value="Seed Customers" @onclick="SeedDB" />
             </div>
         </div>
         <div class="row">
             <div class="mx-auto">
-                <input type="button" class="btn btn-primary mt-5" value="Seed DB" @onclick="SeedDBClear" />
+                <input type="button" class="btn btn-primary mt-5" value="Clear Your Records" @onclick="SeedDBClear" />
             </div>
         </div>
     </Authorized>
@@ -63,7 +63,7 @@
 
     private async Task SeedDB()
     {
-        await API.SeedDB(1000);
+        await API.SeedDB(50);
     }
     private async Task SeedDBClear()
     {
