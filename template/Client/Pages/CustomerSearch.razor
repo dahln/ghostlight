@@ -66,7 +66,7 @@
                         }
                     </th>
                     <th width="20%" scope="col" @onclick="(() => Sort(nameof(template.Shared.CustomerSlim.State)))" class="pointer">
-                        Email
+                        State
                         @if (Search.SortBy == nameof(template.Shared.CustomerSlim.State))
                         {
                             @if (Search.SortDirection == SortDirection.Ascending)
@@ -79,9 +79,9 @@
                             }
                         }
                     </th>
-                    <th width="20%" scope="col" @onclick="(() => Sort(nameof(template.Shared.CustomerSlim.Gender)))" class="pointer">
-                        Phone
-                        @if (Search.SortBy == nameof(template.Shared.CustomerSlim.Gender))
+                    <th width="20%" scope="col" @onclick="(() => Sort(nameof(template.Shared.CustomerSlim.Active)))" class="pointer">
+                        Active
+                        @if (Search.SortBy == nameof(template.Shared.CustomerSlim.Active))
                         {
                             @if (Search.SortDirection == SortDirection.Ascending)
                             {
@@ -93,9 +93,9 @@
                             }
                         }
                     </th>
-                    <th width="10%" scope="col" @onclick="(() => Sort(nameof(template.Shared.CustomerSlim.Active)))" class="pointer">
-                        Phone
-                        @if (Search.SortBy == nameof(template.Shared.CustomerSlim.Active))
+                    <th width="10%" scope="col" @onclick="(() => Sort(nameof(template.Shared.CustomerSlim.Gender)))" class="pointer">
+                        Gender
+                        @if (Search.SortBy == nameof(template.Shared.CustomerSlim.Gender))
                         {
                             @if (Search.SortDirection == SortDirection.Ascending)
                             {

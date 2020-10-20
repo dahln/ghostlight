@@ -160,17 +160,23 @@ namespace template.Server.Controllers
                             ? query.OrderBy(c => c.Name)
                             : query.OrderByDescending(c => c.Name);
             }
-            else if (model.SortBy == nameof(Entities.Customer.Phone))
+            else if (model.SortBy == nameof(Entities.Customer.State))
             {
                 query = model.SortDirection == SortDirection.Ascending
-                            ? query.OrderBy(c => c.Phone)
-                            : query.OrderByDescending(c => c.Phone);
+                            ? query.OrderBy(c => c.State)
+                            : query.OrderByDescending(c => c.State);
             }
-            else if (model.SortBy == nameof(Entities.Customer.Email))
+            else if (model.SortBy == nameof(Entities.Customer.Active))
             {
                 query = model.SortDirection == SortDirection.Ascending
-                            ? query.OrderBy(c => c.Email)
-                            : query.OrderByDescending(c => c.Email);
+                            ? query.OrderBy(c => c.Active)
+                            : query.OrderByDescending(c => c.Active);
+            }
+            else if (model.SortBy == nameof(Entities.Customer.Gender))
+            {
+                query = model.SortDirection == SortDirection.Ascending
+                            ? query.OrderBy(c => c.Gender)
+                            : query.OrderByDescending(c => c.Gender);
             }
             else
             {
