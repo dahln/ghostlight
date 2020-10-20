@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using template.Shared.Enumerations;
 
 namespace template.Server.Entities
 {
@@ -18,6 +19,10 @@ namespace template.Server.Entities
         public string Postal { get; set; }
         public DateTime BirthDate { get; set; }
         public string Notes { get; set; }
+
+        public Gender Gender { get; set; }
+        public bool Active { get; set; }
+
 
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         public DateTime? UpdateOn { get; set; }

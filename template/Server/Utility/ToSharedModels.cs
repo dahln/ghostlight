@@ -8,8 +8,9 @@
             {
                 Id = model.Id,
                 Name = model.Name,
-                Email = model.Email,
-                Phone = model.Phone
+                Gender = model.Gender,
+                State = model.State,
+                Active = model.Active
             };
 
             return customer;
@@ -28,7 +29,9 @@
                 State = model.State,
                 Postal = model.Postal,
                 Notes = model.Notes,
-                BirthDate = model.BirthDate
+                BirthDate = model.BirthDate,
+                Gender = model.Gender,
+                Active = model.Active
             };
 
             return customer;

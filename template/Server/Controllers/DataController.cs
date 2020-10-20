@@ -13,6 +13,7 @@ using template.Server.Models;
 using template.Server.Utility;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using template.Shared.Enumerations;
 
 namespace template.Server.Controllers
 {
@@ -35,9 +36,15 @@ namespace template.Server.Controllers
         {
             string userId = User.GetUserId();
 
+            if(string.IsNullOrEmpty(model.Name))
+            {
+                return BadRequest("Customer name is required");
+            }
+
             template.Server.Entities.Customer customer = new template.Server.Entities.Customer()
             {
                 Name = model.Name,
+                Gender = model.Gender,
                 Email = model.Email,
                 Phone = model.Phone,
                 Address = model.Address,
@@ -46,6 +53,7 @@ namespace template.Server.Controllers
                 Postal = model.Postal,
                 Notes = model.Notes,
                 BirthDate = model.BirthDate,
+                Active = model.Active,
                 OwnerId = userId
             };
 
@@ -80,11 +88,17 @@ namespace template.Server.Controllers
         {
             string userId = User.GetUserId();
 
+            if (string.IsNullOrEmpty(model.Name))
+            {
+                return BadRequest("Customer name is required");
+            }
+
             var customer = await _db.Customers.Where(c => c.OwnerId == userId && c.Id == id).FirstOrDefaultAsync();
             if (customer == null)
                 return BadRequest("Customer not found");
 
             customer.Name = model.Name;
+            customer.Gender = model.Gender;
             customer.Email = model.Email;
             customer.Phone = model.Phone;
             customer.Address = model.Address;
@@ -92,6 +106,8 @@ namespace template.Server.Controllers
             customer.State = model.State;
             customer.Postal = model.Postal;
             customer.Notes = model.Notes;
+            customer.Active = model.Active;
+            customer.UpdateOn = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
 
@@ -179,7 +195,7 @@ namespace template.Server.Controllers
 
         [HttpGet]
         [Authorize]
-        [Route("api/v1/seed/{number}")]
+        [Route("api/v1/seed/create/{number}")]
         async public Task<IActionResult> SeedCustomers(int number)
         {
             string userId = User.GetUserId();
@@ -189,20 +205,35 @@ namespace template.Server.Controllers
                 var customer = new Entities.Customer()
                 {
                     Name = LoremNET.Lorem.Words(2),
+                    Gender = (Gender)LoremNET.Lorem.Number(0, 2),
                     Email = LoremNET.Lorem.Email(),
                     Phone = LoremNET.Lorem.Number(1111111111, 9999999999).ToString(),
                     Address = $"{LoremNET.Lorem.Number(100, 10000).ToString()} {LoremNET.Lorem.Words(1)}",
                     City = LoremNET.Lorem.Words(1),
                     State = LoremNET.Lorem.Words(1),
-                    Postal = LoremNET.Lorem.Number(11111,99999).ToString(),
-                    BirthDate = LoremNET.Lorem.DateTime(1923,1,1),
-                    Notes = LoremNET.Lorem.Paragraph(5,10,10),
+                    Postal = LoremNET.Lorem.Number(11111, 99999).ToString(),
+                    BirthDate = LoremNET.Lorem.DateTime(1923, 1, 1),
+                    Notes = LoremNET.Lorem.Paragraph(5, 10, 10),
+                    Active = LoremNET.Lorem.Number(0, 1) == 0 ? false : true,
                     CreatedOn = LoremNET.Lorem.DateTime(2020,1,1),
                     OwnerId = userId,
                 };
 
                 _db.Customers.Add(customer);
             }
+
+            await _db.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("api/v1/seed/clear")]
+        async public Task<IActionResult> SeedClear()
+        {
+            var clear = _db.Customers.Where(c => c.Id != null);
+            _db.Customers.RemoveRange(clear);
 
             await _db.SaveChangesAsync();
 

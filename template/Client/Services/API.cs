@@ -56,7 +56,11 @@ namespace template.Client.Services
 
         async public Task SeedDB(int number)
         {
-            await GetAsync($"api/v1/seed/{number}");
+            await GetAsync($"api/v1/seed/create/{number}");
+        }
+        async public Task SeedDBClear()
+        {
+            await GetAsync($"api/v1/seed/clear");
         }
 
 

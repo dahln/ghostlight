@@ -14,6 +14,11 @@
                 <input type="button" class="btn btn-primary mt-5" value="Seed DB" @onclick="SeedDB" />
             </div>
         </div>
+        <div class="row">
+            <div class="mx-auto">
+                <input type="button" class="btn btn-primary mt-5" value="Seed DB" @onclick="SeedDBClear" />
+            </div>
+        </div>
     </Authorized>
     <NotAuthorized>
         <div class="row">
@@ -60,7 +65,9 @@
     {
         await API.SeedDB(1000);
     }
-
-
+    private async Task SeedDBClear()
+    {
+        await API.SeedDBClear();
+    }
 }
 

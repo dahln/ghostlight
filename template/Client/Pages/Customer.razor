@@ -1,6 +1,8 @@
 ﻿@page "/customer"
 @page "/customer/{id}"
 
+@using template.Shared.Enumerations 
+
 @inject NavigationManager _navigationManager
 @inject template.Client.Services.API API
 @inject IModalService _modalService
@@ -24,24 +26,39 @@
     <div class="row">
         <div class="col-md-6">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-8">
                     <label>Name</label>
                     <input type="text" class="form-control" @bind="customer.Name" />
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
-                    <label>Email</label>
-                    <input type="text" class="form-control" @bind="customer.Email" />
+                <div class="col-md-4">
+                    <label>Gender</label>
+                    <select class="form-control" @bind="customer.Gender">
+                        <option value="@Gender.NotSpecified">@Gender.NotSpecified.GetDescription()</option>
+                        <option value="@Gender.Male">@Gender.Male.GetDescription()</option>
+                        <option value="@Gender.Female">@Gender.Female.GetDescription()</option>
+                    </select>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
+                    <label>Email</label>
+                    <input type="text" class="form-control" @bind="customer.Email" />
+                </div>
+                <div class="col-md-6">
                     <label>Phone</label>
                     <input type="text" class="form-control" @bind="customer.Phone" />
                 </div>
             </div>
             <div class="row">
+                <div class="col-md-12 mt-3">
+                    <label>Active</label>
+                    <input type="checkbox" @bind="customer.Active" />
+                </div>
+            </div>
+
+            <div class="row mt-5">
                 <div class="col-md-12">
                     <label>Address</label>
                     <input type="text" class="form-control" @bind="customer.Address" />
@@ -64,7 +81,7 @@
         </div>
         <div class="col-md-6">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-4">
                     <label>Birth Date</label>
                     <input type="date" class="form-control" @bind="customer.BirthDate" />
                 </div>
@@ -72,7 +89,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <label>Notes</label>
-                    <textarea class="form-control" rows="10" @bind="customer.Notes"></textarea>
+                    <textarea class="form-control" rows="14" @bind="customer.Notes"></textarea>
                 </div>
             </div>
         </div>
@@ -81,7 +98,12 @@
 
 @if (Locked == false)
 {
-    <div class="row mt-3">
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <hr />
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-6">
             @if (!string.IsNullOrEmpty(Id))
             {

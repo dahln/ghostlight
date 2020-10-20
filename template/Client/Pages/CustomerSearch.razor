@@ -1,6 +1,7 @@
 ﻿@page "/customers"
 
 @using template.Shared
+@using template.Shared.Enumerations
 
 @inject NavigationManager _navigationManger
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
@@ -50,9 +51,9 @@
         <table class="table table-sm table-hover">
             <thead>
                 <tr>
-                    <th width="33%" scope="col" @onclick="(() => Sort(nameof(template.Shared.Customer.Name)))" class="pointer">
+                    <th width="50%" scope="col" @onclick="(() => Sort(nameof(template.Shared.CustomerSlim.Name)))" class="pointer">
                         Name
-                        @if (Search.SortBy == nameof(template.Shared.Customer.Name))
+                        @if (Search.SortBy == nameof(template.Shared.CustomerSlim.Name))
                         {
                             @if (Search.SortDirection == SortDirection.Ascending)
                             {
@@ -64,9 +65,9 @@
                             }
                         }
                     </th>
-                    <th width="33%" scope="col" @onclick="(() => Sort(nameof(template.Shared.Customer.Email)))" class="pointer">
+                    <th width="20%" scope="col" @onclick="(() => Sort(nameof(template.Shared.CustomerSlim.State)))" class="pointer">
                         Email
-                        @if (Search.SortBy == nameof(template.Shared.Customer.Email))
+                        @if (Search.SortBy == nameof(template.Shared.CustomerSlim.State))
                         {
                             @if (Search.SortDirection == SortDirection.Ascending)
                             {
@@ -78,9 +79,23 @@
                             }
                         }
                     </th>
-                    <th width="33%" scope="col" @onclick="(() => Sort(nameof(template.Shared.Customer.Phone)))" class="pointer">
+                    <th width="20%" scope="col" @onclick="(() => Sort(nameof(template.Shared.CustomerSlim.Gender)))" class="pointer">
                         Phone
-                        @if (Search.SortBy == nameof(template.Shared.Customer.Phone))
+                        @if (Search.SortBy == nameof(template.Shared.CustomerSlim.Gender))
+                        {
+                            @if (Search.SortDirection == SortDirection.Ascending)
+                            {
+                                <i class="fas fa-angle-down"></i>
+                            }
+                            else if (Search.SortDirection == SortDirection.Descending)
+                            {
+                                <i class="fas fa-angle-up"></i>
+                            }
+                        }
+                    </th>
+                    <th width="10%" scope="col" @onclick="(() => Sort(nameof(template.Shared.CustomerSlim.Active)))" class="pointer">
+                        Phone
+                        @if (Search.SortBy == nameof(template.Shared.CustomerSlim.Active))
                         {
                             @if (Search.SortDirection == SortDirection.Ascending)
                             {
@@ -99,8 +114,32 @@
                 {
                     <tr class="pointer">
                         <td><div class="btn btn-link" @onclick="(() => SelectCustomer(item.Id))">@item.Name</div></td>
-                        <td class="align-middle">@item.Email</td>
-                        <td class="align-middle">@item.Phone</td>
+                        <td class="align-middle">@item.State</td>
+                        <td class="align-middle">
+                            @if (item.Active)
+                            {
+                                <i class="fas fa-check green"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-times red"></i>
+                            }
+                        </td>
+                        <td class="align-middle">
+                            @if (item.Gender == Gender.Male)
+                            {
+                                <i class="fas fa-mars"></i>
+                            }
+                            else if (item.Gender == Gender.Female)
+                            {
+                                <i class="fas fa-venus"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-genderless"></i>
+                            }
+                            @item.Gender.GetDescription()
+                        </td>
                     </tr>
                 }
             </tbody>
