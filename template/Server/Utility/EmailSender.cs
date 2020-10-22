@@ -53,9 +53,8 @@ namespace template.Server.Utility
                     client.Disconnect(true);
                 }
             }
-            catch(Exception ex)
+            catch
             {
-                int a = 0;
             }
 
             return;

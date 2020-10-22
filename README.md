@@ -1,10 +1,15 @@
-This project is a work-in-progress. At this point in time (Oct 13 2020), it is NOT ready for use as a template. It will progress as I have the spare time to give it.
+When .NET 5 is official released (a non-RC release), this template will be updated to the new version. This template currently does not show how to upload a file; the updated .NET 5 version will demonstrate that.
 
 [![Build Status](https://dev.azure.com/dahln/template/_apis/build/status/template%20CI%20build?branchName=master)](https://dev.azure.com/dahln/template/_build/latest?definitionId=18&branchName=master)
 
 # template
 
-'template' is my Blazor app template. Microsoft provides several versions of templates for Blazor apps - they work great. My personal preference for a template is to have more functionality. This template provides simple pages and components that show CRUD ops, API calls, Authentication/Authorization with Identity. The Microsoft template shows how to do this, but I don't feel like the solutions there are designed for larger applications - my experiences with several frontend frameworks have lead to the creatinon this template.
+'template' is my Blazor app template. Microsoft provides several versions of templates for Blazor apps - they work great. My personal preference for a template is to have more functionality. This template provides simple pages and components that show CRUD ops, API calls, Authentication/Authorization with Identity.
+
+# How to create a new project
+When I use this template to create a new project, I clone the project and then open the folder in VS Code. Then I do a global search & replace for 'template' and replace it with the name of the new project. This also replace the namespaces as well. Second, I go into the file explorer and I rename the all the folder with the name template in them. And last, I rename the sln and csproj files to match the new name of the project.
+
+When cloning the repo, notice that the appsettings does not have any SMTP credentials. Those values are excluded for security reasons - fill them in with your own credentials. The demo site (template.dahln.io), when deployed, fills in those values.
 
 # License
 
