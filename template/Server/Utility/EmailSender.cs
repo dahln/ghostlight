@@ -55,6 +55,7 @@ namespace template.Server.Utility
             }
             catch
             {
+
             }
 
             return;
