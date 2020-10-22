@@ -9,11 +9,9 @@ When .NET 5 is official released (a non-RC release), this template will be updat
 # How to create a new project
 When I use this template to create a new project, I clone the project and then open the folder in VS Code. Then I do a global search & replace for 'template' and replace it with the name of the new project. This also replace the namespaces as well. Second, I go into the file explorer and I rename the all the folder with the name template in them. And last, I rename the sln and csproj files to match the new name of the project.
 
-When cloning the repo, notice that the appsettings does not have any SMTP credentials. Those values are excluded for security reasons - fill them in with your own credentials. The demo site (template.dahln.io), when deployed, fills in those values.
+When cloning the repo, notice that the appsettings does not have any SMTP credentials. Those values are excluded for security reasons - fill them in with your own credentials. The demo site (template.dahln.io), when deployed, fills in those values. Email and Account confirmation is disabled for ease-of-use with new projects and during development, I recommend enabling them; they can be enabled in the Startup.cs.
 
-# License
-
-This application is open source. Please review the license before use. To summarize - this project can be used, closed, and distributed freely, without warrenty or liability. Questions or concerns can be send to admin@dahln.io.
+Note: I have noticed that Identity doesn't seem to be sending recovery emails, unless an account is confirmed. To recieve a password reset (recovery email) first confirm your email, either by cliking the link in the original email or resending the confirmation email.
 
 # Configuration/Setup
 
@@ -30,6 +28,10 @@ Change the environment (and appsettings loaded) with the following commands:
 * $Env:ASPNETCORE_ENVIRONMENT = "Production"
 
 Alternatively, sensative configuration values can be set as variables in your server config.
+
+# License
+
+This application is open source. Please review the license before use. To summarize - this project can be used, closed, and distributed freely, without warrenty or liability. Questions or concerns can be send to admin@dahln.io.
 
 # Issues/Contributions
 
