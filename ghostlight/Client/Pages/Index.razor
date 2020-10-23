@@ -86,8 +86,7 @@
     }
     private async Task SeedDBClear()
     {
-
-        var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to delete this customer?");
+        var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to clear your customer data?");
         var modalResult = await modal.Result;
 
         if (modalResult.Cancelled) { }
