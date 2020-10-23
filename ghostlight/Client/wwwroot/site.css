@@ -1,0 +1,68 @@
+﻿html, body {
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.navbar-brand {
+    font-weight: 100;
+    color: white !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+.blazored-toast-container {
+    z-index: 10000;
+}
+
+.required-astrisk {
+    color: red;
+    font-weight: bold;
+}
+
+.dialog-btn {
+    width: 110px;
+}
+
+.btn-home {
+    width: 150px;
+}
+
+label {
+    font-weight: 500;
+}
+
+.app-desc {
+    font-family: "SF Pro Text","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif;
+}
+
+.tiny-text {
+    font-size: 10px;
+}
+
+.ghostlight-logo {
+    color: mediumpurple;
+}
+
+.search-icon {
+    color: orangered;
+}
+
+.search-found {
+    font-weight: 100;
+}
+
+.green {
+    color: green;
+}
+
+.red {
+    color: red;
+}
+
+@media (max-width: 767.98px) {
+    .btn-customer {
+        width: 100%;
+    }
+}

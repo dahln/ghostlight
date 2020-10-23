@@ -10,8 +10,8 @@
             "request": "launch",
             "hosted": true,
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/template/Server/bin/Debug/netcoreapp3.1/template.Server.dll",
-            "cwd": "${workspaceFolder}/template/Server"
+            "program": "${workspaceFolder}/ghostlight/Server/bin/Debug/netcoreapp3.1/ghostlight.Server.dll",
+            "cwd": "${workspaceFolder}/ghostlight/Server"
         }
     ]
 }
