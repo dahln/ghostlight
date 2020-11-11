@@ -66,12 +66,6 @@ namespace ghostlight.Server
             services.AddTransient<IEmailSender, EmailSender>();
 
             services.AddControllersWithViews();
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders =
-                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            });
-
             services.AddRazorPages();
         }
 
@@ -81,12 +75,10 @@ namespace ghostlight.Server
             //Automatic DB migrations on startup.
             dbContext.Database.Migrate();
 
-            app.UseForwardedHeaders();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
+                app.UseMigrationsEndPoint();
                 app.UseWebAssemblyDebugging();
             }
             else
