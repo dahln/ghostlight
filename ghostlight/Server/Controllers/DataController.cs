@@ -54,6 +54,7 @@ namespace ghostlight.Server.Controllers
                 Notes = model.Notes,
                 BirthDate = model.BirthDate,
                 Active = model.Active,
+                ImageBase64 = model.ImageBase64,
                 OwnerId = userId
             };
 
@@ -107,6 +108,7 @@ namespace ghostlight.Server.Controllers
             customer.Postal = model.Postal;
             customer.Notes = model.Notes;
             customer.Active = model.Active;
+            customer.ImageBase64 = model.ImageBase64;
             customer.UpdateOn = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();

@@ -19,6 +19,7 @@ namespace ghostlight.Shared
         public string Notes { get; set; }
         public Gender Gender { get; set; }
         public bool Active { get; set; }
+        public string ImageBase64 { get; set; }
     }
 
     public class CustomerSlim

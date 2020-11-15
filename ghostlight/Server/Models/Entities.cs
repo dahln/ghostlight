@@ -23,6 +23,8 @@ namespace ghostlight.Server.Entities
         public Gender Gender { get; set; }
         public bool Active { get; set; }
 
+        public string ImageBase64 { get; set; }
+
 
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         public DateTime? UpdateOn { get; set; }
