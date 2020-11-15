@@ -31,7 +31,8 @@
                 Notes = model.Notes,
                 BirthDate = model.BirthDate,
                 Gender = model.Gender,
-                Active = model.Active
+                Active = model.Active,
+                ImageBase64 = model.ImageBase64
             };
 
             return customer;

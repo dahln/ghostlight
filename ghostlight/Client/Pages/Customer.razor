@@ -26,21 +26,71 @@
     <div class="row">
         <div class="col-md-6">
             <div class="row">
-                <div class="col-md-8">
-                    <label>Name</label>
-                    <input type="text" class="form-control" @bind="customer.Name" />
+                <div class="col-md-6 text-center">
+                    <div class="row">
+                        <div class="col-md-12">
+                            @if (string.IsNullOrEmpty(customer.ImageBase64))
+                            {
+                                <i class="far fa-user fa-7x business-logo-placeholder mt-md-5 mb-2"></i>
+                            }
+                            else
+                            {
+                                <img src="@customer.ImageBase64" class="w-100 mb-2" />
+                            }
+                        </div>
+                    </div>
+                    @if (!Locked)
+                    {
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="btn btn-outline-primary w-100">
+                                    <InputFile OnChange="OnInputFileChange" style="display:none;" accept="image/*" />Upload File (20mb size limit)
+                                </label>
+                            </div>
+                        </div>
+                        @if(!string.IsNullOrEmpty(customer.ImageBase64))
+                        { 
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <input type="button" value="Remove Image" class="btn btn-outline-danger w-100" @onclick="RemoveFile" />
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Name</label>
+                            <input type="text" class="form-control" @bind="customer.Name" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label>Birth Date</label>
+                            <input type="date" class="form-control" @bind="customer.BirthDate" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Gender</label>
+                            <select class="form-control" @bind="customer.Gender">
+                                <option value="@Gender.NotSpecified">@Gender.NotSpecified.GetDescription()</option>
+                                <option value="@Gender.Male">@Gender.Male.GetDescription()</option>
+                                <option value="@Gender.Female">@Gender.Female.GetDescription()</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mt-3">
+                            <label>Active</label>
+                            <input type="checkbox" @bind="customer.Active" />
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <label>Gender</label>
-                    <select class="form-control" @bind="customer.Gender">
-                        <option value="@Gender.NotSpecified">@Gender.NotSpecified.GetDescription()</option>
-                        <option value="@Gender.Male">@Gender.Male.GetDescription()</option>
-                        <option value="@Gender.Female">@Gender.Female.GetDescription()</option>
-                    </select>
-                </div>
-            </div>
+        </div>
+        <div class="col-md-6">
             <div class="row">
                 <div class="col-md-6">
                     <label>Email</label>
@@ -52,13 +102,6 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 mt-3">
-                    <label>Active</label>
-                    <input type="checkbox" @bind="customer.Active" />
-                </div>
-            </div>
-
-            <div class="row mt-5">
                 <div class="col-md-12">
                     <label>Address</label>
                     <input type="text" class="form-control" @bind="customer.Address" />
@@ -78,27 +121,20 @@
                     <input type="text" class="form-control" @bind="customer.Postal" />
                 </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="row">
-                <div class="col-lg-4">
-                    <label>Birth Date</label>
-                    <input type="date" class="form-control" @bind="customer.BirthDate" />
-                </div>
-            </div>
             <div class="row">
                 <div class="col-md-12">
                     <label>Notes</label>
-                    <textarea class="form-control" rows="14" @bind="customer.Notes"></textarea>
+                    <textarea class="form-control" rows="7" @bind="customer.Notes"></textarea>
                 </div>
             </div>
         </div>
     </div>
+
 </fieldset>
 
 @if (Locked == false)
 {
-    <div class="row mt-5">
+    <div class="row">
         <div class="col-md-12">
             <hr />
         </div>
@@ -183,5 +219,22 @@
     {
         Locked = true;
         customer = await API.CustomerGetById(Id);
+    }
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var format = "image/png";
+
+        var resizedImageFile = await e.File.RequestImageFileAsync(format, 700, 700);
+        var buffer = new byte[resizedImageFile.Size];
+        await resizedImageFile.OpenReadStream().ReadAsync(buffer);
+        var imageDataUrl = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+
+        customer.ImageBase64 = imageDataUrl;
+    }
+
+    private void RemoveFile()
+    {
+        customer.ImageBase64 = null;
     }
 }
