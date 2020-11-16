@@ -6,6 +6,7 @@
 @inject NavigationManager _navigationManager
 @inject ghostlight.Client.Services.API API
 @inject IModalService _modalService
+@inject IToastService _toastService 
 
 <div class="mb-3">
     <NavLink href="@($"customers")">
@@ -221,13 +222,22 @@
         customer = await API.CustomerGetById(Id);
     }
 
+    //Reading image bytes in browser may not be optimal in all situations. Adjust as needed.
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
         var format = "image/png";
+        long maxAllowedSize = 33_554_432;
+
+        if (e.File.Size > maxAllowedSize)
+        {
+            _toastService.ShowError("Selected file is to big. Please choose file less than 32mb");
+            return;
+        }
 
         var resizedImageFile = await e.File.RequestImageFileAsync(format, 700, 700);
+
         var buffer = new byte[resizedImageFile.Size];
-        await resizedImageFile.OpenReadStream().ReadAsync(buffer);
+        await resizedImageFile.OpenReadStream(maxAllowedSize).ReadAsync(buffer);
         var imageDataUrl = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
 
         customer.ImageBase64 = imageDataUrl;
