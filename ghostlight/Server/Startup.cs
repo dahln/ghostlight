@@ -78,7 +78,10 @@ namespace ghostlight.Server
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
         {
             //Automatic DB migrations on startup.
-            dbContext.Database.Migrate();
+            var migrations = dbContext.Database.GetPendingMigrations();
+            if(migrations.Count() > 0)
+                dbContext.Database.Migrate();
+            
             app.UseForwardedHeaders();
 
             if (env.IsDevelopment())
