@@ -225,7 +225,7 @@
     //Reading image bytes in browser may not be optimal in all situations. Adjust as needed.
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
-        var format = "image/png";
+        var format = e.File.ContentType;
         long maxAllowedSize = 33_554_432;
 
         if (e.File.Size > maxAllowedSize)
@@ -234,7 +234,8 @@
             return;
         }
 
-        var resizedImageFile = await e.File.RequestImageFileAsync(format, 700, 700);
+        //If gif images will be uploaded, do not do this call - it will remove the animation
+        var resizedImageFile = await e.File.RequestImageFileAsync(format, 500, 500);
 
         var buffer = new byte[resizedImageFile.Size];
         await resizedImageFile.OpenReadStream(maxAllowedSize).ReadAsync(buffer);
