@@ -1,0 +1,13 @@
+﻿.required-astrisk {
+    color: red;
+    font-weight: bold;
+}
+label {
+    font-weight: 500;
+}
+
+@media (max-width: 767.98px) {
+    .btn-customer {
+        width: 100%;
+    }
+}
