@@ -20,6 +20,15 @@ namespace ghostlight.Shared
         public Gender Gender { get; set; }
         public bool Active { get; set; }
         public string ImageBase64 { get; set; }
+
+        public override int GetHashCode()
+        {
+            //Tuple can't hold 13. Break properties into batchs
+            var firstBatch = Tuple.Create(Id, Name, Email, Phone, Address, City, State).GetHashCode();
+            var secondBatch = Tuple.Create(Postal, BirthDate.ToString("yyyy/mm/dd"), Notes, Gender, Active, ImageBase64).GetHashCode();
+
+            return firstBatch + secondBatch;
+        }
     }
 
     public class CustomerSlim

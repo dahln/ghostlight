@@ -1,12 +1,14 @@
 ﻿@page "/customer"
 @page "/customer/{id}"
 
-@using ghostlight.Shared.Enumerations 
+@using ghostlight.Shared.Enumerations
+@using Newtonsoft.Json;
 
+@implements IDisposable
 @inject NavigationManager _navigationManager
 @inject ghostlight.Client.Services.API API
 @inject IModalService _modalService
-@inject IToastService _toastService 
+@inject IToastService _toastService
 
 <div class="mb-3">
     <NavLink href="@($"customers")">
@@ -49,8 +51,8 @@
                                 </label>
                             </div>
                         </div>
-                        @if(!string.IsNullOrEmpty(customer.ImageBase64))
-                        { 
+                        @if (!string.IsNullOrEmpty(customer.ImageBase64))
+                        {
                             <div class="row">
                                 <div class="col-md-12">
                                     <input type="button" value="Remove Image" class="btn btn-outline-danger w-100" @onclick="RemoveFile" />
@@ -165,12 +167,16 @@
     private ghostlight.Shared.Customer customer = new ghostlight.Shared.Customer();
     private bool Locked { get; set; }
 
+    //Used to track form changes. Not used until a "LocationChanging" event is included in framework.
+    private int ChangeHash { get; set; }
+
     protected override async Task OnParametersSetAsync()
     {
         if (Id != null)
         {
             Locked = true;
             customer = await API.CustomerGetById(Id);
+            ChangeHash = customer.GetHashCode();
         }
         else
         {
@@ -188,7 +194,7 @@
         if (string.IsNullOrEmpty(Id))
         {
             var response = await API.CustomerCreate(customer);
-            if(response != null)
+            if (response != null)
                 _navigationManager.NavigateTo($"customer/{response.Id}");
         }
         else if (!string.IsNullOrEmpty(Id))
@@ -200,7 +206,7 @@
                 Locked = true;
             }
         }
-
+        ChangeHash = customer.GetHashCode();
     }
 
     async private Task Delete()
@@ -220,6 +226,7 @@
     {
         Locked = true;
         customer = await API.CustomerGetById(Id);
+        ChangeHash = customer.GetHashCode();
     }
 
     //Reading image bytes in browser may not be optimal in all situations. Adjust as needed.
@@ -248,4 +255,37 @@
     {
         customer.ImageBase64 = null;
     }
+
+    ///////Leave this block commented out, until navigation manager exposes a "LocationChanging" event.
+    //protected override void OnInitialized()
+    //{
+    //    _navigationManager.LocationChanged += HandleLocationChanged;
+    //}
+
+    //private void HandleLocationChanged(object sender, LocationChangedEventArgs e)
+    //{
+    //    int currentChangeHash = customer.GetHashCode();
+
+    //    if (ChangeHash != currentChangeHash)
+    //    {
+    //        var modal = _modalService.Show<ConfirmDialog>("There are unsaved changes. Save and Continue?");
+    //        var modalResult = modal.Result.Result;
+
+    //        if (modalResult.Cancelled) { }
+    //        else
+    //        {
+    //            if (string.IsNullOrEmpty(Id))
+    //                API.CustomerCreate(customer).Wait();
+    //            else if (!string.IsNullOrEmpty(Id))
+    //                API.CustomerUpdateById(customer, Id).Wait();
+    //            _navigationManager.NavigateTo(e.Location);
+    //        }
+    //    }
+    //}
+
+    //public void Dispose()
+    //{
+    //    _navigationManager.LocationChanged -= HandleLocationChanged;
+    //}
+
 }
