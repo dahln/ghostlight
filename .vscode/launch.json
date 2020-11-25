@@ -5,13 +5,20 @@
    "version": "0.2.0",
    "configurations": [
         {
-            "name": "Launch and Debug Hosted Blazor WebAssembly App",
+            "name": "WASM - ghostlight",
+            "type": "blazorwasm",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/ghostlight/Server",
+            "browser": "edge"
+        },
+        {
+            "name": "API/Server - ghostlight",
             "type": "blazorwasm",
             "request": "launch",
             "hosted": true,
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/ghostlight/Server/bin/Debug/netcoreapp3.1/ghostlight.Server.dll",
-            "cwd": "${workspaceFolder}/ghostlight/Server"
+            "program": "${workspaceFolder}/ghostlight/Server/bin/Debug/net5.0/ghostlight.Server.dll",
+            "cwd": "${workspaceFolder}/ghostlight/Server",
+            "browser": "edge"
         }
     ]
 }
