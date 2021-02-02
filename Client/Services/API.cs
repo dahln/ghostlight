@@ -15,20 +15,17 @@ namespace ghostlight.Client.Services
 {
     public class API
     {
-        private HttpClient _client { get; set; }
-        private IAccessTokenProvider _authenticationService { get; set; }
+        private HttpClient _httpClient { get; set; }
         private NavigationManager _navigationManger { get; set; }
         private IToastService _toastService { get; set; }
         private SpinnerService _spinnerService { get; set; }
-        public API(IAccessTokenProvider authenticationService, NavigationManager navigationManager, IToastService toastService, SpinnerService spinnerService)
+        public API(HttpClient httpClient, NavigationManager navigationManager, IToastService toastService, SpinnerService spinnerService)
         {
-            _authenticationService = authenticationService;
+            _httpClient = httpClient;
+
             _navigationManger = navigationManager;
             _toastService = toastService;
             _spinnerService = spinnerService;
-
-            _client = new HttpClient();
-            _client.BaseAddress = new Uri(_navigationManger.BaseUri);
         }
 
         #region Customer CRUD/Search
@@ -112,16 +109,6 @@ namespace ghostlight.Client.Services
 
             var httpWebRequest = new HttpRequestMessage(method, path);
 
-            var tokenResult = await _authenticationService.RequestAccessToken();
-            if (tokenResult.TryGetToken(out var token))
-            {
-                httpWebRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token.Value);
-            }
-            else
-            {
-                _navigationManger.NavigateTo(tokenResult.RedirectUrl);
-            }
-
             if (content != null)
             {
                 string json = JsonConvert.SerializeObject(content);
@@ -130,7 +117,7 @@ namespace ghostlight.Client.Services
                 httpWebRequest.Content = postContent;
             }
 
-            HttpResponseMessage response = await _client.SendAsync(httpWebRequest);
+            HttpResponseMessage response = await _httpClient.SendAsync(httpWebRequest);
 
             if (response.IsSuccessStatusCode == false)
             {

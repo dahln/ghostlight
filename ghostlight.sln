@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ghostlight.Server", "ghostlight\Server\ghostlight.Server.csproj", "{DF95A7AE-FA96-46E8-8F05-A45225F90BC5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ghostlight.Server", "Server\ghostlight.Server.csproj", "{DF95A7AE-FA96-46E8-8F05-A45225F90BC5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ghostlight.Client", "ghostlight\Client\ghostlight.Client.csproj", "{91D603FC-ACC3-4769-93EC-29F8B2B745E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ghostlight.Client", "Client\ghostlight.Client.csproj", "{91D603FC-ACC3-4769-93EC-29F8B2B745E0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ghostlight.Shared", "ghostlight\Shared\ghostlight.Shared.csproj", "{F527ECD4-D4A6-4AFA-8327-C08CED55CEC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ghostlight.Shared", "Shared\ghostlight.Shared.csproj", "{F527ECD4-D4A6-4AFA-8327-C08CED55CEC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

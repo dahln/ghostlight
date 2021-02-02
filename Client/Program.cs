@@ -21,6 +21,14 @@ namespace ghostlight.Client
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            builder.RootComponents.Add<App>("app");
+
+            builder.Services.AddHttpClient("ghostlight.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+                .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+            // Supply HttpClient instances that include access tokens when making requests to the server project
+            builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ghostlight.ServerAPI"));
+            builder.Services.AddApiAuthorization();
+
             builder.Services.AddScoped<API>();
             builder.Services.AddScoped<AppState>();
             builder.Services.AddScoped<SpinnerService>();
@@ -29,12 +37,6 @@ namespace ghostlight.Client
             builder.Services.AddBlazoredToast();
             builder.Services.AddBlazoredModal();
 
-            builder.RootComponents.Add<App>("app");
-
-            builder.Services.AddApiAuthorization(options => {
-                options.AuthenticationPaths.LogOutCallbackPath = "/";
-            });
-            
             await builder.Build().RunAsync();
         }
     }
