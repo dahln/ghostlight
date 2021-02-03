@@ -19,10 +19,12 @@ namespace ghostlight.Client.Services
         private NavigationManager _navigationManger { get; set; }
         private IToastService _toastService { get; set; }
         private SpinnerService _spinnerService { get; set; }
-        public API(HttpClient httpClient, NavigationManager navigationManager, IToastService toastService, SpinnerService spinnerService)
+        private IAccessTokenProvider _authenticationService { get; set; }
+        public API(HttpClient httpClient, IAccessTokenProvider authenticationService, NavigationManager navigationManager, IToastService toastService, SpinnerService spinnerService)
         {
             _httpClient = httpClient;
 
+            _authenticationService = authenticationService;
             _navigationManger = navigationManager;
             _toastService = toastService;
             _spinnerService = spinnerService;
@@ -108,6 +110,12 @@ namespace ghostlight.Client.Services
             _spinnerService.Show();
 
             var httpWebRequest = new HttpRequestMessage(method, path);
+
+            var tokenResult = await _authenticationService.RequestAccessToken();	
+            if (!tokenResult.TryGetToken(out var token))	
+            {	
+                _navigationManger.NavigateTo(tokenResult.RedirectUrl);	
+            }
 
             if (content != null)
             {
