@@ -27,12 +27,32 @@
 <body>
     <app></app>
 
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
     <script src="lib/jquery/jquery.min.js"></script>
     <script src="lib/bootstrap/js/bootstrap.bundle.js"></script>
     <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
     <script src="_content/Blazored.Modal/blazored.modal.js"></script>
+
+    <script>
+        console.log("Configuring Error Observer.");
+        var targetNode = document.getElementById('blazor-error-ui');
+        var observer = new MutationObserver(function(){
+            console.log("UI Error Observed.");
+            if(targetNode.style.display != 'none'){
+                console.log("Blazor UI Error. Refreshing page.");
+                document.location.reload(true);
+            }
+        });
+        observer.observe(targetNode, { attributes: true, childList: true });
+    </script>
+    
 </body>
 
 </html>
