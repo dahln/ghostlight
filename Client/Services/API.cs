@@ -106,16 +106,9 @@ namespace ghostlight.Client.Services
         }
         private async Task<HttpResponseMessage> Send(HttpMethod method, string path, object content = null)
         {
-            string guid = Guid.NewGuid().ToString();
             _spinnerService.Show();
 
             var httpWebRequest = new HttpRequestMessage(method, path);
-
-            var tokenResult = await _authenticationService.RequestAccessToken();	
-            if (!tokenResult.TryGetToken(out var token))	
-            {	
-                _navigationManger.NavigateTo(tokenResult.RedirectUrl);	
-            }
 
             if (content != null)
             {
@@ -125,15 +118,23 @@ namespace ghostlight.Client.Services
                 httpWebRequest.Content = postContent;
             }
 
-            HttpResponseMessage response = await _httpClient.SendAsync(httpWebRequest);
-
-            if (response.IsSuccessStatusCode == false)
+            HttpResponseMessage response = null;
+            try
             {
-                string responseContent = await response.Content.ReadAsStringAsync();
-                _toastService.ShowError(responseContent);
-            }
+                response = await _httpClient.SendAsync(httpWebRequest);
 
-            _spinnerService.Hide();
+                if (response.IsSuccessStatusCode == false)
+                {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    _toastService.ShowError(responseContent);
+                }
+
+                _spinnerService.Hide();
+            }
+            catch (AccessTokenNotAvailableException exception)
+            {
+                exception.Redirect();
+            }
             return response;
         }
 
