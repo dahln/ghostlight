@@ -1,3 +1,7 @@
+#blazor-error-ui {
+    display: none;
+}
+
 .error-container {
     z-index: 5000;
     width: 100vw;
