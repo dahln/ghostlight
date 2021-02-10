@@ -104,6 +104,8 @@ namespace ghostlight.Client.Services
         {
             await Send(HttpMethod.Delete, path, content);
         }
+        
+        
         private async Task<HttpResponseMessage> Send(HttpMethod method, string path, object content = null)
         {
             _spinnerService.Show();
@@ -118,7 +120,10 @@ namespace ghostlight.Client.Services
                 httpWebRequest.Content = postContent;
             }
 
-            HttpResponseMessage response = null;
+            HttpResponseMessage response = new HttpResponseMessage()
+            {
+                StatusCode = System.Net.HttpStatusCode.BadRequest
+            };
             try
             {
                 response = await _httpClient.SendAsync(httpWebRequest);
@@ -126,7 +131,10 @@ namespace ghostlight.Client.Services
                 if (response.IsSuccessStatusCode == false)
                 {
                     string responseContent = await response.Content.ReadAsStringAsync();
-                    _toastService.ShowError(responseContent);
+                    if(!string.IsNullOrEmpty(responseContent))
+                    {
+                        _toastService.ShowError(responseContent);
+                    }                    
                 }
 
                 _spinnerService.Hide();
@@ -140,9 +148,14 @@ namespace ghostlight.Client.Services
 
         private async Task<T> ParseResponseObject<T>(HttpResponseMessage response)
         {
-            if (response.IsSuccessStatusCode)
+            if (response != null && response.IsSuccessStatusCode && response.Content != null)
             {
                 string responseContent = await response.Content.ReadAsStringAsync();
+
+                //Can't deseriazlize a string unless it starts with a "
+                if (typeof(T) == typeof(string))
+                    responseContent = $"\"{responseContent}\"";
+
                 return JsonConvert.DeserializeObject<T>(responseContent);
             }
             else
