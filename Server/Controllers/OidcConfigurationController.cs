@@ -17,6 +17,7 @@ namespace ghostlight.Server.Controllers
         {
             ClientRequestParametersProvider = clientRequestParametersProvider;
             _logger = logger;
+            _signInManager = signInManager;
         }
 
         public IClientRequestParametersProvider ClientRequestParametersProvider { get; }
@@ -28,6 +29,7 @@ namespace ghostlight.Server.Controllers
             return Ok(parameters);
         }
 
+        //Called from index.html, when there is a blazor UI error
         [HttpGet]
         [Route("api/v1/signout-error")]
         async public Task<IActionResult> SignoutError()
