@@ -29,9 +29,20 @@
     <app></app>
 
     <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+        <div class="error-overlay">
+            <div class="error-container">
+                <div class="error-message mt-5">
+                    <div class="row mt-5">
+                        <div class="col-md-12">
+                            <h4 class="text-center">You are required to sign in:</h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <input type="button" class="btn btn-primary btn-xl mx-auto" value="Continue" onclick="RequireSignIn()" />
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="lib/jquery/jquery.min.js"></script>
@@ -42,16 +53,12 @@
     <script src="_content/Blazored.Modal/blazored.modal.js"></script>
 
     <script>
-        console.log("Configuring Error Observer.");
-        var targetNode = document.getElementById('blazor-error-ui');
-        var observer = new MutationObserver(function(){
-            console.log("UI Error Observed.");
-            if(targetNode.style.display != 'none'){
-                console.log("Blazor UI Error. Refreshing page.");
-                document.location.reload(true);
-            }
-        });
-        observer.observe(targetNode, { attributes: true, childList: true });
+        function RequireSignIn() {
+            //Sign out and refresh.
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location = "api/v1/signout-error";
+        }
     </script>
     
 </body>
