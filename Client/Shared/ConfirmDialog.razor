@@ -16,11 +16,11 @@
 
     public void Confirm()
     {
-        BlazoredModal.Close(ModalResult.Ok(string.Empty));
+        BlazoredModal.CloseAsync(ModalResult.Ok(string.Empty));
     }
 
     public void Cancel()
     {
-        BlazoredModal.Cancel();
+        BlazoredModal.CancelAsync();
     }
 }
