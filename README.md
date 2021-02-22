@@ -1,5 +1,3 @@
-When .NET 5 is officially released (a non-RC release), this template will be updated to the new version. This template currently does not show how to upload a file; the updated .NET 5 version will demonstrate that.
-
 [![Build Status](https://dev.azure.com/dahln/ghostlight/_apis/build/status/ghostlight%20CI%20build?branchName=master)](https://dev.azure.com/dahln/ghostlight/_build/latest?definitionId=18&branchName=master)
 
 # ghostlight - a project template
